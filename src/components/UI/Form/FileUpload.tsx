@@ -268,6 +268,7 @@ const FileUpload: FC<FileUploadProps> = ({
                                     </div>
 
                                     <button
+                                        type="button"
                                         onClick={e => {
                                             e.stopPropagation();
                                             removeFile(path);

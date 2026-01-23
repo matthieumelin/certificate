@@ -105,6 +105,7 @@ const LoginPage: FC = () => {
                       type='password'
                       id='password'
                       name='password'
+                      placeholder="********"
                     />
                   </FormGroup>
 
