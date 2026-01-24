@@ -2,6 +2,7 @@ import FileUpload from '@/components/UI/Form/FileUpload';
 import Label from '@/components/UI/Form/Label';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useObjectDocuments } from '@/hooks/useSupabase';
+import { supabase } from '@/lib/supabase';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { useCertificateReportStore } from '@/stores/certificateReportStore';
 import type { CertificateType } from '@/types/certificate.d';
@@ -81,6 +82,32 @@ const PartnerCertificationReportDocumentsModal: FC<PartnerCertificationReportDoc
         return documentTypes.find(type => type.value === value)?.label || value;
     };
 
+    const handleRemoveDocumentWithFiles = async (index: number, doc: DocumentItem, remove: (index: number) => void) => {
+        if (doc.paths.length > 0) {
+            try {
+                const deletePromises = doc.paths.map(async (path) => {
+                    const { error } = await supabase.storage
+                        .from('object_attributes')
+                        .remove([path]);
+
+                    if (error) {
+                        console.error('Erreur lors de la suppression du fichier:', error);
+                        throw error;
+                    }
+                });
+
+                await Promise.all(deletePromises);
+            } catch (error) {
+                console.error('Erreur lors de la suppression des fichiers:', error);
+                toast.error('Erreur lors de la suppression des fichiers du storage.');
+                return;
+            }
+        }
+
+        remove(index);
+    };
+
+
     useEffect(() => {
         const loadObjectDocuments = async () => {
             if (selectedCertificate?.object_id) {
@@ -139,7 +166,6 @@ const PartnerCertificationReportDocumentsModal: FC<PartnerCertificationReportDoc
                 )}
             </div>
 
-            {/* Nouveaux documents à ajouter */}
             <div className="space-y-4">
                 <h2 className="text-white text-xl font-semibold">Ajouter des documents</h2>
                 <Formik
@@ -187,7 +213,6 @@ const PartnerCertificationReportDocumentsModal: FC<PartnerCertificationReportDoc
                                                     </div>
                                                 )}
 
-                                                {/* Formulaire d'ajout de documents */}
                                                 <div className="space-y-3">
                                                     {values.documents.map((doc, index) => (
                                                         <div
@@ -219,7 +244,7 @@ const PartnerCertificationReportDocumentsModal: FC<PartnerCertificationReportDoc
                                                                 {doc.type && (
                                                                     <FileUpload
                                                                         bucketName="object_attributes"
-                                                                        uploadPath={`objects/${selectedCertificate?.object_id}/documents/${doc.type}`}
+                                                                        uploadPath={`objects/${selectedCertificate?.object_id}`}
                                                                         value={doc.paths}
                                                                         onChange={(paths) => setFieldValue(`documents.${index}.paths`, paths)}
                                                                         maxSizeMB={5}
@@ -229,7 +254,7 @@ const PartnerCertificationReportDocumentsModal: FC<PartnerCertificationReportDoc
 
                                                                 <button
                                                                     type="button"
-                                                                    onClick={() => remove(index)}
+                                                                    onClick={() => handleRemoveDocumentWithFiles(index, doc, remove)}
                                                                     className="px-4 py-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-colors flex items-center gap-2"
                                                                 >
                                                                     <LuX className="w-4 h-4" />

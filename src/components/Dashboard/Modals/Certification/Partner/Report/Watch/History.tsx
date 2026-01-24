@@ -245,7 +245,7 @@ const PartnerCertificationReportHistoryModal: FC<PartnerCertificationReportHisto
                                                             </span>
                                                         )
                                                     },
-                                                    { key: "buying_price", label: "Prix d'achat (€)", render: (value) => value ? `${value}€` : "-" }
+                                                    { key: "buying_price", label: "Prix d'achat (€)", render: (value) => value ? `${value}€` : "-" },
                                                 ]}
                                                 data={objectHistory} />
                                         )}
