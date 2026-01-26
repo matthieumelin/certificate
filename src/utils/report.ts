@@ -187,5 +187,13 @@ export const colors = [
   "Reverse Panda",
   "Arc-en-ciel",
 ];
-
+export const movementTypes = [
+  "Remontage manuel",
+  "Automatique",
+  "Quartz",
+  "Solaire",
+  "Kinetic",
+  "Spring Drive",
+  "Hybride",
+];
 export const choiceOptions = ["Oui", "Non", "NA"];

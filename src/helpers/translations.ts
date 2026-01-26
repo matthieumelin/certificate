@@ -51,6 +51,7 @@ export const ObjectStatusLabels: Record<ObjectStatus, string> = {
   [ObjectStatus.Stolen]: "Vol",
   [ObjectStatus.Loss]: "Perte",
   [ObjectStatus.Fraud]: "Fraude",
+  [ObjectStatus.Destroyed]: "Détruit",
 };
 
 export const ObjectDocumentTypeLabels: Record<ObjectDocumentType, string> = {

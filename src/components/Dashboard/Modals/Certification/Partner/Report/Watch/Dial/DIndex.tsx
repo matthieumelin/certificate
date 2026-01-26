@@ -311,7 +311,7 @@ const PartnerCertificationReportDialIndexModal: FC<PartnerCertificationReportDia
                                     <FormGroup>
                                         <Label
                                             htmlFor="dial_index_score"
-                                            label="Score des index"
+                                            label="Indice de condition (score des index)"
                                             required />
                                         <Score fieldName='dial_index_score' score={values.dial_index_score} />
                                     </FormGroup>
@@ -432,7 +432,7 @@ const PartnerCertificationReportDialIndexModal: FC<PartnerCertificationReportDia
                                                 <FormGroup>
                                                     <Label
                                                         htmlFor="dial_index_luminescence_score"
-                                                        label="Score de la luminescence des index"
+                                                        label="Indice de condition (score de la luminescence des index)"
                                                         required />
                                                     <Score fieldName='dial_index_luminescence_score' score={values.dial_index_luminescence_score} />
                                                 </FormGroup>

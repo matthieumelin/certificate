@@ -119,7 +119,7 @@ const PartnerCertificationReportAccessoriesModal: FC<PartnerCertificationReportA
                                             <FormGroup>
                                                 <Label
                                                     htmlFor="accessories_score"
-                                                    label="Score des accessoires"
+                                                    label="Indice de condition (score des accessoires)"
                                                     required />
                                                 <Score fieldName='accessories_score' score={values.accessories_score} />
                                             </FormGroup>

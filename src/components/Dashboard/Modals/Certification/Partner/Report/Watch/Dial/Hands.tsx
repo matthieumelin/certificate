@@ -136,6 +136,7 @@ const PartnerCertificationReportDialHandsModal: FC<PartnerCertificationReportDia
                                                 label="Type d'aiguilles"
                                                 required />
                                             <Select
+                                                multiple
                                                 error={errors.dial_hands_type}
                                                 value={values.dial_hands_type}
                                                 onChange={value => setFieldValue('dial_hands_type', value)}
@@ -319,7 +320,7 @@ const PartnerCertificationReportDialHandsModal: FC<PartnerCertificationReportDia
                                     <FormGroup>
                                         <Label
                                             htmlFor="dial_hands_score"
-                                            label="Score des aiguilles"
+                                            label="Indice de condition (score des aiguilles)"
                                             required />
                                         <Score fieldName='dial_hands_score' score={values.dial_hands_score} />
                                     </FormGroup>
@@ -438,7 +439,7 @@ const PartnerCertificationReportDialHandsModal: FC<PartnerCertificationReportDia
                                                     <FormGroup>
                                                         <Label
                                                             htmlFor="dial_hands_luminescence_score"
-                                                            label="Score de la luminescence des aiguilles"
+                                                            label="Indice de condition (score de la luminescence des aiguilles)"
                                                             required />
                                                         <Score fieldName='dial_hands_luminescence_score' score={values.dial_hands_luminescence_score} />
                                                     </FormGroup>

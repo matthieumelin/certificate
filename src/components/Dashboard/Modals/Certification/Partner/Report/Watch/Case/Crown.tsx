@@ -186,7 +186,7 @@ const PartnerCertificationReportCaseCrownModal: FC<PartnerCertificationReportCas
 
                                 {!certificateTypeExcludedFormFields?.includes("case_crown_score") && (
                                     <FormGroup>
-                                        <Label htmlFor="case_crown_score" label="Score de la couronne" required />
+                                        <Label htmlFor="case_crown_score" label="Indice de condition (score de la couronne)" required />
                                         <Score fieldName="case_crown_score" score={values.case_crown_score} />
                                     </FormGroup>
                                 )}
@@ -306,7 +306,7 @@ const PartnerCertificationReportCaseCrownModal: FC<PartnerCertificationReportCas
 
                                             {!certificateTypeExcludedFormFields?.includes("case_crown_pusher_score") && (
                                                 <FormGroup>
-                                                    <Label htmlFor="case_crown_pusher_score" label="Score des poussoirs" required />
+                                                    <Label htmlFor="case_crown_pusher_score" label="Indice de condition (score des poussoirs)" required />
                                                     <Score fieldName="case_crown_pusher_score" score={values.case_crown_pusher_score} />
                                                 </FormGroup>
                                             )}

@@ -127,7 +127,7 @@ const PartnerCertificationReportTechnicalWaterproofingModal: FC<PartnerCertifica
 
                                     {!certificateTypeExcludedFormFields?.includes("technical_waterproofing_test_result") && (
                                         <FormGroup>
-                                            <Label htmlFor='technical_waterproofing_test_result' label='Résultat du test' required />
+                                            <Label htmlFor='technical_waterproofing_test_result' label='Résultat du test'/>
                                             <FileUpload
                                                 bucketName="object_attributes"
                                                 uploadPath={`objects/${selectedCertificate?.object_id}`}
@@ -140,7 +140,7 @@ const PartnerCertificationReportTechnicalWaterproofingModal: FC<PartnerCertifica
 
                                     {!certificateTypeExcludedFormFields?.includes("technical_waterproofing_tested_pressure") && (
                                         <FormGroup>
-                                            <Label htmlFor='technical_waterproofing_tested_pressure' label='Pression testée' required />
+                                            <Label htmlFor='technical_waterproofing_tested_pressure' label='Pression testée (bar)' required />
                                             <Input error={errors.technical_waterproofing_tested_pressure}
                                                 id='technical_waterproofing_tested_pressure'
                                                 name='technical_waterproofing_tested_pressure'
@@ -221,7 +221,7 @@ const PartnerCertificationReportTechnicalWaterproofingModal: FC<PartnerCertifica
                                         <FormGroup>
                                             <Label
                                                 htmlFor="technical_waterproofing_case_deformation_score"
-                                                label="Score de l'étanchéité"
+                                                label="Indice de condition (score de l'étanchéité)"
                                                 required />
                                             <Score fieldName='technical_waterproofing_case_deformation_score' score={values.technical_waterproofing_case_deformation_score} />
                                         </FormGroup>

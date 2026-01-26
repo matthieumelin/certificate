@@ -517,7 +517,7 @@ const PartnerCertificationReportBraceletModal: FC<PartnerCertificationReportBrac
                                                     <FormGroup>
                                                         <Label
                                                             htmlFor="bracelet_score"
-                                                            label="Score du bracelet"
+                                                            label="Indice de condition (score du bracelet)"
                                                             required />
                                                         <Score fieldName='bracelet_score' score={values.bracelet_score} />
                                                     </FormGroup>

@@ -7,7 +7,7 @@ import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { useCertificateReportStore } from '@/stores/certificateReportStore';
 import type { CertificateType } from '@/types/certificate';
-import { choiceOptions } from '@/utils/report';
+import { choiceOptions, movementTypes } from '@/utils/report';
 import { Form, Formik } from 'formik'
 import { type FC } from 'react'
 
@@ -36,15 +36,6 @@ const PartnerCertificationReportMovementModal: FC<PartnerCertificationReportMove
     const { selectedCertificate } = useCertificateReportStore();
     const { formData } = useCertificateReportFormStore();
 
-    const movementTypes = [
-        "Remontage manuel",
-        "Automatique",
-        "Quartz",
-        "Solaire",
-        "Kinetic",
-        "Spring Drive",
-        "Hybride"
-    ]
     const movementFunctions = [
         "Heures",
         "Minutes",
@@ -215,8 +206,7 @@ const PartnerCertificationReportMovementModal: FC<PartnerCertificationReportMove
                                     <FormGroup>
                                         <Label
                                             htmlFor="movement_serial_number"
-                                            label="Numéro de série du mouvement"
-                                            required />
+                                            label="Numéro de série du mouvement" />
                                         <Input
                                             error={errors.movement_serial_number}
                                             id='movement_serial_number'
@@ -242,11 +232,11 @@ const PartnerCertificationReportMovementModal: FC<PartnerCertificationReportMove
 
                                 <FormRow>
                                     {(values.movement_type === movementTypes[0]
-                                        || values.movement_type === movementTypes[1] && !certificateTypeExcludedFormFields?.includes("movement_power_reserve_announced")) && (
+                                        || values.movement_type === movementTypes[1]) && !certificateTypeExcludedFormFields?.includes("movement_power_reserve_announced") && (
                                             <FormGroup>
                                                 <Label
                                                     htmlFor="movement_power_reserve_announced"
-                                                    label="Réserve de marche annoncée"
+                                                    label="Réserve de marche annoncée (H)"
                                                 />
                                                 <Input
                                                     error={errors.movement_power_reserve_announced}
@@ -279,7 +269,7 @@ const PartnerCertificationReportMovementModal: FC<PartnerCertificationReportMove
                                         <FormGroup>
                                             <Label
                                                 htmlFor="movement_announced_frequency_hz"
-                                                label="Fréquence annoncée"
+                                                label="Fréquence annoncée (Hz)"
                                             />
                                             <Input
                                                 error={errors.movement_announced_frequency_hz}
@@ -295,7 +285,7 @@ const PartnerCertificationReportMovementModal: FC<PartnerCertificationReportMove
                                         <FormGroup>
                                             <Label
                                                 htmlFor="movement_announced_frequency_ah"
-                                                label="Fréquence annoncée"
+                                                label="Fréquence annoncée (A/h)"
                                             />
                                             <Input
                                                 error={errors.movement_announced_frequency_ah}

@@ -110,5 +110,6 @@ export enum ObjectStatus {
   Valid = "valid",
   Stolen = "stolen",
   Loss = "loss",
-  Fraud = "fraud"
+  Fraud = "fraud",
+  Destroyed = "destroyed",
 }

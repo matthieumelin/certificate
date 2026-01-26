@@ -123,7 +123,7 @@ const PartnerCertificationReportCaseGlassModal: FC<PartnerCertificationReportCas
                                 <div className='space-y-4 border-t border-white/10 py-8'>
                                     {!certificateTypeExcludedFormFields?.includes("case_glass_score") && (
                                         <FormGroup>
-                                            <Label htmlFor="case_glass_score" label="Score du verre" required />
+                                            <Label htmlFor="case_glass_score" label="Indice de condition (score du verre)" required />
                                             <Score fieldName="case_glass_score" score={values.case_glass_score} />
                                         </FormGroup>
                                     )}

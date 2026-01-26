@@ -196,7 +196,11 @@ const PartnerCertificationReportRepairModal: FC<PartnerCertificationReportRepair
                                                 {
                                                     key: "date", label: "Date", render: (value) => (
                                                         <span className='text-white font-medium'>
-                                                            {(value as number).toLocaleString('fr-FR')}
+                                                            {new Date(value as number).toLocaleDateString('fr-FR', {
+                                                                day: '2-digit',
+                                                                month: '2-digit',
+                                                                year: 'numeric'
+                                                            })}
                                                         </span>
                                                     )
                                                 },

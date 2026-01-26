@@ -2,10 +2,12 @@ import FormGroup from '@/components/UI/Form/Group';
 import Input from '@/components/UI/Form/Input';
 import Label from '@/components/UI/Form/Label';
 import FormRow from '@/components/UI/Form/Row';
+import useAuth from '@/contexts/AuthContext';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { useCertificateReportStore } from '@/stores/certificateReportStore';
 import type { CertificateType } from '@/types/certificate';
+import { UserProfileRole } from '@/types/user.d';
 import { Form, Formik } from 'formik'
 import { type FC } from 'react'
 
@@ -21,6 +23,7 @@ interface PartnerCertificationReportValueModalProps {
 }
 
 const PartnerCertificationReportValueModal: FC<PartnerCertificationReportValueModalProps> = ({ certificateTypes }) => {
+    const { userProfile } = useAuth();
     const { selectedCertificate } = useCertificateReportStore();
     const { formData } = useCertificateReportFormStore();
 
@@ -52,6 +55,7 @@ const PartnerCertificationReportValueModal: FC<PartnerCertificationReportValueMo
                                                 htmlFor="value_market"
                                                 label="Valeur intrinsèque du marché (€)" />
                                             <Input
+                                                disabled={userProfile?.role === UserProfileRole.Partner}
                                                 error={errors.value_market}
                                                 id='value_market'
                                                 name='value_market'
@@ -67,6 +71,7 @@ const PartnerCertificationReportValueModal: FC<PartnerCertificationReportValueMo
                                                 htmlFor="value_real"
                                                 label="Valuer réelle (€)" />
                                             <Input
+                                                disabled={userProfile?.role === UserProfileRole.Partner}
                                                 error={errors.value_real}
                                                 id='value_real'
                                                 name='value_real'
@@ -97,7 +102,7 @@ const PartnerCertificationReportValueModal: FC<PartnerCertificationReportValueMo
                                         <FormGroup>
                                             <Label
                                                 htmlFor="value_liquidity_score"
-                                                label="Score de liquidité" />
+                                                label="Indice de condition (score de liquidité)" />
                                             <Input
                                                 error={errors.value_liquidity_score}
                                                 id='value_liquidity_score'

@@ -199,7 +199,7 @@ const PartnerCertificationReportCaseBezelInsertModal: FC<PartnerCertificationRep
                                 <div className='space-y-4 border-t border-white/10 py-8'>
                                     {!certificateTypeExcludedFormFields?.includes("case_bezel_insert_score") && (
                                         <FormGroup>
-                                            <Label htmlFor="case_bezel_insert_score" label="Score de l'insert" required />
+                                            <Label htmlFor="case_bezel_insert_score" label="Indice de condition (score de l'insert)" required />
                                             <Score fieldName="case_bezel_insert_score" score={values.case_bezel_insert_score} />
                                         </FormGroup>
                                     )}

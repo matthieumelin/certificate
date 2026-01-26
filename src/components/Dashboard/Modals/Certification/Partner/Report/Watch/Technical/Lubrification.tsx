@@ -8,7 +8,7 @@ import { useCertificateReportFormStore } from '@/stores/certificateReportFormSto
 import { useCertificateReportStore } from '@/stores/certificateReportStore';
 import type { CertificateType } from '@/types/certificate';
 import { Form, Formik } from 'formik'
-import { type FC } from 'react'
+import { type FC, useEffect } from 'react'
 
 interface FormValues {
     technical_lubrification_movement: string;
@@ -47,28 +47,27 @@ const PartnerCertificationReportTechnicalLubrificationModal: FC<PartnerCertifica
                 onSubmit={() => { }}>
                 {({ values, errors, setFieldValue }) => {
                     useCertificateReportForm(values);
+
+                    useEffect(() => {
+                        if (values.technical_lubrification_movement === "Absente") {
+                            setFieldValue('technical_lubrification_score', 0);
+                        }
+                    }, [values.technical_lubrification_movement, setFieldValue]);
+
+                    useEffect(() => {
+                        if (values.technical_lubrification_join === "Absente") {
+                            setFieldValue('technical_lubrification_movement', '');
+                            setFieldValue('technical_lubrification_score', 0);
+                        }
+                    }, [values.technical_lubrification_join, setFieldValue]);
+
+                    const shouldShowMovementField = values.technical_lubrification_join !== "Absente";
+                    const shouldShowScore = values.technical_lubrification_movement !== "Absente" && shouldShowMovementField;
+
                     return (
                         <Form>
                             <div className='space-y-4'>
                                 <FormRow>
-                                    {!certificateTypeExcludedFormFields?.includes("technical_lubrification_movement") && (
-                                        <FormGroup>
-                                            <Label
-                                                htmlFor="technical_lubrification_movement"
-                                                label="Lubrification du mouvement"
-                                                required />
-                                            <Select
-                                                error={errors.technical_lubrification_movement}
-                                                value={values.technical_lubrification_movement}
-                                                onChange={value => setFieldValue('technical_lubrification_movement', value)}
-                                                id='technical_lubrification_movement'
-                                                options={choiceOptions
-                                                    .map((option: string) => (
-                                                        { label: option, value: option }
-                                                    ))} />
-                                        </FormGroup>
-                                    )}
-
                                     {!certificateTypeExcludedFormFields?.includes("technical_lubrification_join") && (
                                         <FormGroup>
                                             <Label
@@ -86,13 +85,31 @@ const PartnerCertificationReportTechnicalLubrificationModal: FC<PartnerCertifica
                                                     ))} />
                                         </FormGroup>
                                     )}
+
+                                    {!certificateTypeExcludedFormFields?.includes("technical_lubrification_movement") && shouldShowMovementField && (
+                                        <FormGroup>
+                                            <Label
+                                                htmlFor="technical_lubrification_movement"
+                                                label="Lubrification du mouvement"
+                                                required />
+                                            <Select
+                                                error={errors.technical_lubrification_movement}
+                                                value={values.technical_lubrification_movement}
+                                                onChange={value => setFieldValue('technical_lubrification_movement', value)}
+                                                id='technical_lubrification_movement'
+                                                options={choiceOptions
+                                                    .map((option: string) => (
+                                                        { label: option, value: option }
+                                                    ))} />
+                                        </FormGroup>
+                                    )}
                                 </FormRow>
 
-                                {!certificateTypeExcludedFormFields?.includes("technical_lubrification_score") && (
+                                {!certificateTypeExcludedFormFields?.includes("technical_lubrification_score") && shouldShowScore && (
                                     <FormGroup>
                                         <Label
                                             htmlFor="technical_lubrification_score"
-                                            label="Score de la lubrification"
+                                            label="Indice de condition (score de la lubrification du mouvement)"
                                             required />
                                         <Score fieldName='technical_lubrification_score'
                                             score={values.technical_lubrification_score} />

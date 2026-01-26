@@ -326,7 +326,7 @@ const PartnerCertificationReportDialModal: FC<PartnerCertificationReportDialModa
                                     <FormGroup>
                                         <Label
                                             htmlFor="dial_patina_score"
-                                            label="Score de la patine"
+                                            label="Indice de condition (score de la patine)"
                                             required />
                                         <Score fieldName='dial_patina_score' score={values.dial_patina_score} />
                                     </FormGroup>
@@ -561,7 +561,7 @@ const PartnerCertificationReportDialModal: FC<PartnerCertificationReportDialModa
                                             <FormGroup>
                                                 <Label
                                                     htmlFor="dial_score"
-                                                    label="Score du cadran"
+                                                    label="Indice de condition (score du cadran)"
                                                     required />
                                                 <Score fieldName='dial_score' score={values.dial_score} />
                                             </FormGroup>

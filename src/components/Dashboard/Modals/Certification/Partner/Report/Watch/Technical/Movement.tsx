@@ -8,6 +8,7 @@ import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { useCertificateReportStore } from '@/stores/certificateReportStore';
 import type { CertificateType } from '@/types/certificate';
+import { movementTypes } from '@/utils/report';
 import { Form, Formik } from 'formik'
 import { type FC } from 'react'
 
@@ -55,18 +56,19 @@ const PartnerCertificationReportTechnicalMovementModal: FC<PartnerCertificationR
                                 <div className='space-y-4'>
                                     <h2 className="text-white text-xl font-semibold">Performance du mouvement</h2>
 
-                                    {!certificateTypeExcludedFormFields?.includes("technical_movement_power_reserve_observed") && (
-                                        <FormGroup>
-                                            <Label htmlFor='technical_movement_power_reserve_observed' label='Réserve de marche observée (H)' />
-                                            <Input
-                                                error={errors.technical_movement_power_reserve_observed}
-                                                id='technical_movement_power_reserve_observed'
-                                                name='technical_movement_power_reserve_observed'
-                                                placeholder='H'
-                                                type='number'
-                                            />
-                                        </FormGroup>
-                                    )}
+                                    {(formData.movement_type === movementTypes[0]
+                                        || formData.movement_type === movementTypes[1]) && !certificateTypeExcludedFormFields?.includes("technical_movement_power_reserve_observed") && (
+                                            <FormGroup>
+                                                <Label htmlFor='technical_movement_power_reserve_observed' label='Réserve de marche observée (H)' />
+                                                <Input
+                                                    error={errors.technical_movement_power_reserve_observed}
+                                                    id='technical_movement_power_reserve_observed'
+                                                    name='technical_movement_power_reserve_observed'
+                                                    placeholder='H'
+                                                    type='number'
+                                                />
+                                            </FormGroup>
+                                        )}
 
                                     {!certificateTypeExcludedFormFields?.includes("technical_movement_observed_amplitude") && (
                                         <FormGroup>
@@ -123,7 +125,7 @@ const PartnerCertificationReportTechnicalMovementModal: FC<PartnerCertificationR
 
                                     {!certificateTypeExcludedFormFields?.includes("technical_movement_test_result") && (
                                         <FormGroup>
-                                            <Label htmlFor='technical_movement_test_result' label='Résultat du test' required />
+                                            <Label htmlFor='technical_movement_test_result' label='Résultat du test (ticket de réglage)' required />
                                             <FileUpload
                                                 bucketName="object_attributes"
                                                 uploadPath={`objects/${selectedCertificate?.object_id}`}
@@ -138,7 +140,7 @@ const PartnerCertificationReportTechnicalMovementModal: FC<PartnerCertificationR
                                         <FormGroup>
                                             <Label
                                                 htmlFor="technical_movement_precision_score"
-                                                label="Score de la précision"
+                                                label="Indice de condition (score de la précision)"
                                                 required />
                                             <Score fieldName='technical_movement_precision_score' score={values.technical_movement_precision_score} />
                                         </FormGroup>

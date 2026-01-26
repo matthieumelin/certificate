@@ -249,7 +249,7 @@ const PartnerCertificationReportCaseBackModal: FC<PartnerCertificationReportCase
 
                                 {!certificateTypeExcludedFormFields?.includes("case_back_score") && (
                                     <FormGroup>
-                                        <Label htmlFor="case_back_score" label="Score du fond" required />
+                                        <Label htmlFor="case_back_score" label="Indice de condition (score du fond)" required />
                                         <Score fieldName="case_back_score" score={values.case_back_score} />
                                     </FormGroup>
                                 )}

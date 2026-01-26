@@ -105,7 +105,6 @@ export const requiredFields = {
     "movement_type",
     "movement_functions",
     "movement_caliber_reference",
-    "movement_serial_number",
     "movement_caliber_factory",
   ],
   technical_weight: [
@@ -124,7 +123,6 @@ export const requiredFields = {
   technical_waterproofing: [
     "technical_waterproofing_test",
     "technical_waterproofing_test_date",
-    "technical_waterproofing_test_result",
     "technical_waterproofing_tested_pressure",
     "technical_waterproofing_observed_leak",
     "technical_waterproofing_suspected_zones",
@@ -600,11 +598,6 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
       "La référence du calibre est requise",
     );
   }
-  if (isFieldRequired("movement_serial_number")) {
-    schema.movement_serial_number = Yup.string().required(
-      "Le numéro de série du mouvement est requis",
-    );
-  }
   if (isFieldRequired("movement_caliber_factory")) {
     schema.movement_caliber_factory = Yup.string().required(
       "L'origine du calibre est requise",
@@ -665,11 +658,6 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
   if (isFieldRequired("technical_waterproofing_test_date")) {
     schema.technical_waterproofing_test_date = Yup.string().required(
       "La date du test d'étanchéité est requise",
-    );
-  }
-  if (isFieldRequired("technical_waterproofing_test_result")) {
-    schema.technical_waterproofing_test_result = Yup.mixed().required(
-      "Le résultat du test d'étanchéité est requis",
     );
   }
   if (isFieldRequired("technical_waterproofing_tested_pressure")) {
@@ -739,11 +727,6 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
     );
   }
 
-  if (isFieldRequired("history_origin_country")) {
-    schema.history_origin_country = Yup.string().required(
-      "Le pays d'origine est requis",
-    );
-  }
   if (isFieldRequired("history_purchase_country_seller")) {
     schema.history_purchase_country_seller = Yup.string().required(
       "Le pays d'achat/vendeur est requis",

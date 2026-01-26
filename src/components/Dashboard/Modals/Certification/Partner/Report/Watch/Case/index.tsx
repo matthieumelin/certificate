@@ -494,7 +494,7 @@ const PartnerCertificationReportCaseModal: FC<PartnerCertificationReportCaseModa
                                         <FormGroup>
                                             <Label
                                                 htmlFor="case_score"
-                                                label="Score du boîtier"
+                                                label="Indice de condition (score du boîtier)"
                                                 required />
                                             <Score fieldName='case_score' score={values.case_score} />
                                         </FormGroup>

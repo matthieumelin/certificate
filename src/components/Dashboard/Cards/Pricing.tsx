@@ -69,7 +69,7 @@ const PricingCard: FC<PricingCardProps> = ({
                     {typeof price === 'number' ? (
                         <>
                             <span className="text-5xl font-bold text-white tracking-tighter">{`${price === 0 ? "Gratuit" : `${price}€`}`}</span>
-                            <span className="text-neutral-500 text-xs font-bold uppercase tracking-widest">{priceLabel}</span>
+                            <span className="text-neutral-500 text-xs font-bold uppercase tracking-widest">{price === 0 ? "" : priceLabel}</span>
                         </>
                     ) : (
                         <span className="text-4xl font-bold text-white tracking-tighter">{price}</span>

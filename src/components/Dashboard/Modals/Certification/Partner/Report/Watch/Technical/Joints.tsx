@@ -181,7 +181,7 @@ const PartnerCertificationReportTechnicalJointsModal: FC<PartnerCertificationRep
                                     <FormGroup>
                                         <Label
                                             htmlFor="technical_joint_score"
-                                            label="Score des joints"
+                                            label="Indice de condition (score des joints)"
                                             required />
                                         <Score fieldName='technical_joint_score'
                                             score={values.technical_joint_score} />

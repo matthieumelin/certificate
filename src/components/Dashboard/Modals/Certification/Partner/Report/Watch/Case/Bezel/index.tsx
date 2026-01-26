@@ -316,7 +316,7 @@ const PartnerCertificationReportCaseBezelModal: FC<PartnerCertificationReportCas
                                 <div className='space-y-4 border-t border-white/10 py-8'>
                                     {!certificateTypeExcludedFormFields?.includes("case_bezel_score") && (
                                         <FormGroup>
-                                            <Label htmlFor="case_bezel_score" label="Score de la lunette" required />
+                                            <Label htmlFor="case_bezel_score" label="Indice de condition (score de la lunette)" required />
                                             <Score fieldName="case_bezel_score" score={values.case_bezel_score} />
                                         </FormGroup>
                                     )}

@@ -163,8 +163,7 @@ const PartnerCertificationReportHistoryModal: FC<PartnerCertificationReportHisto
                                         <FormGroup>
                                             <Label
                                                 htmlFor="history_origin_country"
-                                                label="Lieu d'origine"
-                                                required />
+                                                label="Lieu d'origine (boutique d'origine)" />
                                             <Select
                                                 error={errors.history_origin_country}
                                                 value={values.history_origin_country}
@@ -210,8 +209,7 @@ const PartnerCertificationReportHistoryModal: FC<PartnerCertificationReportHisto
                                         <FormGroup>
                                             <Label
                                                 htmlFor="history_purchase_buying_price"
-                                                label="Prix d'achat (€)"
-                                                required />
+                                                label="Prix d'achat (€)" />
                                             <Input
                                                 id='history_purchase_buying_price'
                                                 name='history_purchase_buying_price'
@@ -241,7 +239,11 @@ const PartnerCertificationReportHistoryModal: FC<PartnerCertificationReportHisto
                                                     {
                                                         key: "buying_date", label: "Date d'achat", render: (value) => (
                                                             <span className='text-white font-medium'>
-                                                                {(value as number).toLocaleString('fr-FR')}
+                                                                {new Date(value as number).toLocaleDateString('fr-FR', {
+                                                                    day: '2-digit',
+                                                                    month: '2-digit',
+                                                                    year: 'numeric'
+                                                                })}
                                                             </span>
                                                         )
                                                     },
