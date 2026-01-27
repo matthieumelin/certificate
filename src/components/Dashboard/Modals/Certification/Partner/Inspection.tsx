@@ -147,6 +147,14 @@ const PartnerCertificationInspectionModal: FC<PartnerCertificationInspectionModa
         "Accessoires"
     ]
 
+    const handleSelectResult = (result: CertificateInspectionResult) => {
+        if (!formRef.current) return;
+        const { setFieldValue, setErrors } = formRef.current;
+        setFieldValue('result', result);
+        setFieldValue('suspectPoints', []);
+        setErrors({});
+    }
+
     const handleSubmit = async (values: FormValues) => {
         if (!selectedCertificate) {
             toast.error("Erreur lors de la récupération des données du certificat");
@@ -304,10 +312,7 @@ const PartnerCertificationInspectionModal: FC<PartnerCertificationInspectionModa
                                                     key={index}
                                                     authentic={result === CertificateInspectionResult.AuthenticItem}
                                                     active={values.result === result}
-                                                    onSelectResult={() => {
-                                                        setFieldValue('result', result);
-                                                        setFieldValue('suspectPoints', []);
-                                                    }}
+                                                    onSelectResult={() => handleSelectResult(result)}
                                                     label={result === CertificateInspectionResult.AuthenticItem ? "Pièce authentique" : "Pièce inauthentique"} />
                                             ))}
                                         </div>
@@ -362,7 +367,8 @@ const PartnerCertificationInspectionModal: FC<PartnerCertificationInspectionModa
                                 )}
 
                                 <FormGroup>
-                                    <Label htmlFor='comment' label="Commentaire de l'expert" />
+                                    <Label htmlFor='comment' label="Commentaire de l'expert"
+                                        required={values.result === CertificateInspectionResult.InauthenticItem} />
                                     <Input
                                         type='textarea'
                                         id='comment'

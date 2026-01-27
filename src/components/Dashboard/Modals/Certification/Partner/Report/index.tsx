@@ -44,6 +44,7 @@ import { useCertificateReportStore } from '@/stores/certificateReportStore';
 import { supabase } from '@/lib/supabase';
 import { useCertificates, useObjectAttributes } from '@/hooks/useSupabase';
 import { Button } from '@/components/UI/Button';
+import Alert from '@/components/UI/Alert';
 
 interface SubCategory {
     id: string;
@@ -295,17 +296,33 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
             throw new Error('No object id was found.');
         }
 
-        const { error } = await supabase
+        const { data: existing } = await supabase
             .from('object_attributes')
-            .upsert({
-                object_id: objectId,
-                attributes,
-                updated_at: new Date().toISOString()
-            }, { onConflict: 'object_id' })
-            .select()
+            .select('id')
+            .eq('object_id', objectId)
             .single();
 
-        if (error) throw error;
+        if (existing) {
+            const { error } = await supabase
+                .from('object_attributes')
+                .update({
+                    attributes,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('object_id', objectId);
+
+            if (error) throw error;
+        } else {
+            const { error } = await supabase
+                .from('object_attributes')
+                .insert({
+                    object_id: objectId,
+                    attributes,
+                    updated_at: new Date().toISOString()
+                });
+
+            if (error) throw error;
+        }
     };
 
     const handleSave = async () => {
@@ -536,7 +553,10 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
                     </div>
                 </div>
 
-                <div className='absolute bottom-0 left-0 right-0 p-5 border-t border-white/10 flex items-center justify-end gap-3 bg-[#0a0a0a] rounded-b-xl'>
+                <div className='space-y-4 absolute bottom-0 left-0 right-0 p-5 border-t border-white/10 bg-[#0a0a0a] rounded-b-xl'>
+                    {hasErrors() && (
+                        <Alert type='error' message={`Veuillez remplir tous les champs avant de sauvegarder`} />
+                    )}
                     <div className='flex flex-col lg:flex-row lg:justify-between gap-3 w-full'>
                         <Button
                             onClick={handleCancel}
@@ -546,12 +566,6 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
                             Annuler
                         </Button>
                         <div className='flex flex-col lg:flex-row items-center gap-4'>
-                            {hasErrors() && (
-                                <span className='text-red-500 text-sm'>
-                                    Veuillez remplir {validationErrors.length === 1 ? "le champ" : `les ${validationErrors.length} champs`} avant de sauvegarder
-                                </span>
-                            )}
-
                             <div className='grid lg:grid-cols-2 gap-3'>
                                 <Button
                                     theme='secondary'

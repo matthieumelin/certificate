@@ -62,7 +62,7 @@ const PartnerCertificationReportTechnicalWeightModal: FC<PartnerCertificationRep
 
                                     {!certificateTypeExcludedFormFields?.includes("technical_weight_total_watch") && (
                                         <FormGroup>
-                                            <Label htmlFor='technical_weight_total_watch' label='Poids total de la montre (g)' required />
+                                            <Label htmlFor='technical_weight_total_watch' label='Poids total de la montre (g)'/>
                                             <Input
                                                 error={errors.technical_weight_total_watch}
                                                 id='technical_weight_total_watch'
@@ -76,7 +76,7 @@ const PartnerCertificationReportTechnicalWeightModal: FC<PartnerCertificationRep
                                     <FormRow>
                                         {!certificateTypeExcludedFormFields?.includes("technical_weight_case") && (
                                             <FormGroup>
-                                                <Label htmlFor='technical_weight_case' label='Poids du boitier (g)' required />
+                                                <Label htmlFor='technical_weight_case' label='Poids du boitier (g)' />
                                                 <Input
                                                     error={errors.technical_weight_case}
                                                     id='technical_weight_case'
@@ -89,7 +89,7 @@ const PartnerCertificationReportTechnicalWeightModal: FC<PartnerCertificationRep
 
                                         {!certificateTypeExcludedFormFields?.includes("technical_weight_bracelet") && (
                                             <FormGroup>
-                                                <Label htmlFor='technical_weight_bracelet' label='Poids du bracelet (g)' required />
+                                                <Label htmlFor='technical_weight_bracelet' label='Poids du bracelet (g)' />
                                                 <Input
                                                     error={errors.technical_weight_bracelet}
                                                     id='technical_weight_bracelet'
@@ -102,7 +102,7 @@ const PartnerCertificationReportTechnicalWeightModal: FC<PartnerCertificationRep
 
                                         {!certificateTypeExcludedFormFields?.includes("technical_weight_movement") && (
                                             <FormGroup>
-                                                <Label htmlFor='technical_weight_movement' label='Poids du mouvement (g)' required />
+                                                <Label htmlFor='technical_weight_movement' label='Poids du mouvement (g)' />
                                                 <Input
                                                     error={errors.technical_weight_movement}
                                                     id='technical_weight_movement'

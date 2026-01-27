@@ -6,14 +6,20 @@ const certificateInspectionSchema = Yup.object({
   model: Yup.string().required("Le modèle est requis"),
   reference: Yup.string().required("La référence est requise"),
   serialNumber: Yup.string().required("Le numéro de série est requis"),
-  result: Yup.mixed<CertificateInspectionResult>().oneOf(
-    Object.values(CertificateInspectionResult),
-    "Vous devez sélectionner un résultat"
-  ),
+  result: Yup.mixed<CertificateInspectionResult>()
+    .oneOf(
+      Object.values(CertificateInspectionResult),
+      "Vous devez sélectionner un résultat"
+    )
+    .required("Le résultat est requis"),
   suspectPoints: Yup.array().of(Yup.string()),
-  comment: Yup.string(),
+  comment: Yup.string().when('result', {
+    is: (result: CertificateInspectionResult) => result === CertificateInspectionResult.InauthenticItem,
+    then: (schema) => schema.required("Le commentaire est requis pour une pièce inauthentique"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
   photos: Yup.array()
-    .min(5, "Vosu devez ajouter au moins 5 photos")
+    .min(5, "Vous devez ajouter au moins 5 photos")
     .required("Les photos sont requises"),
 });
 

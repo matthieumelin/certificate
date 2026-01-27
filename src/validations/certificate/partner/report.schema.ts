@@ -107,12 +107,6 @@ export const requiredFields = {
     "movement_caliber_reference",
     "movement_caliber_factory",
   ],
-  technical_weight: [
-    "technical_weight_total_watch",
-    "technical_weight_case",
-    "technical_weight_bracelet",
-    "technical_weight_movement",
-  ],
   technical_movement: [
     "technical_movement_observed_daily_drift_action",
     "technical_movement_observed_daily_drift_value",
@@ -602,27 +596,6 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
     schema.movement_caliber_factory = Yup.string().required(
       "L'origine du calibre est requise",
     );
-  }
-
-  if (isFieldRequired("technical_weight_total_watch")) {
-    schema.technical_weight_total_watch = Yup.number()
-      .required("Le poids total de la montre est requis")
-      .positive("Le poids doit être positif");
-  }
-  if (isFieldRequired("technical_weight_case")) {
-    schema.technical_weight_case = Yup.number()
-      .required("Le poids du boîtier est requis")
-      .positive("Le poids doit être positif");
-  }
-  if (isFieldRequired("technical_weight_bracelet")) {
-    schema.technical_weight_bracelet = Yup.number()
-      .required("Le poids du bracelet est requis")
-      .positive("Le poids doit être positif");
-  }
-  if (isFieldRequired("technical_weight_movement")) {
-    schema.technical_weight_movement = Yup.number()
-      .required("Le poids du mouvement est requis")
-      .positive("Le poids doit être positif");
   }
 
   if (isFieldRequired("technical_movement_observed_daily_drift_action")) {

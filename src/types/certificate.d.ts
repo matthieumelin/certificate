@@ -85,6 +85,12 @@ export interface CertificateDraft {
   updated_at: string;
 }
 
+export interface CertificateTypeReportLimits {
+  max_documents: number;
+  max_repair_previous: number;
+  max_history_previous_places: number;
+}
+
 export interface CertificateType {
   id: number;
   name: string;
@@ -96,6 +102,7 @@ export interface CertificateType {
   is_recommended: boolean;
   excluded_report_form_fields: string[];
   goal: string;
+  report_limits: CertificateTypeReportLimits;
   created_at: string;
   updated_at: string;
 }

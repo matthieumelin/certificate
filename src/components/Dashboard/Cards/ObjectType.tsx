@@ -13,8 +13,15 @@ const ObjectTypeCard: FC<ObjectTypeCardProps> = ({ data }) => {
 
     const handleSelect = () => {
         if (!data.is_active) return;
-
         setFieldValue("type", data.name);
+    }
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (!data.is_active) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setFieldValue("type", data.name);
+        }
     }
 
     const isSelected = values.type === data.name;
@@ -23,11 +30,16 @@ const ObjectTypeCard: FC<ObjectTypeCardProps> = ({ data }) => {
     return (
         <div
             onClick={handleSelect}
+            onKeyDown={handleKeyDown}
+            role="radio"
+            aria-checked={isSelected}
+            aria-disabled={isDisabled}
+            tabIndex={isDisabled ? -1 : 0}
             className={`
                 group duration-200 flex flex-col items-center justify-center gap-2 border-2 rounded-xl p-5 transition-all
                 ${isDisabled
                     ? "opacity-50 cursor-not-allowed border-white/5"
-                    : "cursor-pointer"
+                    : "cursor-pointer focus:outline-none focus:ring-2 focus:ring-green focus:ring-offset-2 focus:ring-offset-gray-900"
                 }
                 ${!isDisabled && isSelected
                     ? "border-green bg-green/5"
@@ -39,7 +51,10 @@ const ObjectTypeCard: FC<ObjectTypeCardProps> = ({ data }) => {
                 }
             `}
         >
-            <div className={`text-4xl transition-transform duration-200 ${!isDisabled ? "group-hover:scale-110" : ""}`}>
+            <div
+                className={`text-4xl transition-transform duration-200 ${!isDisabled ? "group-hover:scale-110" : ""}`}
+                aria-hidden="true"
+            >
                 {data.icon}
             </div>
             <h2 className='text-white text-center font-semibold'>{data.label}</h2>

@@ -102,7 +102,7 @@ const PartnerCertificationReportValueModal: FC<PartnerCertificationReportValueMo
                                         <FormGroup>
                                             <Label
                                                 htmlFor="value_liquidity_score"
-                                                label="Indice de condition (score de liquidité)" />
+                                                label="Liquidité sur le marché (score de liquidité)" />
                                             <Input
                                                 error={errors.value_liquidity_score}
                                                 id='value_liquidity_score'
