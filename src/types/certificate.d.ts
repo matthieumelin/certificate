@@ -54,6 +54,7 @@ export interface Certificate {
   };
   customer?: Partial<UserProfile>;
   object?: Object;
+  inspection?: CertificateInspection;
 }
 
 export interface CertificateInspection {

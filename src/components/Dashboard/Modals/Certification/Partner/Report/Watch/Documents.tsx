@@ -119,7 +119,7 @@ const PartnerCertificationReportDocumentsModal: FC<PartnerCertificationReportDoc
 
     const certificateType = certificateTypes.find((certificateType: CertificateType) => certificateType.id === selectedCertificate?.certificate_type_id);
     const certificateTypeExcludedFormFields = certificateType?.excluded_report_form_fields ? certificateType?.excluded_report_form_fields.filter((excludedFormField: string) => excludedFormField.startsWith("documents")) : []
-    const documentsLimit = certificateType?.documents_limit || 5;
+    const documentsLimit = certificateType?.report_limits.max_documents || 5;
 
     return (
         <div className="h-full overflow-y-auto">

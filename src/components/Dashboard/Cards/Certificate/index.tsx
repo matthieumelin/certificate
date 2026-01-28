@@ -51,11 +51,12 @@ const CertificateCard: FC<CertificateCardProps> = ({
     const { setSelectedCertificate } = useCertificateReportStore();
 
     const { deleteCertificateDraft, getCertificateDraftById } = useCertificateDrafts(false);
+    const { getCertificateInspectionPhotoSignedUrl } = useCertificateInspections();
     const { deleteCertificate } = useCertificates(false);
-    const { getCertificateInspection } = useCertificateInspections();
 
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
-    const [certificateInspection, setCertificateInspection] = useState<CertificateInspection | null>(null);
+
+    const [objectPhoto, setObjectPhoto] = useState<string | null>(null);
 
     const isDraft = !!draft;
     const item = draft || certificate;
@@ -187,14 +188,14 @@ const CertificateCard: FC<CertificateCardProps> = ({
         const config: StatusConfig = statusConfig[status];
         if (!config) {
             return (
-                <span className="bg-neutral-600 text-white px-3 py-1.5 rounded-full text-xs font-bold uppercase w-fit">
+                <span className="bg-neutral-600 text-white px-3 py-1.5 rounded-full text-xs w-fit">
                     Statut inconnu
                 </span>
             );
         }
 
         return (
-            <span className={`${config.bg} ${config.text} px-3 py-1.5 rounded-full text-xs font-bold uppercase flex items-center gap-1.5 w-fit`}>
+            <span className={`${config.bg} ${config.text} px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 w-fit`}>
                 <span>{config.icon}</span>
                 <span>{config.label}</span>
             </span>
@@ -207,12 +208,12 @@ const CertificateCard: FC<CertificateCardProps> = ({
 
             return (
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className="bg-neutral-600 text-white px-3 py-1.5 rounded-full text-xs font-bold uppercase flex items-center gap-1.5 w-fit">
+                    <span className="bg-neutral-600 text-white px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 w-fit">
                         <span>📝</span>
                         <span>Brouillon</span>
                     </span>
                     {paymentLinkSent && (
-                        <span className="bg-yellow-500 text-black px-3 py-1.5 rounded-full text-xs font-bold uppercase flex items-center gap-1.5 w-fit">
+                        <span className="bg-yellow-500 text-black px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 w-fit">
                             <span>⏳</span>
                             <span>Paiement en attente</span>
                         </span>
@@ -265,14 +266,14 @@ const CertificateCard: FC<CertificateCardProps> = ({
         const config: StatusConfig = statusConfig[status];
         if (!config) {
             return (
-                <span className="bg-neutral-600 text-white px-3 py-1.5 rounded-full text-xs font-bold uppercase w-fit">
+                <span className="bg-neutral-600 text-white px-3 py-1.5 rounded-full text-xs w-fit">
                     Statut inconnu
                 </span>
             );
         }
 
         return (
-            <span className={`${config.bg} ${config.text} px-3 py-1.5 rounded-full text-xs font-bold uppercase flex items-center gap-1.5 w-fit`}>
+            <span className={`${config.bg} ${config.text} px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 w-fit`}>
                 <span>{config.icon}</span>
                 <span>{config.label}</span>
             </span>
@@ -320,18 +321,6 @@ const CertificateCard: FC<CertificateCardProps> = ({
         });
     };
 
-    useEffect(() => {
-        if (!certificate) return;
-
-        const fetchCertificateInspection = async () => {
-            const fetchedCertificateInspection = await getCertificateInspection(certificate.id);
-            if (fetchedCertificateInspection) {
-                setCertificateInspection(fetchedCertificateInspection);
-            }
-        }
-        fetchCertificateInspection();
-    }, [certificate])
-
     const canDelete = isDraft ||
         (certificate?.status === CertificateStatus.PendingPayment);
 
@@ -340,20 +329,45 @@ const CertificateCard: FC<CertificateCardProps> = ({
     const isPartner = variant === 'partner';
     const isCustomer = variant === 'customer';
 
+    useEffect(() => {
+        const loadPhoto = async () => {
+            if (certificate?.inspection?.photos) {
+                const certificateInspectionPhoto = certificate.inspection.photos[0] ?? null;
+                if (certificateInspectionPhoto) {
+                    const signedPhoto = await getCertificateInspectionPhotoSignedUrl(certificateInspectionPhoto);
+                    setObjectPhoto(signedPhoto);
+                }
+            }
+        }
+
+        if (certificate) {
+            loadPhoto();
+        }
+    }, [certificate]);
+
     return (
         <div className="h-full">
             <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm border border-emerald-900/30 hover:border-emerald-500/50 transition-all flex flex-col">
                 <div className='p-6 shrink-0'>
                     <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                            {!isDraft && certificate?.verification_status && (
-                                <div className="text-right">
-                                    {getVerificationBadge(certificate.verification_status)}
-                                </div>
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+                            {objectPhoto && (
+                                <img className='w-24 h-24 object-cover border border-white/10 rounded-xl' src={objectPhoto} alt={`${certificate?.object?.brand} ${certificate?.object?.model}`} />
                             )}
-                            <h3 className="text-white font-bold text-lg">
-                                {isDraft ? `Brouillon #${item.id}` : `Certificat #${item.id}`}
-                            </h3>
+                            <div className='space-y-2'>
+                                {!isDraft && certificate?.verification_status && (
+                                    <div className="text-right">
+                                        {getVerificationBadge(certificate.verification_status)}
+                                    </div>
+                                )}
+                                <h3 className="text-white font-bold text-lg">
+                                    {isDraft ? `Brouillon #${item.id}` : `Certificat #${item.id}`}
+                                </h3>
+                                <div className='flex flex-wrap gap-2'>
+                                    {getStatusBadge(certificate?.status)}
+                                    {getInspectionStatusBadge(certificate?.inspection?.result)}
+                                </div>
+                            </div>
                         </div>
                         {isPartner && canDelete && (
                             <button
@@ -367,10 +381,61 @@ const CertificateCard: FC<CertificateCardProps> = ({
                             </button>
                         )}
                     </div>
-                    <div className='flex flex-wrap gap-2'>
-                        {getStatusBadge(certificate?.status)}
-                        {getInspectionStatusBadge(certificateInspection?.result)}
-                    </div>
+
+                    {(isDraft ? (draft.object_brand || draft.object_model || draft.object_reference) : (certificate?.object?.brand || certificate?.object?.model || certificate?.object?.reference)) && (
+                        <div className='mt-6 p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30'>
+                            <h3 className='text-emerald-400/60 text-xs uppercase font-bold mb-2'>Informations de l'objet</h3>
+                            <ul className='space-y-1'>
+                                {isDraft ? (
+                                    <>
+                                        {draft.object_brand && (
+                                            <li className="text-white font-medium text-sm">
+                                                <span className="text-neutral-400">Marque:</span> {draft.object_brand}
+                                            </li>
+                                        )}
+                                        {draft.object_model && (
+                                            <li className="text-white font-medium text-sm">
+                                                <span className="text-neutral-400">Modèle:</span> {draft.object_model}
+                                            </li>
+                                        )}
+                                        {draft.object_reference && (
+                                            <li className="text-white font-medium text-sm">
+                                                <span className="text-neutral-400">Référence:</span> {draft.object_reference}
+                                            </li>
+                                        )}
+                                        {draft.object_serial_number && (
+                                            <li className="text-white font-medium text-sm">
+                                                <span className="text-neutral-400">N° de série:</span> {draft.object_serial_number}
+                                            </li>
+                                        )}
+                                    </>
+                                ) : (
+                                    <>
+                                        {certificate?.object?.brand && (
+                                            <li className="text-white font-medium text-sm">
+                                                <span className="text-neutral-400">Marque:</span> {certificate.object.brand}
+                                            </li>
+                                        )}
+                                        {certificate?.object?.model && (
+                                            <li className="text-white font-medium text-sm">
+                                                <span className="text-neutral-400">Modèle:</span> {certificate.object.model}
+                                            </li>
+                                        )}
+                                        {certificate?.object?.reference && (
+                                            <li className="text-white font-medium text-sm">
+                                                <span className="text-neutral-400">Référence:</span> {certificate.object.reference}
+                                            </li>
+                                        )}
+                                        {certificate?.object?.serial_number && (
+                                            <li className="text-white font-medium text-sm">
+                                                <span className="text-neutral-400">N° de série:</span> {certificate.object.serial_number}
+                                            </li>
+                                        )}
+                                    </>
+                                )}
+                            </ul>
+                        </div>
+                    )}
 
                     {isPartner && customerData && (
                         <div className='mt-6 p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30'>
@@ -472,7 +537,7 @@ const CertificateCard: FC<CertificateCardProps> = ({
                                 )}
 
                                 {certificate?.status === CertificateStatus.InspectionCompleted &&
-                                    certificateInspection?.result === CertificateInspectionResult.AuthenticItem && (
+                                    certificate?.inspection?.result === CertificateInspectionResult.AuthenticItem && (
                                         <Button
                                             onClick={onStartReport}
                                             className='w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold uppercase transition-all'>

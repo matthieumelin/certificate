@@ -730,7 +730,6 @@ export const useObjectAttributes = (autoFetch?: boolean, objectId?: number) => {
 
   const uploadAttributeFiles = async (key: string, files: File[]) => {
     const paths: string[] = [];
-
     for (const file of files) {
       const path = `objects/${objectId}/${Date.now()}_${file.name}`;
       const { path: storedPath } = await uploadFile(
@@ -741,14 +740,16 @@ export const useObjectAttributes = (autoFetch?: boolean, objectId?: number) => {
       paths.push(storedPath);
     }
 
+    const existingValue = objectAttributes[key];
+    const existingPaths = Array.isArray(existingValue) ? existingValue : [];
+
     await setAttributes({
       ...objectAttributes,
       [key]: [
-        ...(Array.isArray(objectAttributes[key]) ? objectAttributes[key] : []),
+        ...existingPaths,
         ...paths,
       ],
     });
-
     return paths;
   };
 
@@ -1102,22 +1103,29 @@ export const usePartnerCertificates = (userId?: string) => {
     }
 
     setIsLoading(true);
-
     try {
       const { data, error } = await supabase
         .from("certificates")
         .select(
           `
-          *,
-          customer:profiles!customer_id(id, email, first_name, last_name, society, vat_number),
-          creator:profiles!created_by(role),
-          object:objects!object_id(*)
-        `,
+            *,
+            inspection:certificate_inspections!certificate_id(id, photos, result),
+            customer:profiles!customer_id(id, email, first_name, last_name, society, vat_number),
+            creator:profiles!created_by(role),
+            object:objects!object_id(*)
+          `,
         )
         .eq("created_by", userId)
         .order("created_at", { ascending: false });
+
       if (error) throw error;
-      setCertificates(data || []);
+
+      const transformedData = data?.map(cert => ({
+        ...cert,
+        inspection: Array.isArray(cert.inspection) ? cert.inspection[0] : cert.inspection
+      }));
+
+      setCertificates(transformedData || []);
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "An unexpected error occurred",
@@ -1612,7 +1620,7 @@ export const useCertificates = (autoFetch: boolean = true) => {
     }
   };
 
-  const downloadCertificate = () => {};
+  const downloadCertificate = () => { };
 
   const mutate = () => {
     fetchCertificates();
