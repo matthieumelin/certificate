@@ -55,6 +55,7 @@ const CertificateCard: FC<CertificateCardProps> = ({
     const { deleteCertificate } = useCertificates(false);
 
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
+    const [showMoreInfo, setShowMoreInfo] = useState<boolean>(false);
 
     const [objectPhoto, setObjectPhoto] = useState<string | null>(null);
 
@@ -329,6 +330,12 @@ const CertificateCard: FC<CertificateCardProps> = ({
     const isPartner = variant === 'partner';
     const isCustomer = variant === 'customer';
 
+    const hasObjectInfo = isDraft
+        ? (draft.object_brand || draft.object_model || draft.object_reference || draft.object_serial_number)
+        : (certificate?.object?.brand || certificate?.object?.model || certificate?.object?.reference || certificate?.object?.serial_number);
+
+    const hasGeneralInfo = certificateType || item.created_at || item.updated_at || certificate?.creator?.role === UserProfileRole.Partner;
+
     useEffect(() => {
         const loadPhoto = async () => {
             if (certificate?.inspection?.photos) {
@@ -346,7 +353,7 @@ const CertificateCard: FC<CertificateCardProps> = ({
     }, [certificate]);
 
     return (
-        <div className="h-full">
+        <div className="h-max">
             <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm border border-emerald-900/30 hover:border-emerald-500/50 transition-all flex flex-col">
                 <div className='p-6 shrink-0'>
                     <div className="flex items-center justify-between mb-3">
@@ -382,7 +389,7 @@ const CertificateCard: FC<CertificateCardProps> = ({
                         )}
                     </div>
 
-                    {(isDraft ? (draft.object_brand || draft.object_model || draft.object_reference) : (certificate?.object?.brand || certificate?.object?.model || certificate?.object?.reference)) && (
+                    {hasObjectInfo && (
                         <div className='mt-6 p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30'>
                             <h3 className='text-emerald-400/60 text-xs uppercase font-bold mb-2'>Informations de l'objet</h3>
                             <ul className='space-y-1'>
@@ -438,56 +445,72 @@ const CertificateCard: FC<CertificateCardProps> = ({
                     )}
 
                     {isPartner && customerData && (
-                        <div className='mt-6 p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30'>
+                        <div className='mt-4 p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30'>
                             <h3 className='text-emerald-400/60 text-xs uppercase font-bold mb-2'>Informations du client</h3>
                             <ul className='space-y-1'>
-                                <li className="text-white font-medium">
+                                <li className="text-white text-sm font-medium">
                                     {customerData.first_name} {customerData.last_name}
                                 </li>
                                 <li className="text-neutral-400 text-sm">
                                     {customerData.email}
                                 </li>
-                                <li className="text-neutral-400 text-sm">
-                                    {customerData.society || "Aucune société"}
-                                </li>
-                                <li className="text-neutral-400 text-sm">
-                                    {customerData.vat_number || "Aucun numéro de TVA"}
-                                </li>
                             </ul>
+                        </div>
+                    )}
+
+                    {hasGeneralInfo && (
+                        <div className="mt-4">
+                            <button
+                                onClick={() => setShowMoreInfo(!showMoreInfo)}
+                                className="w-full flex items-center justify-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
+                            >
+                                <span>{showMoreInfo ? 'Voir moins' : 'Voir plus d\'informations'}</span>
+                                <svg
+                                    className={`w-4 h-4 transition-transform ${showMoreInfo ? 'rotate-180' : ''}`}
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            {showMoreInfo && (
+                                <div className='mt-4 p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30 space-y-3'>
+                                    <h3 className='text-emerald-400/60 text-xs uppercase font-bold'>Informations générales</h3>
+
+                                    {certificateType && (
+                                        <div>
+                                            <span className="text-xs text-neutral-400 block mb-1">Type de certificat</span>
+                                            <span className="text-sm text-white font-medium">{certificateType?.name}</span>
+                                        </div>
+                                    )}
+                                    {item.created_at && (
+                                        <div>
+                                            <span className="text-xs text-neutral-400 block mb-1">Créé le</span>
+                                            <span className="text-sm text-white font-medium">{formatDate(item.created_at)}</span>
+                                        </div>
+                                    )}
+                                    {item.updated_at && (
+                                        <div>
+                                            <span className="text-xs text-neutral-400 block mb-1">Mis à jour le</span>
+                                            <span className="text-sm text-white font-medium">{formatDate(item.updated_at)}</span>
+                                        </div>
+                                    )}
+                                    {certificate?.creator?.role === UserProfileRole.Partner && (
+                                        <div>
+                                            <span className="text-xs text-neutral-400 block mb-1">Créé par</span>
+                                            <span className='text-sm text-emerald-400 font-medium'>{getUserProfileRoleLabel(certificate.creator?.role)}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
 
                 <div className='p-6 border-t border-emerald-900/30 grow flex flex-col'>
-                    <div className='grow space-y-4'>
-                        <div className='grid grid-cols-2 gap-4'>
-                            {certificateType && (
-                                <div className='flex flex-col'>
-                                    <span className="text-xs text-emerald-400/60 uppercase font-bold mb-1">Type de certificat</span>
-                                    <span className="text-sm text-white font-medium">{certificateType?.name}</span>
-                                </div>
-                            )}
-                            {item.created_at && (
-                                <div className='flex flex-col'>
-                                    <span className="text-xs text-emerald-400/60 uppercase font-bold mb-1">Créé le</span>
-                                    <span className="text-sm text-white font-medium">{formatDate(item.created_at)}</span>
-                                </div>
-                            )}
-                            {item.updated_at && (
-                                <div className='flex flex-col'>
-                                    <span className="text-xs text-emerald-400/60 uppercase font-bold mb-1">Mis à jour le</span>
-                                    <span className="text-sm text-white font-medium">{formatDate(item.updated_at)}</span>
-                                </div>
-                            )}
-                        </div>
-                        {certificate?.creator?.role === UserProfileRole.Partner && (
-                            <p className='text-sm text-neutral-400'>
-                                Créé par : <span className='text-emerald-400 font-medium'>{getUserProfileRoleLabel(certificate.creator?.role)}</span>
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="mt-4 shrink-0">
+                    <div className="mt-auto shrink-0">
                         {isPartner && (
                             <>
                                 {isDraft && !draft?.payment_link_sent && (

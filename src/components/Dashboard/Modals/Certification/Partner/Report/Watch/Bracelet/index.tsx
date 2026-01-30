@@ -184,7 +184,8 @@ const PartnerCertificationReportBraceletModal: FC<PartnerCertificationReportBrac
                                                         <FormGroup>
                                                             <Label
                                                                 htmlFor="bracelet_diameter.length"
-                                                                label="Longueur" />
+                                                                label="Longueur"
+                                                                required />
                                                             <Input
                                                                 error={errors.bracelet_diameter?.length}
                                                                 id='bracelet_diameter.length'
@@ -196,7 +197,8 @@ const PartnerCertificationReportBraceletModal: FC<PartnerCertificationReportBrac
                                                         <FormGroup>
                                                             <Label
                                                                 htmlFor="bracelet_diameter.width"
-                                                                label="Largeur" />
+                                                                label="Largeur"
+                                                                required />
                                                             <Input
                                                                 error={errors.bracelet_diameter?.width}
                                                                 id='bracelet_diameter.width'

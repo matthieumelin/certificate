@@ -331,25 +331,27 @@ const PartnerCertificationReportDialIndexModal: FC<PartnerCertificationReportDia
                                 )}
 
                                 <div className='space-y-4 border-t border-white/10 pt-8'>
-                                    <h2 className="text-white text-xl font-semibold">Luminescence des index</h2>
                                     {!certificateTypeExcludedFormFields?.includes("dial_index_luminescence") && (
-                                        <FormGroup>
-                                            <Label
-                                                htmlFor="dial_index_luminescence"
-                                                label="Luminescence des index"
-                                                required />
-                                            <Select
-                                                error={errors.dial_index_luminescence}
-                                                value={values.dial_index_luminescence}
-                                                onChange={value => setFieldValue('dial_index_luminescence', value)}
-                                                id='dial_index_luminescence'
-                                                options={choiceOptions.filter((option: string) => option !== choiceOptions[choiceOptions.length - 1]).map((option: string) => (
-                                                    {
-                                                        label: option,
-                                                        value: option
-                                                    }
-                                                ))} />
-                                        </FormGroup>
+                                        <div>
+                                            <h2 className="text-white text-xl font-semibold">Luminescence des index</h2>
+                                            <FormGroup>
+                                                <Label
+                                                    htmlFor="dial_index_luminescence"
+                                                    label="Luminescence des index"
+                                                    required />
+                                                <Select
+                                                    error={errors.dial_index_luminescence}
+                                                    value={values.dial_index_luminescence}
+                                                    onChange={value => setFieldValue('dial_index_luminescence', value)}
+                                                    id='dial_index_luminescence'
+                                                    options={choiceOptions.filter((option: string) => option !== choiceOptions[choiceOptions.length - 1]).map((option: string) => (
+                                                        {
+                                                            label: option,
+                                                            value: option
+                                                        }
+                                                    ))} />
+                                            </FormGroup>
+                                        </div>
                                     )}
 
                                     {values.dial_index_luminescence === choiceOptions[0] && (

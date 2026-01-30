@@ -340,25 +340,27 @@ const PartnerCertificationReportDialHandsModal: FC<PartnerCertificationReportDia
                                 )}
 
                                 <div className='space-y-4 border-t border-white/10 pt-8'>
-                                    <h2 className="text-white text-xl font-semibold">Luminescence des aiguilles</h2>
                                     {!certificateTypeExcludedFormFields?.includes("dial_hands_luminescence") && (
-                                        <FormGroup>
-                                            <Label
-                                                htmlFor="dial_hands_luminescence"
-                                                label="Luminescence des aiguilles"
-                                                required />
-                                            <Select
-                                                error={errors.dial_hands_luminescence}
-                                                value={values.dial_hands_luminescence}
-                                                onChange={value => setFieldValue('dial_hands_luminescence', value)}
-                                                id='dial_hands_luminescence'
-                                                options={choiceOptions.filter((option: string) => option !== choiceOptions[choiceOptions.length - 1]).map((option: string) => (
-                                                    {
-                                                        label: option,
-                                                        value: option
-                                                    }
-                                                ))} />
-                                        </FormGroup>
+                                        <div>
+                                            <h2 className="text-white text-xl font-semibold">Luminescence des aiguilles</h2>
+                                            <FormGroup>
+                                                <Label
+                                                    htmlFor="dial_hands_luminescence"
+                                                    label="Luminescence des aiguilles"
+                                                    required />
+                                                <Select
+                                                    error={errors.dial_hands_luminescence}
+                                                    value={values.dial_hands_luminescence}
+                                                    onChange={value => setFieldValue('dial_hands_luminescence', value)}
+                                                    id='dial_hands_luminescence'
+                                                    options={choiceOptions.filter((option: string) => option !== choiceOptions[choiceOptions.length - 1]).map((option: string) => (
+                                                        {
+                                                            label: option,
+                                                            value: option
+                                                        }
+                                                    ))} />
+                                            </FormGroup>
+                                        </div>
                                     )}
 
                                     {(values.dial_hands_luminescence === choiceOptions[0] &&

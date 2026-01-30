@@ -54,6 +54,8 @@ export const requiredFields = {
   case_glass: ["case_glass_material", "case_glass_factory", "case_glass_score"],
   bracelet: [
     "bracelet_type",
+    "bracelet_diameter.length",
+    "bracelet_diameter.width",
     "bracelet_diameter.thickness",
     "bracelet_material",
     "bracelet_factory",
@@ -132,11 +134,7 @@ export const requiredFields = {
     "technical_joint_score",
   ],
   technical_lubrification: ["technical_lubrification_score"],
-  history: [
-    "history_origin_country",
-    "history_purchase_country_seller",
-    "history_purchase_country_date",
-  ],
+  history: ["history_origin_country"],
   documents: ["documents"],
 };
 
@@ -374,6 +372,17 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
     schema.bracelet_type = Yup.string().required(
       "Le type de bracelet est requis",
     );
+  }
+
+  if (isFieldRequired("bracelet_diameter.length")) {
+    schema.bracelet_diameter = Yup.object().shape({
+      length: Yup.string().required("La longueur du bracelet est requise"),
+    });
+  }
+  if (isFieldRequired("bracelet_diameter.width")) {
+    schema.bracelet_diameter = Yup.object().shape({
+      width: Yup.string().required("La largeur du bracelet est requise"),
+    });
   }
   if (isFieldRequired("bracelet_diameter.thickness")) {
     schema.bracelet_diameter = Yup.object().shape({
@@ -697,17 +706,6 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
   if (isFieldRequired("technical_lubrification_join")) {
     schema.technical_lubrification_join = Yup.string().required(
       "La lubrification des joints est requis",
-    );
-  }
-
-  if (isFieldRequired("history_purchase_country_seller")) {
-    schema.history_purchase_country_seller = Yup.string().required(
-      "Le pays d'achat/vendeur est requis",
-    );
-  }
-  if (isFieldRequired("history_purchase_country_date")) {
-    schema.history_purchase_country_date = Yup.string().required(
-      "La date d'achat est requise",
     );
   }
 

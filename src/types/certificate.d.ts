@@ -1,13 +1,6 @@
 import type { Object } from "@/types/object";
 import type { UserProfile, UserProfileRole } from "./user";
 
-export enum UserCertificateStep {
-  Type = "type",
-  Pictures = "pictures",
-  Details = "details",
-  Service = "service",
-}
-
 export enum CertificateStatus {
   PendingPayment = "pending_payment",
   PaymentConfirmed = "payment_confirmed",
@@ -33,6 +26,13 @@ export enum PartnerCertificateStep {
   ObjectInfos = "object_infos",
   Service = "service",
   Payment = "payment",
+}
+
+export enum UserCertificateStep {
+  Type = "type",
+  Pictures = "pictures",
+  Details = "details",
+  Service = "service",
 }
 
 export interface Certificate {
