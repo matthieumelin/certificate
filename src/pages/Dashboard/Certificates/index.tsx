@@ -7,15 +7,13 @@ import useAuth from '@/contexts/AuthContext'
 import { useCertificateDrafts, useCustomerCertificates } from '@/hooks/useSupabase';
 import { CertificateStatus } from '@/types/certificate.d';
 import routes from '@/utils/routes';
-import { useState, type FC } from 'react';
+import { type FC } from 'react';
 import { Navigate } from 'react-router-dom';
 
 const CertificatesPage: FC = () => {
     const { user, isLoadingUser } = useAuth();
     const { certificateDrafts } = useCertificateDrafts(true, { customerEmail: user?.email });
     const { certificates, isLoading: isLoadingCertificates } = useCustomerCertificates(true, { customerId: user?.id });
-
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
 
     if (isLoadingUser || isLoadingCertificates) {
@@ -25,44 +23,6 @@ const CertificatesPage: FC = () => {
     if (!user) {
         return <Navigate to={routes.Login} replace />
     }
-
-    const handleShowCreateModal = () => {
-        setIsModalOpen(true);
-    }
-
-    const handleCloseCreateModal = async () => {
-        setIsModalOpen(false);
-    }
-
-    // const renderModalContent = () => {
-    //     switch (draft.current_step) {
-    //         case .CustomerInfos:
-    //             return <PartnerCertificationCustomerInfosModal />;
-    //         case PartnerCertificateStep.ObjectInfos:
-    //             return (
-    //                 <PartnerCertificationObjectInfosModal
-    //                     objectTypes={objectTypes}
-    //                     objectBrands={objectBrands}
-    //                     objectModels={objectModels}
-    //                     objectReferences={objectReferences}
-    //                 />
-    //             );
-    //         case PartnerCertificateStep.Service:
-    //             return <PartnerCertificationServiceModal certificateTypes={certificateTypes} />;
-    //         case PartnerCertificateStep.Payment:
-    //             return (
-    //                 <PartnerCertificationPaymentModal
-    //                     certificateTypes={certificateTypes}
-    //                     paymentMethods={paymentMethods}
-    //                     setIsModalOpen={setIsModalOpen}
-    //                     setIsConfirmPaymentModalOpen={setIsConfirmPaymentModalOpen}
-    //                     onSuccess={handleRefreshData}
-    //                 />
-    //             );
-    //         default:
-    //             return null;
-    //     }
-    // };
 
     const totalCertificates = certificates.length;
     const activeCertificates = certificates.filter(certificate => certificate.status === CertificateStatus.Completed);
@@ -79,7 +39,7 @@ const CertificatesPage: FC = () => {
                         </h1>
                         <p className='text-neutral-400 italic'>Gérez et consultez vos certificats en un coup d'œil</p>
                     </div>
-                    <Button className='lg:w-max bg-emerald-600 hover:bg-emerald-500 text-white py-3 px-6 rounded-xl font-bold uppercase transition-all' onClick={handleShowCreateModal}>
+                    <Button className='lg:w-max bg-emerald-600 hover:bg-emerald-500 text-white py-3 px-6 rounded-xl font-bold uppercase transition-all'>
                         Nouvelle certification
                     </Button>
                 </div>
@@ -113,15 +73,6 @@ const CertificatesPage: FC = () => {
                     </div>
                 )}
             </div>
-
-{/* 
-            {isModalOpen && (
-                <Modal
-                    title="Créer un certificat"
-                    content={renderModalContent()}
-                    onClose={handleCloseCreateModal}
-                />
-            )} */}
         </div>
     )
 }
