@@ -1,14 +1,14 @@
 import { type FC } from 'react'
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 import { toast } from 'react-toastify';
-import { usePartnerCertificateStore } from '@/stores/certification/partnerCertificateStore';
 import { Form, Formik } from 'formik';
-import { PartnerCertificateStep, type CertificateType } from '@/types/certificate.d';
+import { PartnerCertificateStep, type CertificateType, ClientCertificateStep } from '@/types/certificate.d';
 import CertificateTypeCard from '@/components/Dashboard/Cards/Certificate/Type';
 import Steps from '@/components/Dashboard/Steps';
 import { Button } from '@/components/UI/Button';
+import { useClientCertificateStore } from '@/stores/certification/clientCertificateStore';
 
-interface PartnerCertificationServiceModalProps {
+interface ClientCertificationServiceModalProps {
     certificateTypes: CertificateType[];
 }
 
@@ -16,12 +16,12 @@ interface FormValues {
     certificate_type_id: number | null;
 }
 
-const PartnerCertificationServiceModal: FC<PartnerCertificationServiceModalProps> = ({
+const ClientCertificationServiceModal: FC<ClientCertificationServiceModalProps> = ({
     certificateTypes,
 }) => {
-    const { draft, setDraft } = usePartnerCertificateStore();
+    const { draft, setDraft } = useClientCertificateStore();
 
-    const steps = Object.values(PartnerCertificateStep);
+    const steps = Object.values(ClientCertificateStep);
 
     const filteredCertificateTypes = certificateTypes
         .filter((certificateType: CertificateType) => certificateType.physical)
@@ -37,7 +37,7 @@ const PartnerCertificationServiceModal: FC<PartnerCertificationServiceModalProps
         try {
             setDraft({
                 certificate_type_id: values.certificate_type_id!,
-                current_step: PartnerCertificateStep.Payment
+                current_step: ClientCertificateStep.Partner
             });
         } catch (error) {
             console.error("Erreur mise à jour draft:", error);
@@ -93,4 +93,4 @@ const PartnerCertificationServiceModal: FC<PartnerCertificationServiceModalProps
     )
 }
 
-export default PartnerCertificationServiceModal
+export default ClientCertificationServiceModal

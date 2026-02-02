@@ -4,7 +4,7 @@ import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useObjectDocuments } from '@/hooks/useSupabase';
 import { supabase } from '@/lib/supabase';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
+import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate.d';
 import { ObjectDocumentType, type ObjectDocument } from '@/types/object.d';
 import { Form, Formik, FieldArray } from 'formik';
@@ -27,7 +27,7 @@ interface PartnerCertificationReportDocumentsModalProps {
 }
 
 const PartnerCertificationReportDocumentsModal: FC<PartnerCertificationReportDocumentsModalProps> = ({ certificateTypes }) => {
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
     const { deleteObjectDocument, downloadObjectDocument, getObjectDocumentsByObjectId, getObjectDocumentSignedUrl } = useObjectDocuments();
 

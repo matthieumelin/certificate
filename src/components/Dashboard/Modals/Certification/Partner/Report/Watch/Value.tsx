@@ -5,7 +5,7 @@ import FormRow from '@/components/UI/Form/Row';
 import useAuth from '@/contexts/AuthContext';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
+import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
 import { UserProfileRole } from '@/types/user.d';
 import { Form, Formik } from 'formik'
@@ -24,7 +24,7 @@ interface PartnerCertificationReportValueModalProps {
 
 const PartnerCertificationReportValueModal: FC<PartnerCertificationReportValueModalProps> = ({ certificateTypes }) => {
     const { userProfile } = useAuth();
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
 
     const initialValues: FormValues = {

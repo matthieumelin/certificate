@@ -1,23 +1,23 @@
 import { FaCheck } from "react-icons/fa6";
-import { useCertificateStore } from "@/stores/certificateStore";
-import { PartnerCertificateStep, UserCertificateStep } from "@/types/certificate.d";
-import { PartnerCertificateStepLabels, UserCertificateStepLabels } from "@/helpers/translations";
+import { usePartnerCertificateStore } from "@/stores/certification/partnerCertificateStore";
+import { PartnerCertificateStep, ClientCertificateStep } from "@/types/certificate.d";
+import { PartnerCertificateStepLabels, ClientCertificateStepLabels } from "@/helpers/translations";
 
-interface StepsProps<T extends UserCertificateStep | PartnerCertificateStep> {
+interface StepsProps<T extends ClientCertificateStep | PartnerCertificateStep> {
     steps: T[];
 }
 
-const Steps = <T extends UserCertificateStep | PartnerCertificateStep>({
+const Steps = <T extends ClientCertificateStep | PartnerCertificateStep>({
     steps
 }: StepsProps<T>) => {
-    const { draft } = useCertificateStore();
+    const { draft } = usePartnerCertificateStore();
     const currentStepIndex = steps.indexOf(draft.current_step as T);
 
     const getStepLabel = (step: T): string => {
         if (Object.values(PartnerCertificateStep).includes(step as PartnerCertificateStep)) {
             return PartnerCertificateStepLabels[step as PartnerCertificateStep];
         }
-        return UserCertificateStepLabels[step as UserCertificateStep];
+        return ClientCertificateStepLabels[step as ClientCertificateStep];
     };
 
     return (

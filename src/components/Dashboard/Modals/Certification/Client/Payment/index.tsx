@@ -1,15 +1,15 @@
 import { useState, type FC } from 'react'
 import { IoIosArrowBack } from 'react-icons/io';
-import { usePartnerCertificateStore } from '@/stores/certification/partnerCertificateStore';
+import { useClientCertificateStore } from '@/stores/certification/clientCertificateStore';
 import { toast } from 'react-toastify';
 import { useApi } from '@/hooks/useApi';
-import { PartnerCertificateStep, type CertificateType } from '@/types/certificate.d';
+import { ClientCertificateStep, type CertificateType } from '@/types/certificate.d';
 import type { PaymentMethod } from '@/types/payment.d';
 import PaymentMethodCard from '@/components/Dashboard/Cards/PaymentMethod';
 import { Button } from '@/components/UI/Button';
 import Steps from '@/components/Dashboard/Steps';
 
-interface PartnerCertificationPaymentModalProps {
+interface ClientCertificationPaymentModalProps {
     certificateTypes: CertificateType[];
     paymentMethods: PaymentMethod[];
     setIsModalOpen: (value: boolean) => void;
@@ -34,7 +34,7 @@ const SummaryItem: FC<SummarItemProps> = ({
     )
 }
 
-const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps> = ({
+const ClientCertificationPaymentModal: FC<ClientCertificationPaymentModalProps> = ({
     certificateTypes,
     paymentMethods,
     setIsModalOpen,
@@ -42,11 +42,11 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
     onSuccess
 }) => {
     const { request } = useApi();
-    const { draft, setDraft, clearDraft } = usePartnerCertificateStore();
+    const { draft, setDraft, clearDraft } = useClientCertificateStore();
 
     const [processPayment, setProcessPayment] = useState<boolean>(false);
 
-    const steps = Object.values(PartnerCertificateStep);
+    const steps = Object.values(ClientCertificateStep);
 
     const currentPaymentMethod = paymentMethods.find(paymentMethod => paymentMethod.id === draft.payment_method_id);
     const currentCertificateType = certificateTypes.find(certificateType => certificateType.id === draft.certificate_type_id);
@@ -183,7 +183,7 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
                     <Button
                         theme="secondary"
                         className='lg:w-max'
-                        onClick={() => setDraft({ current_step: PartnerCertificateStep.Service })}>
+                        onClick={() => setDraft({ current_step: ClientCertificateStep.Service })}>
                         <IoIosArrowBack /> Précédent
                     </Button>
                     <Button
@@ -198,4 +198,4 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
     )
 }
 
-export default PartnerCertificationPaymentModal
+export default ClientCertificationPaymentModal

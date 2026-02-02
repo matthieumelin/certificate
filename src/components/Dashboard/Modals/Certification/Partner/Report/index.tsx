@@ -40,11 +40,11 @@ import { ObjectStatus, type ObjectBrand, type ObjectModel, type ObjectReference,
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import useValidateCertificateReport from '@/hooks/useValidateCertificateReport';
 import { toast } from 'react-toastify';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
 import { supabase } from '@/lib/supabase';
 import { useCertificates, useObjectAttributes } from '@/hooks/useSupabase';
 import { Button } from '@/components/UI/Button';
 import Alert from '@/components/UI/Alert';
+import { useCertificateStore } from '@/stores/certificateStore';
 
 interface SubCategory {
     id: string;
@@ -74,7 +74,7 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [isSavingAndFinishing, setIsSavingAndFinishing] = useState<boolean>(false);
 
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
 
     const { updateCertificate } = useCertificates(false);
     const { objectAttributes } = useObjectAttributes(true, selectedCertificate?.object_id);

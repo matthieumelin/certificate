@@ -5,7 +5,7 @@ import Label from '@/components/UI/Form/Label';
 import FormRow from '@/components/UI/Form/Row';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
+import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
 import { Form, Formik } from 'formik'
 import { type FC } from 'react'
@@ -28,7 +28,7 @@ interface PartnerCertificationReportTechnicalWeightModalProps {
 }
 
 const PartnerCertificationReportTechnicalWeightModal: FC<PartnerCertificationReportTechnicalWeightModalProps> = ({ certificateTypes }) => {
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
 
     const initialValues: FormValues = {

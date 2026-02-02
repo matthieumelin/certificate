@@ -1,6 +1,5 @@
 import { Form, Formik } from 'formik'
 import { type FC } from 'react'
-import { useCertificateReportStore } from '@/stores/certificateReportStore'
 import type { CertificateType } from '@/types/certificate'
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore'
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm'
@@ -11,6 +10,7 @@ import FormSelect from '@/components/UI/Form/Select'
 import FormRow from '@/components/UI/Form/Row'
 import Input from '@/components/UI/Form/Input'
 import Score from '@/components/UI/Form/Score'
+import { useCertificateStore } from '@/stores/certificateStore'
 
 interface FormValues {
     case_bezel_insert_material: string;
@@ -30,7 +30,7 @@ interface PartnerCertificationReportCaseBezelInsertModalProps {
 }
 
 const PartnerCertificationReportCaseBezelInsertModal: FC<PartnerCertificationReportCaseBezelInsertModalProps> = ({ certificateTypes }) => {
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
 
     const bezelInsertMaterials = [

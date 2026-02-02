@@ -8,12 +8,12 @@ import Select from '@/components/UI/Form/Select';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useObjectRepairs, useObjects } from '@/hooks/useSupabase';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
 import type { CertificateType } from '@/types/certificate.d';
 import { type ObjectRepair } from '@/types/object.d';
 import { Form, Formik } from 'formik'
 import { useState, type FC, useEffect } from 'react'
 import { toast } from 'react-toastify';
+import { useCertificateStore } from '@/stores/certificateStore';
 
 interface FormValues {
     repair_type: string;
@@ -41,7 +41,7 @@ interface PartnerCertificationReportRepairModalProps {
 }
 
 const PartnerCertificationReportRepairModal: FC<PartnerCertificationReportRepairModalProps> = ({ certificateTypes }) => {
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
 
     const { getObjectById } = useObjects(false);

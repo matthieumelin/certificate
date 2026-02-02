@@ -27,8 +27,7 @@ import PartnerCertificationPaymentModal from '@/components/Dashboard/Modals/Cert
 import PartnerCertificationInspectionModal from '@/components/Dashboard/Modals/Certification/Partner/Inspection';
 import PartnerCertificationReportModal from '@/components/Dashboard/Modals/Certification/Partner/Report';
 import ConfirmInStorePaymentModal from '@/components/Dashboard/Modals/Certification/Partner/Payment/ConfirmInStore';
-import { useCertificateStore } from '@/stores/certificateStore';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
+import { usePartnerCertificateStore } from '@/stores/certification/partnerCertificateStore';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { UserProfileRole, type UserProfile } from '@/types/user.d';
 import type { Object } from '@/types/object';
@@ -37,6 +36,7 @@ import { Navigate } from 'react-router-dom';
 import routes from '@/utils/routes';
 import title from '@/utils/title';
 import Modal from '@/components/UI/Modal';
+import { useCertificateStore } from '@/stores/certificateStore';
 
 const PartnerCertificates = () => {
     const { user, isLoadingUser } = useAuth();
@@ -49,8 +49,8 @@ const PartnerCertificates = () => {
     const { objectReferences } = useObjectReferences();
     const { paymentMethods } = usePaymentMethods();
 
-    const { draft, clearDraft } = useCertificateStore();
-    const { setSelectedCertificate } = useCertificateReportStore();
+    const { draft, clearDraft } = usePartnerCertificateStore();
+    const { setSelectedCertificate } = useCertificateStore();
     const { resetFormData } = useCertificateReportFormStore();
 
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);

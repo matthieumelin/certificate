@@ -1,6 +1,6 @@
 import {
   PartnerCertificateStep,
-  UserCertificateStep,
+  ClientCertificateStep,
   CertificateStatus,
   CertificateVerificationStatus,
 } from "@/types/certificate.d";
@@ -19,11 +19,12 @@ export const PartnerCertificateStepLabels: Record<
   [PartnerCertificateStep.Payment]: "Paiement",
 };
 
-export const UserCertificateStepLabels: Record<UserCertificateStep, string> = {
-  [UserCertificateStep.Type]: "Type de certificat",
-  [UserCertificateStep.Pictures]: "Photos",
-  [UserCertificateStep.Details]: "Détails",
-  [UserCertificateStep.Service]: "Service",
+export const ClientCertificateStepLabels: Record<ClientCertificateStep, string> = {
+  [ClientCertificateStep.CustomerInfos]: "Client",
+  [ClientCertificateStep.ObjectInfos]: "Objet",
+  [ClientCertificateStep.Service]: "Service",
+  [ClientCertificateStep.Partner]: "Partenaire",
+  [ClientCertificateStep.Payment]: "Paiement",
 };
 
 // Status

@@ -1,7 +1,6 @@
 import { useState, useEffect, type FC, type MouseEvent } from 'react';
 import { toast } from 'react-toastify';
-import { useCertificateStore } from '@/stores/certificateStore';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
+import { usePartnerCertificateStore } from '@/stores/certification/partnerCertificateStore';
 import { useNavigate } from 'react-router-dom';
 import routes from '@/utils/routes';
 import { Button } from '@/components/UI/Button';
@@ -12,6 +11,7 @@ import { UserProfileRole } from '@/types/user.d';
 import Alert from '@/components/UI/Alert';
 import { getUserProfileRoleLabel } from '@/helpers/translations';
 import { useApi } from '@/hooks/useApi';
+import { useCertificateStore } from '@/stores/certificateStore';
 
 interface CertificateCardProps {
     draft?: CertificateDraft;
@@ -47,8 +47,8 @@ const CertificateCard: FC<CertificateCardProps> = ({
 
     const { request } = useApi();
 
-    const { clearDraft, setDraft } = useCertificateStore();
-    const { setSelectedCertificate } = useCertificateReportStore();
+    const { clearDraft, setDraft } = usePartnerCertificateStore();
+    const { setSelectedCertificate } = useCertificateStore();
 
     const { deleteCertificateDraft, getCertificateDraftById } = useCertificateDrafts(false);
     const { getCertificateInspectionPhotoSignedUrl } = useCertificateInspections();

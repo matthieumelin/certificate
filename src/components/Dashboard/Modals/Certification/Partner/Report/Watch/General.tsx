@@ -1,6 +1,5 @@
 import { Form, Formik, type FormikProps } from 'formik'
 import { useRef, type FC, useEffect } from 'react'
-import { useCertificateReportStore } from '@/stores/certificateReportStore'
 import type { CertificateType } from '@/types/certificate'
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore'
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm'
@@ -15,6 +14,7 @@ import { getObjectStatusLabel } from '@/helpers/translations'
 import { hasMinimumRole } from '@/utils/user'
 import useAuth from '@/contexts/AuthContext'
 import { UserProfileRole } from '@/types/user.d'
+import { useCertificateStore } from '@/stores/certificateStore'
 
 interface FormValues {
     general_object_type: string;
@@ -38,7 +38,7 @@ interface PartnerCertificationReportGeneralModalProps {
 const PartnerCertificationReportGeneralModal: FC<PartnerCertificationReportGeneralModalProps> = ({ certificateTypes, objectTypes, objectModels, objectBrands, objectReferences }) => {
     const { userProfile } = useAuth();
 
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
 
     const formRef = useRef<FormikProps<FormValues>>(null);

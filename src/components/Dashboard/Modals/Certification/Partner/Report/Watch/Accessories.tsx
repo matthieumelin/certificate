@@ -1,6 +1,5 @@
 import { Form, Formik, type FormikProps } from 'formik'
 import { useEffect, type FC, useRef } from 'react'
-import { useCertificateReportStore } from '@/stores/certificateReportStore'
 import type { CertificateType } from '@/types/certificate'
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore'
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm'
@@ -10,6 +9,7 @@ import FormSelect from '@/components/UI/Form/Select'
 import Score from '@/components/UI/Form/Score'
 import Input from '@/components/UI/Form/Input'
 import FileUpload from '@/components/UI/Form/FileUpload'
+import { useCertificateStore } from '@/stores/certificateStore'
 
 interface FormValues {
     accessories_factory: string[];
@@ -24,7 +24,7 @@ interface PartnerCertificationReportAccessoriesModalProps {
 }
 
 const PartnerCertificationReportAccessoriesModal: FC<PartnerCertificationReportAccessoriesModalProps> = ({ certificateTypes }) => {
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
     const formRef = useRef<FormikProps<FormValues>>(null);
 

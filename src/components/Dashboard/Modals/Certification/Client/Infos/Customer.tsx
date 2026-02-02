@@ -1,9 +1,8 @@
 import { type FC } from 'react'
 import { Form, Formik } from 'formik';
-import { usePartnerCertificateStore } from '@/stores/certification/partnerCertificateStore';
 import { toast } from 'react-toastify';
 import useAuth from '@/contexts/AuthContext';
-import { PartnerCertificateStep } from '@/types/certificate.d';
+import { ClientCertificateStep } from '@/types/certificate.d';
 import Steps from '@/components/Dashboard/Steps';
 import customerInfosSchema from '@/validations/certificate/partner/customerInfos.schema';
 import FormRow from '@/components/UI/Form/Row';
@@ -11,6 +10,7 @@ import FormGroup from '@/components/UI/Form/Group';
 import Label from '@/components/UI/Form/Label';
 import Input from '@/components/UI/Form/Input';
 import { Button } from '@/components/UI/Button';
+import { useClientCertificateStore } from '@/stores/certification/clientCertificateStore';
 
 interface FormValues {
     address: string,
@@ -23,9 +23,9 @@ interface FormValues {
     postal_code: string;
 }
 
-const PartnerCertificationCustomerInfosModal: FC = () => {
+const ClientCertificationCustomerInfosModal: FC = () => {
     const { user } = useAuth();
-    const { draft, setDraft } = usePartnerCertificateStore();
+    const { draft, setDraft } = useClientCertificateStore();
 
     const initialValues: FormValues = {
         address: draft.customer_data?.address || "",
@@ -48,7 +48,7 @@ const PartnerCertificationCustomerInfosModal: FC = () => {
                 id: draft.id,
                 customer_data: values,
                 created_by: user.id,
-                current_step: PartnerCertificateStep.ObjectInfos
+                current_step: ClientCertificateStep.ObjectInfos
             });
         } catch (error) {
             console.error("Erreur sauvegarde infos:", error);
@@ -56,7 +56,7 @@ const PartnerCertificationCustomerInfosModal: FC = () => {
         }
     }
 
-    const steps = Object.values(PartnerCertificateStep);
+    const steps = Object.values(ClientCertificateStep);
 
     return (
         <div>
@@ -157,4 +157,4 @@ const PartnerCertificationCustomerInfosModal: FC = () => {
     )
 }
 
-export default PartnerCertificationCustomerInfosModal
+export default ClientCertificationCustomerInfosModal

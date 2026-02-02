@@ -4,7 +4,7 @@ import Label from '@/components/UI/Form/Label';
 import Select from '@/components/UI/Form/Select';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
+import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
 import { choiceOptions } from '@/utils/report';
 import { Form, Formik } from 'formik'
@@ -21,7 +21,7 @@ interface PartnerCertificationReportTechnicalRustCorrosionModalProps {
 }
 
 const PartnerCertificationReportTechnicalRustCorrosionModal: FC<PartnerCertificationReportTechnicalRustCorrosionModalProps> = ({ certificateTypes }) => {
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
 
     const rustedZones = [

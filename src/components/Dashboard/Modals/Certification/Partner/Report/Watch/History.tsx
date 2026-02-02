@@ -9,13 +9,13 @@ import countries from '@/data/countries';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useObjectHistory, useObjects } from '@/hooks/useSupabase';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
 import type { CertificateType } from '@/types/certificate.d';
 import type { Country } from '@/types/country.d';
 import { type ObjectHistory } from '@/types/object.d';
 import { Form, Formik } from 'formik'
 import { useEffect, type FC, useState } from 'react'
 import { toast } from 'react-toastify';
+import { useCertificateStore } from '@/stores/certificateStore';
 
 interface FormValues {
     history_origin_country: string;
@@ -44,7 +44,7 @@ interface PartnerCertificationReportHistoryModalProps {
 }
 
 const PartnerCertificationReportHistoryModal: FC<PartnerCertificationReportHistoryModalProps> = ({ certificateTypes }) => {
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
 
     const { getObjectById } = useObjects(false);

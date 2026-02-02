@@ -1,6 +1,5 @@
 import { Form, Formik } from 'formik'
 import { type FC } from 'react'
-import { useCertificateReportStore } from '@/stores/certificateReportStore'
 import type { CertificateType } from '@/types/certificate'
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore'
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm'
@@ -9,6 +8,7 @@ import Label from '@/components/UI/Form/Label'
 import FormSelect from '@/components/UI/Form/Select'
 import { choiceOptions } from '@/utils/report'
 import Input from '@/components/UI/Form/Input'
+import { useCertificateStore } from '@/stores/certificateStore'
 
 interface FormValues {
     bracelet_link_pump_type: string;
@@ -22,7 +22,7 @@ interface PartnerCertificationReportBraceletEndLinksModalProps {
 }
 
 const PartnerCertificationReportBraceletEndLinksModal: FC<PartnerCertificationReportBraceletEndLinksModalProps> = ({ certificateTypes }) => {
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
 
     const pumpTypes = [

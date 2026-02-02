@@ -3,7 +3,7 @@ import Input from '@/components/UI/Form/Input';
 import Label from '@/components/UI/Form/Label';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
+import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
 import { Form, Formik } from 'formik'
 import { type FC } from 'react'
@@ -17,7 +17,7 @@ interface PartnerCertificationReportGeneralCommentModalProps {
 }
 
 const PartnerCertificationReportGeneralCommentModal: FC<PartnerCertificationReportGeneralCommentModalProps> = ({ certificateTypes }) => {
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
 
     const initialValues: FormValues = {

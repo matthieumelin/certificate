@@ -28,11 +28,12 @@ export enum PartnerCertificateStep {
   Payment = "payment",
 }
 
-export enum UserCertificateStep {
-  Type = "type",
-  Pictures = "pictures",
-  Details = "details",
+export enum ClientCertificateStep {
+  CustomerInfos = "customer_infos",
+  ObjectInfos = "object_infos",
   Service = "service",
+  Partner = "partner",
+  Payment = "payment",
 }
 
 export interface Certificate {
@@ -80,7 +81,7 @@ export interface CertificateDraft {
   certificate_type_id: number;
   payment_method_id: number;
   stripe_session_id: string;
-  current_step: PartnerCertificateStep;
+  current_step: ClientCertificateStep | PartnerCertificateStep;
   payment_link_sent: boolean;
   created_at: string;
   updated_at: string;
@@ -112,10 +113,10 @@ export interface CertificateDocument {
   id: number;
   certificate_id: number;
   type:
-    | "invoice"
-    | "warranty_card"
-    | "certificate_of_authenticity"
-    | "service_document";
+  | "invoice"
+  | "warranty_card"
+  | "certificate_of_authenticity"
+  | "service_document";
   file_url: string;
   file_name: string;
   uploaded_at: string;

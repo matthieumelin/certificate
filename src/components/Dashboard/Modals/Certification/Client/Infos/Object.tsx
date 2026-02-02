@@ -1,5 +1,5 @@
 import { type FC, useState } from 'react'
-import { PartnerCertificateStep } from '@/types/certificate.d';
+import { ClientCertificateStep, PartnerCertificateStep } from '@/types/certificate.d';
 import type { ObjectBrand, ObjectModel, ObjectReference, ObjectType } from '@/types/object.d';
 import { Button } from '@/components/UI/Button';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
@@ -8,15 +8,15 @@ import FormGroup from '@/components/UI/Form/Group';
 import Label from '@/components/UI/Form/Label';
 import Select from '@/components/UI/Form/Select';
 import Input from '@/components/UI/Form/Input';
-import { usePartnerCertificateStore } from '@/stores/certification/partnerCertificateStore';
 import ObjectTypeCard from '@/components/Dashboard/Cards/ObjectType';
 import { toast } from 'react-toastify';
 import { withCurrentValueOption } from '@/helpers/select';
 import { genCertificateId } from '@/helpers/hash';
 import Steps from '@/components/Dashboard/Steps';
 import objectInfosSchema from '@/validations/certificate/partner/objectInfos.schema';
+import { useClientCertificateStore } from '@/stores/certification/clientCertificateStore';
 
-interface PartnerCertificationObjectInfosModalProps {
+interface ClientCertificationObjectInfosModalProps {
     objectTypes: ObjectType[];
     objectBrands: ObjectBrand[];
     objectModels: ObjectModel[];
@@ -31,16 +31,16 @@ export interface FormValues {
     serial_number: string;
 }
 
-const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosModalProps> = ({
+const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModalProps> = ({
     objectTypes,
     objectBrands,
     objectModels,
     objectReferences,
 }) => {
-    const { draft, setDraft } = usePartnerCertificateStore();
+    const { draft, setDraft } = useClientCertificateStore();
     const [showObjectTypes, setShowObjectTypes] = useState<boolean>(true);
 
-    const steps = Object.values(PartnerCertificateStep);
+    const steps = Object.values(ClientCertificateStep);
 
     const draftObjectType = objectTypes.find(objectType => objectType.id === draft.object_type_id);
 
@@ -68,7 +68,7 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
                 object_model: model,
                 object_reference: reference,
                 object_serial_number: serial_number,
-                current_step: PartnerCertificateStep.Service
+                current_step: ClientCertificateStep.Service
             });
         } catch (error) {
             console.error("Erreur sauvegarde infos:", error);
@@ -222,4 +222,4 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
     )
 }
 
-export default PartnerCertificationObjectInfosModal
+export default ClientCertificationObjectInfosModal

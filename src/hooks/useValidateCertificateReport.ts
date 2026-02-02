@@ -1,5 +1,5 @@
 import { useCertificateReportFormStore } from "@/stores/certificateReportFormStore";
-import { useCertificateReportStore } from "@/stores/certificateReportStore";
+import { useCertificateStore } from "@/stores/certificateStore";
 import type { CertificateType } from "@/types/certificate";
 import type { FormValidationError } from "@/types/form";
 import { createValidationSchema } from "@/validations/certificate/partner/report.schema";
@@ -8,7 +8,7 @@ import { ValidationError } from "yup";
 const useValidateCertificateReport = (certificateTypes: CertificateType[]) => {
   const { getAllFormData, setValidationErrors } =
     useCertificateReportFormStore();
-  const { selectedCertificate } = useCertificateReportStore();
+  const { selectedCertificate } = useCertificateStore();
 
   const normalizeFormData = (data: any) => {
     const normalized = { ...data };

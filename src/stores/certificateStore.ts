@@ -1,40 +1,15 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import {
-  PartnerCertificateStep,
-  type CertificateDraft,
+  type Certificate,
 } from "@/types/certificate.d";
 
-interface CertificateStore {
-  draft: Partial<CertificateDraft>;
-  setDraft: (draft: Partial<CertificateDraft>) => void;
-  clearDraft: () => void;
+
+interface CertificateReportStore {
+  selectedCertificate: Certificate | null;
+  setSelectedCertificate: (certificate: Certificate) => void;
 }
 
-const initialDraft: Partial<CertificateDraft> = {
-  current_step: PartnerCertificateStep.CustomerInfos,
-};
-
-export const useCertificateStore = create<CertificateStore>()(
-  persist(
-    (set) => ({
-      draft: initialDraft,
-
-      setDraft: (updates) => {
-        set((state) => ({
-          draft: { ...state.draft, ...updates },
-        }));
-      },
-
-      clearDraft: () => {
-        set({ draft: initialDraft });
-      },
-    }),
-    {
-      name: "certificate-draft",
-      partialize: (state) => ({
-        draft: state.draft,
-      }),
-    }
-  )
-);
+export const useCertificateStore = create<CertificateReportStore>((set) => ({
+  selectedCertificate: null,
+  setSelectedCertificate: (certificate: Certificate) => set({ selectedCertificate: certificate }),
+}));

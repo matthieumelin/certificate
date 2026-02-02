@@ -6,7 +6,7 @@ import Score from '@/components/UI/Form/Score';
 import Select from '@/components/UI/Form/Select';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
+import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
 import { choiceOptions, colors } from '@/utils/report';
 import { Form, Formik } from 'formik'
@@ -39,7 +39,7 @@ interface PartnerCertificationReportDialHandsModalProps {
 }
 
 const PartnerCertificationReportDialHandsModal: FC<PartnerCertificationReportDialHandsModalProps> = ({ certificateTypes }) => {
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
 
     const dialHandsTypes = [

@@ -1,6 +1,5 @@
 import { Form, Formik } from 'formik'
 import { type FC } from 'react'
-import { useCertificateReportStore } from '@/stores/certificateReportStore'
 import type { CertificateType } from '@/types/certificate'
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore'
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm'
@@ -10,6 +9,7 @@ import Label from '@/components/UI/Form/Label'
 import FormSelect from '@/components/UI/Form/Select'
 import Input from '@/components/UI/Form/Input'
 import Score from '@/components/UI/Form/Score'
+import { useCertificateStore } from '@/stores/certificateStore'
 
 interface FormValues {
     case_glass_material: string;
@@ -25,7 +25,7 @@ interface PartnerCertificationReportCaseGlassModalProps {
 }
 
 const PartnerCertificationReportCaseGlassModal: FC<PartnerCertificationReportCaseGlassModalProps> = ({ certificateTypes }) => {
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
 
     const glassMaterials = [

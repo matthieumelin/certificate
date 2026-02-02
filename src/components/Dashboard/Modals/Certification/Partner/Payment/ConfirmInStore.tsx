@@ -1,5 +1,5 @@
 import { useState, type FC } from 'react'
-import { useCertificateStore } from '@/stores/certificateStore';
+import { usePartnerCertificateStore } from '@/stores/certification/partnerCertificateStore';
 import { type CertificateType } from '@/types/certificate.d';
 import { toast } from 'react-toastify';
 import { useApi } from '@/hooks/useApi';
@@ -21,7 +21,7 @@ const ConfirmInStorePaymentModal: FC<ConfirmInStorePaymentModalProps> = ({
     onSuccess
 }) => {
     const { request } = useApi();
-    const { draft, clearDraft } = useCertificateStore();
+    const { draft, clearDraft } = usePartnerCertificateStore();
 
     const [processPayment, setProcessPayment] = useState<boolean>(false);
 

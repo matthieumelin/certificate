@@ -5,7 +5,7 @@ import Score from '@/components/UI/Form/Score';
 import Select from '@/components/UI/Form/Select';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
+import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
 import { Form, Formik } from 'formik'
 import { type FC } from 'react'
@@ -24,7 +24,7 @@ interface PartnerCertificationReportTechnicalJointsModalProps {
 }
 
 const PartnerCertificationReportTechnicalJointsModal: FC<PartnerCertificationReportTechnicalJointsModalProps> = ({ certificateTypes }) => {
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
 
     const jointPresents = [

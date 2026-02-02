@@ -3,7 +3,6 @@ import { toast } from 'react-toastify';
 import { Form, Formik, type FormikProps } from 'formik';
 import Select from '@/components/UI/Form/Select';
 import type { ObjectBrand, ObjectModel, ObjectReference } from '@/types/object.d';
-import { useCertificateReportStore } from '@/stores/certificateReportStore';
 import { withCurrentValueOption } from '@/helpers/select';
 import { CertificateInspectionResult, CertificateStatus, type CertificateType } from '@/types/certificate.d';
 import useAuth from '@/contexts/AuthContext';
@@ -15,6 +14,7 @@ import certificateInspectionSchema from '@/validations/certificate/partner/inspe
 import FileUpload from '@/components/UI/Form/FileUpload';
 import Input from '@/components/UI/Form/Input';
 import { Button } from '@/components/UI/Button';
+import { useCertificateStore } from '@/stores/certificateStore';
 
 interface ResultButtonProps {
     authentic: boolean;
@@ -112,7 +112,7 @@ const PartnerCertificationInspectionModal: FC<PartnerCertificationInspectionModa
     onSuccess,
 }) => {
     const { user } = useAuth();
-    const { selectedCertificate } = useCertificateReportStore();
+    const { selectedCertificate } = useCertificateStore();
     const { updatePartnerCertificate } = usePartnerCertificates();
     const { createCertificateInspection } = useCertificateInspections();
     const { request } = useApi();
