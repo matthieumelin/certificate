@@ -1,5 +1,5 @@
-import { type FC } from 'react'
-import { Form, Formik } from 'formik';
+import { useRef, type FC } from 'react'
+import { Form, Formik, type FormikProps } from 'formik';
 import { toast } from 'react-toastify';
 import useAuth from '@/contexts/AuthContext';
 import { ClientCertificateStep } from '@/types/certificate.d';
@@ -11,6 +11,7 @@ import Label from '@/components/UI/Form/Label';
 import Input from '@/components/UI/Form/Input';
 import { Button } from '@/components/UI/Button';
 import { useClientCertificateStore } from '@/stores/certification/clientCertificateStore';
+import { FaArrowDown } from "react-icons/fa";
 
 interface FormValues {
     address: string,
@@ -24,8 +25,10 @@ interface FormValues {
 }
 
 const ClientCertificationCustomerInfosModal: FC = () => {
-    const { user } = useAuth();
+    const { user, userProfile } = useAuth();
     const { draft, setDraft } = useClientCertificateStore();
+
+    const formikRef = useRef<FormikProps<FormValues>>(null);
 
     const initialValues: FormValues = {
         address: draft.customer_data?.address || "",
@@ -56,6 +59,43 @@ const ClientCertificationCustomerInfosModal: FC = () => {
         }
     }
 
+    const handleUseCurrentInfos = () => {
+        if (!user) {
+            toast.error("Impossible de soumettre le formulaire");
+            return;
+        }
+
+        const currentInfos = {
+            address: userProfile?.address || "",
+            city: userProfile?.city || "",
+            country: userProfile?.country || "",
+            email: userProfile?.email || "",
+            first_name: userProfile?.first_name || "",
+            last_name: userProfile?.last_name || "",
+            phone: userProfile?.phone || "",
+            postal_code: userProfile?.postal_code || "",
+        };
+
+        setDraft({
+            ...draft,
+            customer_data: currentInfos
+        });
+
+
+        if (formikRef.current) {
+            const { setFieldValue } = formikRef.current;
+
+            setFieldValue('address', currentInfos.address);
+            setFieldValue('city', currentInfos.city);
+            setFieldValue('country', currentInfos.country);
+            setFieldValue('email', currentInfos.email);
+            setFieldValue('first_name', currentInfos.first_name);
+            setFieldValue('last_name', currentInfos.last_name);
+            setFieldValue('phone', currentInfos.phone);
+            setFieldValue('postal_code', currentInfos.postal_code);
+        }
+    }
+
     const steps = Object.values(ClientCertificateStep);
 
     return (
@@ -63,6 +103,7 @@ const ClientCertificationCustomerInfosModal: FC = () => {
             <Steps
                 steps={steps} />
             <Formik
+                innerRef={formikRef}
                 initialValues={initialValues}
                 validationSchema={customerInfosSchema}
                 validateOnBlur={false}
@@ -70,7 +111,8 @@ const ClientCertificationCustomerInfosModal: FC = () => {
                 validateOnMount={false}
                 onSubmit={handleSubmit}>
                 {({ errors, isSubmitting }) => (
-                    <Form>
+                    <Form className='space-y-4'>
+                        <span onClick={handleUseCurrentInfos} className='text-sm text-emerald-400 hover:text-emerald-500 flex items-center gap-2 hover:cursor-pointer'>Utiliser mes informations actuelles <FaArrowDown /></span>
                         <div className='grid gap-4'>
                             <FormRow>
                                 <FormGroup>
