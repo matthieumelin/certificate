@@ -14,6 +14,7 @@ interface InputProps {
     resize?: boolean;
     disabled?: boolean;
     value?: string | number;
+    checked?: boolean;
     onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     useFormik?: boolean;
 }
@@ -29,6 +30,7 @@ const Input: FC<InputProps> = ({
     resize = true,
     disabled,
     value,
+    checked,
     onChange,
     useFormik = true
 }) => {
@@ -83,6 +85,8 @@ const Input: FC<InputProps> = ({
                             id={id}
                             name={name}
                             disabled={disabled}
+                            checked={checked}
+                            onChange={onChange}
                             className={`
                             accent-emerald-600 rounded border-2
                             ${disabled
@@ -181,7 +185,7 @@ const Input: FC<InputProps> = ({
                         id={id}
                         name={name}
                         disabled={disabled}
-                        checked={!!value}
+                        checked={checked !== undefined ? checked : !!value}
                         onChange={onChange}
                         className={`accent-emerald-600 rounded border-2 ${disabled ? "border-emerald-900/10 bg-emerald-900/5 cursor-not-allowed" : "border-emerald-900/30 bg-[#050a08]/80 cursor-pointer hover:border-emerald-500"}`}
                     />

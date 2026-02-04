@@ -3,11 +3,15 @@ import { Button } from '@/components/UI/Button';
 import FormGroup from '@/components/UI/Form/Group';
 import Input from '@/components/UI/Form/Input';
 import Label from '@/components/UI/Form/Label';
+import Select from "@/components/UI/Form/Select";
 import CompanyAutocomplete from '@/components/CompanyAutocomplete';
 import useAuth from '@/contexts/AuthContext';
 import { updateCredentialsSchema } from '@/validations/profile/updateCredentials.schema';
 import { Form, Formik, type FormikHelpers } from 'formik';
 import { useState, type FC, useRef } from 'react';
+import FormRow from '@/components/UI/Form/Row';
+import { UserProfileType } from '@/types/user.d';
+import countries from '@/data/countries';
 
 interface FormValues {
     email: string;
@@ -15,10 +19,15 @@ interface FormValues {
     last_name: string;
     society: string;
     vat_number: string;
+    address: string;
+    city: string;
+    postal_code: string;
+    country: string;
+    type: UserProfileType;
 }
 
 const ProfileCredentialsForm: FC = () => {
-    const { userProfile, updateCredentials, isOAuthUser } = useAuth();
+    const { userProfile, updateCredentials } = useAuth();
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [selectedCompany, setSelectedCompany] = useState<any>(null);
@@ -29,7 +38,12 @@ const ProfileCredentialsForm: FC = () => {
         first_name: userProfile?.first_name || "",
         last_name: userProfile?.last_name || "",
         society: userProfile?.society || "",
-        vat_number: userProfile?.vat_number || ""
+        vat_number: userProfile?.vat_number || "",
+        address: userProfile?.address || "",
+        city: userProfile?.city || "",
+        postal_code: userProfile?.postal_code || "",
+        country: userProfile?.country || "",
+        type: userProfile?.type || UserProfileType.Individual,
     };
 
     const handleSubmit = async (
@@ -46,26 +60,16 @@ const ProfileCredentialsForm: FC = () => {
                 values.first_name,
                 values.last_name,
                 values.society,
-                values.vat_number
+                values.vat_number,
+                values.address,
+                values.city,
+                values.postal_code,
+                values.country,
+                values.type
             );
 
             if (result.success) {
-                const changes: string[] = [];
-                if (result.emailChanged) changes.push('email');
-
-                if (changes.length > 0) {
-                    setSuccessMessage(
-                        `Votre ${changes.join(' et votre ')} ${changes.length > 1 ? 'ont' : 'a'} été mis à jour avec succès !`
-                    );
-
-                    if (result.emailChanged && isOAuthUser) {
-                        setSuccessMessage(
-                            'Vos informations ont été mises à jour.'
-                        );
-                    }
-                } else {
-                    setSuccessMessage('Vos informations ont été mises à jour.');
-                }
+                setSuccessMessage('Vos informations ont été mises à jour.');
             }
 
             setTimeout(() => {
@@ -112,6 +116,14 @@ const ProfileCredentialsForm: FC = () => {
                         setFieldValue('vat_number', company.vat_number);
                     };
 
+                    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+                        const isChecked = (e.target as HTMLInputElement).checked;
+                        setFieldValue(
+                            'type',
+                            isChecked ? UserProfileType.Society : UserProfileType.Individual
+                        );
+                    };
+
                     return (
                         <Form className='space-y-8'>
                             <FormGroup>
@@ -124,58 +136,121 @@ const ProfileCredentialsForm: FC = () => {
                                     placeholder='Adresse e-mail' />
                             </FormGroup>
 
-                            <FormGroup>
-                                <Label label='Prénom' htmlFor='first_name' />
-                                <Input
-                                    error={errors.first_name}
-                                    id='first_name'
-                                    type='text'
-                                    name='first_name'
-                                    placeholder='Prénom' />
-                            </FormGroup>
+                            <FormRow>
+                                <FormGroup>
+                                    <Label label='Prénom' htmlFor='first_name' />
+                                    <Input
+                                        error={errors.first_name}
+                                        id='first_name'
+                                        type='text'
+                                        name='first_name'
+                                        placeholder='Prénom' />
+                                </FormGroup>
+
+                                <FormGroup>
+                                    <Label label='Nom' htmlFor='last_name' />
+                                    <Input
+                                        error={errors.last_name}
+                                        id='last_name'
+                                        type='text'
+                                        name='last_name'
+                                        placeholder='Nom' />
+                                </FormGroup>
+                            </FormRow>
 
                             <FormGroup>
-                                <Label label='Nom' htmlFor='last_name' />
+                                <Label label='Adresse' htmlFor='address' />
                                 <Input
-                                    error={errors.last_name}
-                                    id='last_name'
+                                    error={errors.address}
+                                    id='address'
                                     type='text'
-                                    name='last_name'
-                                    placeholder='Nom' />
+                                    name='address'
+                                    placeholder='Adresse' />
                             </FormGroup>
 
+                            <FormRow>
+                                <FormGroup>
+                                    <Label label='Ville' htmlFor='city' />
+                                    <Input
+                                        error={errors.city}
+                                        id='city'
+                                        type='text'
+                                        name='city'
+                                        placeholder='Ville' />
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label label='Code postal' htmlFor='postal_code' />
+                                    <Input
+                                        error={errors.postal_code}
+                                        id='postal_code'
+                                        type='text'
+                                        name='postal_code'
+                                        placeholder='Code postal' />
+                                </FormGroup>
+                                <FormGroup>
+                                    <Label label='Pays' htmlFor='country' />
+                                    <Select id='country' options={countries.map((country) => (
+                                        {
+                                            label: "",
+                                            value: "",
+                                        }
+                                    ))} />
+                                    <Input
+                                        error={errors.country}
+                                        id='country'
+                                        type='text'
+                                        name='country'
+                                        placeholder='Pays' />
+                                </FormGroup>
+                            </FormRow>
+
                             <FormGroup>
-                                <Label label="Nom de l'entreprise" htmlFor='society' />
-                                <CompanyAutocomplete
-                                    onSelect={handleCompanySelect}
-                                    initialValue={values.society}
+                                <Input
+                                    id='type'
+                                    name='type'
+                                    type='checkbox'
+                                    label='Je suis une entreprise'
+                                    checked={values.type === UserProfileType.Society}
+                                    onChange={handleCheckboxChange}
                                 />
-                                {errors.society && (
-                                    <p className="text-red-400 text-sm mt-2">{errors.society}</p>
-                                )}
-                                {selectedCompany && (
-                                    <div className="mt-2 p-3 bg-emerald-900/10 border border-emerald-900/30 rounded-lg">
-                                        <p className="text-emerald-400 text-xs">
-                                            ✓ Entreprise sélectionnée
-                                        </p>
-                                        <p className="text-neutral-400 text-xs mt-1">
-                                            SIREN: {selectedCompany.siren} • SIRET: {selectedCompany.siret}
-                                        </p>
-                                    </div>
-                                )}
                             </FormGroup>
 
-                            <FormGroup>
-                                <Label label="Numéro de TVA" htmlFor='vat_number' />
-                                <Input
-                                    error={errors.vat_number}
-                                    id='vat_number'
-                                    type='text'
-                                    name='vat_number'
-                                    placeholder="FR12345678901"
-                                    disabled={!!selectedCompany}
-                                />
-                            </FormGroup>
+                            {values.type === UserProfileType.Society && (
+                                <>
+                                    <FormGroup>
+                                        <Label label="Nom de l'entreprise" htmlFor='society' />
+                                        <CompanyAutocomplete
+                                            onSelect={handleCompanySelect}
+                                            initialValue={values.society}
+                                        />
+                                        {errors.society && (
+                                            <p className="text-red-400 text-sm mt-2">{errors.society}</p>
+                                        )}
+                                        {selectedCompany && (
+                                            <div className="mt-2 p-3 bg-emerald-900/10 border border-emerald-900/30 rounded-lg">
+                                                <p className="text-emerald-400 text-xs">
+                                                    ✓ Entreprise sélectionnée
+                                                </p>
+                                                <p className="text-neutral-400 text-xs mt-1">
+                                                    SIREN: {selectedCompany.siren} • SIRET: {selectedCompany.siret}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </FormGroup>
+
+                                    <FormGroup>
+                                        <Label label="Numéro de TVA" htmlFor='vat_number' />
+                                        <Input
+                                            error={errors.vat_number}
+                                            id='vat_number'
+                                            type='text'
+                                            name='vat_number'
+                                            placeholder="FR12345678901"
+                                            disabled={!!selectedCompany}
+                                        />
+                                    </FormGroup>
+                                </>
+                            )}
 
                             <FormGroup>
                                 <Button

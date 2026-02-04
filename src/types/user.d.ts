@@ -1,5 +1,5 @@
 export enum UserProfileType {
-  Business = "business",
+  Society = "society",
   Individual = "individual",
 }
 
@@ -25,5 +25,6 @@ export interface UserProfile {
   country: string;
   postal_code: string;
   society: string;
-  vat_number;
+  vat_number: string;
+  type: UserProfileType;
 }

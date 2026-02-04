@@ -21,6 +21,8 @@ const DashboardProfilePage: FC = () => {
         return <Navigate to={routes.Login} replace />
     }
 
+    
+
     return (
         <div>
             <title>{title("Paramètres")}</title>
@@ -30,7 +32,6 @@ const DashboardProfilePage: FC = () => {
                     Paramètres
                 </h1>
 
-                {/* Onglets */}
                 <div className='flex gap-4 mb-6 border-b border-emerald-900/30'>
                     <button
                         onClick={() => setActiveTab('profile')}
@@ -61,7 +62,6 @@ const DashboardProfilePage: FC = () => {
                     </button> */}
                 </div>
 
-                {/* Contenu des onglets */}
                 <div className='max-w-3xl'>
                     {activeTab === 'profile' && (
                         <div className='space-y-6'>
@@ -91,7 +91,6 @@ const DashboardProfilePage: FC = () => {
                                 <h2 className='text-white text-xl font-semibold mb-4'>
                                     Préférences
                                 </h2>
-                                {/* Notifications, langue, etc. */}
                             </div>
                         </div>
                     )}

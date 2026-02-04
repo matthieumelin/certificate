@@ -1,7 +1,7 @@
 import type { AuthError, Session, User } from '@supabase/supabase-js'
 import { createContext, useContext, useEffect, useState, useRef, type FC, type ReactNode } from 'react'
 import { supabase } from '@/lib/supabase';
-import type { UserProfile } from '@/types/user';
+import type { UserProfile, UserProfileType } from '@/types/user';
 import routes from '@/utils/routes';
 
 interface AuthContextType {
@@ -28,13 +28,9 @@ interface AuthContextType {
     changePassword: (currentPassword: string, newPassword: string) => Promise<boolean>,
     setPassword: (newPassword: string) => Promise<boolean>,
     resetPassword: (email: string) => Promise<void>;
-    updateCredentials: (email: string, firstName: string, lastName: string, society: string, vatNumber: string) => Promise<{
+    updateCredentials: (email: string, firstName: string, lastName: string, society: string, vatNumber: string, address: string, city: string, postalCode: string, country: string, type: UserProfileType) => Promise<{
         success: boolean;
         emailChanged: boolean;
-        firstNameChanged: boolean;
-        lastNameChanged: boolean;
-        societyChanged: boolean;
-        vatNumberChanged: boolean;
     }>;
 }
 
@@ -209,7 +205,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
         if (error) throw error;
     };
 
-    const updateCredentials = async (email: string, firstName: string, lastName: string, society: string, vatNumber: string) => {
+    const updateCredentials = async (email: string, firstName: string, lastName: string, society: string, vatNumber: string, address: string, city: string, postalCode: string, country: string, type: UserProfileType) => {
         if (!user?.id) {
             throw new Error("Utilisateur non connecté");
         }
@@ -221,7 +217,12 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
                 p_new_first_name: firstName,
                 p_new_last_name: lastName,
                 p_new_society: society,
-                p_new_vat_number: vatNumber
+                p_new_vat_number: vatNumber,
+                p_new_address: address,
+                p_new_city: city,
+                p_new_postal_code: postalCode,
+                p_new_country: country,
+                p_new_type: type
             });
 
             if (error) {
@@ -239,6 +240,11 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
                     last_name: lastName,
                     society: society,
                     vat_number: vatNumber,
+                    address: address,
+                    city: city,
+                    postal_code: postalCode,
+                    country: country,
+                    type: type,
                     updated_at: new Date().toISOString()
                 });
             }
@@ -246,10 +252,6 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
             return {
                 success: data.success,
                 emailChanged: data.email_changed,
-                firstNameChanged: data.first_name_changed,
-                lastNameChanged: data.last_name_changed,
-                societyChanged: data.society_changed,
-                vatNumberChanged: data.vat_number_changed
             };
         } catch (error) {
             if (error instanceof Error) {
@@ -258,7 +260,6 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
             throw new Error('Une erreur inattendue est survenue');
         }
     }
-
 
     return (
         <AuthContext.Provider value={{
