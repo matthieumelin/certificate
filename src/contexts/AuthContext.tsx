@@ -28,7 +28,7 @@ interface AuthContextType {
     changePassword: (currentPassword: string, newPassword: string) => Promise<boolean>,
     setPassword: (newPassword: string) => Promise<boolean>,
     resetPassword: (email: string) => Promise<void>;
-    updateCredentials: (email: string, firstName: string, lastName: string, society: string, vatNumber: string, address: string, city: string, postalCode: string, country: string, type: UserProfileType) => Promise<{
+    updateCredentials: (email: string, firstName: string, lastName: string, phone: string, society: string, vatNumber: string, address: string, city: string, postalCode: string, country: string, type: UserProfileType) => Promise<{
         success: boolean;
         emailChanged: boolean;
     }>;
@@ -205,7 +205,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
         if (error) throw error;
     };
 
-    const updateCredentials = async (email: string, firstName: string, lastName: string, society: string, vatNumber: string, address: string, city: string, postalCode: string, country: string, type: UserProfileType) => {
+    const updateCredentials = async (email: string, firstName: string, lastName: string, phone: string, society: string, vatNumber: string, address: string, city: string, postalCode: string, country: string, type: UserProfileType) => {
         if (!user?.id) {
             throw new Error("Utilisateur non connecté");
         }
@@ -216,6 +216,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
                 p_new_email: email,
                 p_new_first_name: firstName,
                 p_new_last_name: lastName,
+                p_new_phone: phone,
                 p_new_society: society,
                 p_new_vat_number: vatNumber,
                 p_new_address: address,

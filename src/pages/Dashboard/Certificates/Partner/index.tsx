@@ -365,7 +365,7 @@ const PartnerCertificates = () => {
                                         {filteredItems.length} résultat{filteredItems.length > 1 ? 's' : ''}
                                     </div>
 
-                                    <div className="grid lg:grid-cols-2 gap-4">
+                                    <div className="grid lg:grid-cols-4 gap-4">
                                         {filteredItems.map((item) => (
                                             <CertificateCard
                                                 key={item.type === 'draft' ? `draft-${item.data.id}` : `cert-${item.data.id}`}

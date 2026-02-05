@@ -1,4 +1,4 @@
-import { useRef, type FC } from 'react'
+import { useEffect, useRef, type FC } from 'react'
 import { Form, Formik, type FormikProps } from 'formik';
 import { toast } from 'react-toastify';
 import useAuth from '@/contexts/AuthContext';
@@ -11,7 +11,7 @@ import Label from '@/components/UI/Form/Label';
 import Input from '@/components/UI/Form/Input';
 import { Button } from '@/components/UI/Button';
 import { useClientCertificateStore } from '@/stores/certification/clientCertificateStore';
-import { FaArrowDown } from "react-icons/fa";
+import countries from '@/data/countries';
 
 interface FormValues {
     address: string,
@@ -59,42 +59,22 @@ const ClientCertificationCustomerInfosModal: FC = () => {
         }
     }
 
-    const handleUseCurrentInfos = () => {
-        if (!user) {
-            toast.error("Impossible de soumettre le formulaire");
-            return;
-        }
-
-        const currentInfos = {
-            address: userProfile?.address || "",
-            city: userProfile?.city || "",
-            country: userProfile?.country || "",
-            email: userProfile?.email || "",
-            first_name: userProfile?.first_name || "",
-            last_name: userProfile?.last_name || "",
-            phone: userProfile?.phone || "",
-            postal_code: userProfile?.postal_code || "",
-        };
-
-        setDraft({
-            ...draft,
-            customer_data: currentInfos
-        });
-
-
+    useEffect(() => {
         if (formikRef.current) {
             const { setFieldValue } = formikRef.current;
 
-            setFieldValue('address', currentInfos.address);
-            setFieldValue('city', currentInfos.city);
-            setFieldValue('country', currentInfos.country);
-            setFieldValue('email', currentInfos.email);
-            setFieldValue('first_name', currentInfos.first_name);
-            setFieldValue('last_name', currentInfos.last_name);
-            setFieldValue('phone', currentInfos.phone);
-            setFieldValue('postal_code', currentInfos.postal_code);
+            const countryName = countries.find(country => country.code === userProfile?.country)?.name || userProfile?.country || "";
+
+            setFieldValue('address', userProfile?.address || "");
+            setFieldValue('city', userProfile?.city || "");
+            setFieldValue('country', countryName);
+            setFieldValue('email', userProfile?.email || "");
+            setFieldValue('first_name', userProfile?.first_name || "");
+            setFieldValue('last_name', userProfile?.last_name || "");
+            setFieldValue('phone', userProfile?.phone || "");
+            setFieldValue('postal_code', userProfile?.postal_code || "");
         }
-    }
+    }, [])
 
     const steps = Object.values(ClientCertificateStep);
 
@@ -112,12 +92,13 @@ const ClientCertificationCustomerInfosModal: FC = () => {
                 onSubmit={handleSubmit}>
                 {({ errors, isSubmitting }) => (
                     <Form className='space-y-4'>
-                        <span onClick={handleUseCurrentInfos} className='text-sm text-emerald-400 hover:text-emerald-500 flex items-center gap-2 hover:cursor-pointer'>Utiliser mes informations actuelles <FaArrowDown /></span>
                         <div className='grid gap-4'>
                             <FormRow>
                                 <FormGroup>
                                     <Label htmlFor='first_name' label='Prénom' required />
-                                    <Input error={errors.first_name}
+                                    <Input
+                                        disabled
+                                        error={errors.first_name}
                                         id='first_name'
                                         name="first_name"
                                         type='text'
@@ -126,7 +107,9 @@ const ClientCertificationCustomerInfosModal: FC = () => {
                                 </FormGroup>
                                 <FormGroup>
                                     <Label htmlFor='last_name' label='Nom' required />
-                                    <Input error={errors.last_name}
+                                    <Input
+                                        disabled
+                                        error={errors.last_name}
                                         id='last_name'
                                         name="last_name"
                                         type='text'
@@ -137,7 +120,7 @@ const ClientCertificationCustomerInfosModal: FC = () => {
                             <FormRow>
                                 <FormGroup>
                                     <Label htmlFor='email' label='Email' required />
-                                    <Input error={errors.email}
+                                    <Input disabled error={errors.email}
                                         id='email'
                                         name="email"
                                         type='email'
@@ -146,7 +129,7 @@ const ClientCertificationCustomerInfosModal: FC = () => {
                                 </FormGroup>
                                 <FormGroup>
                                     <Label htmlFor='phone' label='Téléphone' />
-                                    <Input error={errors.phone}
+                                    <Input disabled error={errors.phone}
                                         id='phone'
                                         name="phone"
                                         type='tel'
@@ -156,7 +139,7 @@ const ClientCertificationCustomerInfosModal: FC = () => {
                             </FormRow>
                             <FormGroup>
                                 <Label htmlFor='address' label='Adresse' />
-                                <Input error={errors.address}
+                                <Input disabled error={errors.address}
                                     id='address'
                                     name="address"
                                     type='text'
@@ -165,7 +148,7 @@ const ClientCertificationCustomerInfosModal: FC = () => {
                             <FormRow>
                                 <FormGroup>
                                     <Label htmlFor='city' label='Ville' />
-                                    <Input error={errors.city}
+                                    <Input disabled error={errors.city}
                                         id='city'
                                         name="city"
                                         type='text'
@@ -173,7 +156,7 @@ const ClientCertificationCustomerInfosModal: FC = () => {
                                 </FormGroup>
                                 <FormGroup>
                                     <Label htmlFor='postal_code' label='Code Postal' />
-                                    <Input error={errors.postal_code}
+                                    <Input disabled error={errors.postal_code}
                                         id='postal_code'
                                         name="postal_code"
                                         type='text'
@@ -181,7 +164,7 @@ const ClientCertificationCustomerInfosModal: FC = () => {
                                 </FormGroup>
                                 <FormGroup>
                                     <Label htmlFor='country' label='Pays' />
-                                    <Input error={errors.country}
+                                    <Input disabled error={errors.country}
                                         id='country'
                                         name="country"
                                         type='text'

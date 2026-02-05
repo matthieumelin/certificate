@@ -10,7 +10,7 @@ import { Navigate } from 'react-router-dom';
 type SettingsTab = 'profile' | 'security' | 'preferences';
 
 const DashboardProfilePage: FC = () => {
-    const { user, userProfile, isLoadingUser, isLoadingProfile } = useAuth();
+    const { user, isLoadingUser, isLoadingProfile } = useAuth();
     const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
 
     if (isLoadingUser || isLoadingProfile) {
@@ -20,8 +20,6 @@ const DashboardProfilePage: FC = () => {
     if (!user) {
         return <Navigate to={routes.Login} replace />
     }
-
-    
 
     return (
         <div>

@@ -17,6 +17,7 @@ interface FormValues {
     email: string;
     first_name: string;
     last_name: string;
+    phone: string;
     society: string;
     vat_number: string;
     address: string;
@@ -37,6 +38,7 @@ const ProfileCredentialsForm: FC = () => {
         email: userProfile?.email || "",
         first_name: userProfile?.first_name || "",
         last_name: userProfile?.last_name || "",
+        phone: userProfile?.phone || "",
         society: userProfile?.society || "",
         vat_number: userProfile?.vat_number || "",
         address: userProfile?.address || "",
@@ -59,6 +61,7 @@ const ProfileCredentialsForm: FC = () => {
                 values.email,
                 values.first_name,
                 values.last_name,
+                values.phone,
                 values.society,
                 values.vat_number,
                 values.address,
@@ -159,6 +162,16 @@ const ProfileCredentialsForm: FC = () => {
                             </FormRow>
 
                             <FormGroup>
+                                <Label label='Téléphone' htmlFor='phone' />
+                                <Input
+                                    error={errors.phone}
+                                    id='phone'
+                                    type='text'
+                                    name='phone'
+                                    placeholder='+33123456789' />
+                            </FormGroup>
+
+                            <FormGroup>
                                 <Label label='Adresse' htmlFor='address' />
                                 <Input
                                     error={errors.address}
@@ -189,18 +202,17 @@ const ProfileCredentialsForm: FC = () => {
                                 </FormGroup>
                                 <FormGroup>
                                     <Label label='Pays' htmlFor='country' />
-                                    <Select id='country' options={countries.map((country) => (
-                                        {
-                                            label: "",
-                                            value: "",
-                                        }
-                                    ))} />
-                                    <Input
+                                    <Select
+                                        value={values.country}
                                         error={errors.country}
                                         id='country'
-                                        type='text'
-                                        name='country'
-                                        placeholder='Pays' />
+                                        options={countries.map((country) => (
+                                            {
+                                                label: country.name,
+                                                value: country.code,
+                                            }
+                                        ))}
+                                        onChange={(value) => setFieldValue('country', value)} />
                                 </FormGroup>
                             </FormRow>
 

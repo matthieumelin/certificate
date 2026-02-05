@@ -196,7 +196,7 @@ const CertificateCard: FC<CertificateCardProps> = ({
         }
 
         return (
-            <span className={`${config.bg} ${config.text} px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 w-fit`}>
+            <span className={`${config.bg} ${config.text} px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 w-max`}>
                 <span>{config.icon}</span>
                 <span>{config.label}</span>
             </span>
@@ -209,12 +209,12 @@ const CertificateCard: FC<CertificateCardProps> = ({
 
             return (
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className="bg-neutral-600 text-white px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 w-fit">
+                    <span className="bg-neutral-600 text-white px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 w-max">
                         <span>📝</span>
                         <span>Brouillon</span>
                     </span>
                     {paymentLinkSent && (
-                        <span className="bg-yellow-500 text-black px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 w-fit">
+                        <span className="bg-yellow-500 text-black px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 w-max">
                             <span>⏳</span>
                             <span>Paiement en attente</span>
                         </span>
@@ -267,14 +267,14 @@ const CertificateCard: FC<CertificateCardProps> = ({
         const config: StatusConfig = statusConfig[status];
         if (!config) {
             return (
-                <span className="bg-neutral-600 text-white px-3 py-1.5 rounded-full text-xs w-fit">
+                <span className="bg-neutral-600 text-white px-3 py-1.5 rounded-full text-xs w-max">
                     Statut inconnu
                 </span>
             );
         }
 
         return (
-            <span className={`${config.bg} ${config.text} px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 w-fit`}>
+            <span className={`${config.bg} ${config.text} px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5 w-max`}>
                 <span>{config.icon}</span>
                 <span>{config.label}</span>
             </span>
@@ -353,7 +353,7 @@ const CertificateCard: FC<CertificateCardProps> = ({
     }, [certificate]);
 
     return (
-        <div className="h-max">
+        <div className="h-max lg:h-full">
             <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm border border-emerald-900/30 hover:border-emerald-500/50 transition-all flex flex-col">
                 <div className='p-6 shrink-0'>
                     <div className="flex items-center justify-between mb-3">

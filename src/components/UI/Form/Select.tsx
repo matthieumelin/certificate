@@ -28,7 +28,7 @@ const FormSelect: FC<FormSelectProps> = ({
     error,
     options = [],
     placeholder = "Sélectionner...",
-    className,
+    className = "",
     multiple = false,
     searchable = true,
     defaultValue,
@@ -128,13 +128,13 @@ const FormSelect: FC<FormSelectProps> = ({
     };
 
     return (
-        <div className='space-y-1'>
-            <div className={`relative ${className}`} ref={dropdownRef}>
+        <div className='space-y-1 h-full'>
+            <div className={`relative h-full ${className}`} ref={dropdownRef}>
                 <button
                     type='button'
                     id={id}
                     disabled={disabled}
-                    className={`w-full flex justify-between items-center rounded-xl px-3 py-2 border transition-all ${getButtonClasses()}`}
+                    className={`w-full h-full flex justify-between items-center rounded-xl px-3 py-2 border transition-all ${getButtonClasses()}`}
                     onClick={() => setOpen(prev => !prev)}
                 >
                     <span className={getDisplayText() === placeholder ? "text-neutral-400" : ""}>
