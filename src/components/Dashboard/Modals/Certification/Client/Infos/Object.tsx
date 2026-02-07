@@ -44,10 +44,14 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
 
     const steps = Object.values(ClientCertificateStep);
 
-    const draftObjectType = objectTypes.find(objectType => objectType.id === draft.object_type_id);
+    const firstActiveObjectType = objectTypes.find(type => type.is_active);
+
+    const draftObjectType = draft.object_type_id
+        ? objectTypes.find(objectType => objectType.id === draft.object_type_id)
+        : firstActiveObjectType || objectTypes[0];
 
     const initialFormValues: FormValues = {
-        type: draftObjectType?.name || objectTypes[0].name,
+        type: draftObjectType?.name || "",
         brand: draft.object_brand || "",
         model: draft.object_model || "",
         reference: draft.object_reference || "",
@@ -145,7 +149,7 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
                                 {!showObjectTypes && draftObjectType && (
                                     <div className='p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30'>
                                         <span className="text-emerald-400/60 text-xs uppercase font-bold">Type sélectionné : </span>
-                                        <span className="text-white font-medium">{draftObjectType.name}</span>
+                                        <span className="text-white font-medium">{draftObjectType.label}</span>
                                     </div>
                                 )}
                             </div>

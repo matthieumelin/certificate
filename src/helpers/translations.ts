@@ -75,7 +75,7 @@ export const TransactionTypeLabels: Record<TransactionType, string> = {
 
 // User types
 export const UserTypeLabels: Record<UserProfileType, string> = {
-  [UserProfileType.Business]: "Entreprise",
+  [UserProfileType.Society]: "Entreprise",
   [UserProfileType.Individual]: "Particulier",
 };
 
