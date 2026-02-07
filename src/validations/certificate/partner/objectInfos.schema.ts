@@ -11,6 +11,7 @@ const objectInfosSchema = Yup.object({
       /^[A-Z0-9\-]+$/i,
       "Le numéro de série ne peut contenir que des lettres, chiffres et tirets"
     ),
+  front_photo: Yup.array().of(Yup.string().required("La photo de l'objet est requise")).min(1, "La photo de l'objet est requise"),
 });
 
 export default objectInfosSchema;

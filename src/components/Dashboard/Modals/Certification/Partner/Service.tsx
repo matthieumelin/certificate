@@ -48,6 +48,7 @@ const PartnerCertificationServiceModal: FC<PartnerCertificationServiceModalProps
     return (
         <div>
             <Steps
+                mode='partner'
                 steps={steps} />
 
             <Formik

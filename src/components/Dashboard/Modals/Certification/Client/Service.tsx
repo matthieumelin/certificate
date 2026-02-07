@@ -48,6 +48,7 @@ const ClientCertificationServiceModal: FC<ClientCertificationServiceModalProps> 
     return (
         <div>
             <Steps
+                mode='client'
                 steps={steps} />
 
             <Formik

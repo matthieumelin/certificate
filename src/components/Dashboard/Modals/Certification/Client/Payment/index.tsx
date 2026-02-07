@@ -150,6 +150,7 @@ const ClientCertificationPaymentModal: FC<ClientCertificationPaymentModalProps> 
     return (
         <div>
             <Steps
+                mode='client'
                 steps={steps} />
             <div>
                 <h2 className='text-white text-2xl font-semibold'>Mode de paiement</h2>

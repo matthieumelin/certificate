@@ -150,6 +150,7 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
     return (
         <div>
             <Steps
+                mode='partner'
                 steps={steps} />
             <div>
                 <h2 className='text-white text-2xl font-semibold'>Mode de paiement</h2>

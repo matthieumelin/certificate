@@ -81,7 +81,9 @@ const ClientCertificationCustomerInfosModal: FC = () => {
     return (
         <div>
             <Steps
+                mode='client'
                 steps={steps} />
+                
             <Formik
                 innerRef={formikRef}
                 initialValues={initialValues}

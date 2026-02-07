@@ -83,6 +83,7 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
     return (
         <div>
             <Steps
+                mode='partner'
                 steps={steps} />
 
             <Formik

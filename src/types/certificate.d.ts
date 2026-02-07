@@ -78,6 +78,7 @@ export interface CertificateDraft {
   object_model: string;
   object_reference: string;
   object_serial_number: string;
+  object_front_photo: string[];
   certificate_type_id: number;
   payment_method_id: number;
   stripe_session_id: string;

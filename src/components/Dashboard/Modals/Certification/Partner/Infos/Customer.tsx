@@ -61,7 +61,9 @@ const PartnerCertificationCustomerInfosModal: FC = () => {
     return (
         <div>
             <Steps
+                mode='partner'
                 steps={steps} />
+                
             <Formik
                 initialValues={initialValues}
                 validationSchema={customerInfosSchema}

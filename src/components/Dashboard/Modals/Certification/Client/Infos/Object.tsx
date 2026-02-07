@@ -15,6 +15,7 @@ import { genCertificateId } from '@/helpers/hash';
 import Steps from '@/components/Dashboard/Steps';
 import objectInfosSchema from '@/validations/certificate/partner/objectInfos.schema';
 import { useClientCertificateStore } from '@/stores/certification/clientCertificateStore';
+import FileUpload from '@/components/UI/Form/FileUpload';
 
 interface ClientCertificationObjectInfosModalProps {
     objectTypes: ObjectType[];
@@ -29,6 +30,7 @@ export interface FormValues {
     model: string;
     reference: string;
     serial_number: string;
+    front_photo: string[];
 }
 
 const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModalProps> = ({
@@ -50,10 +52,11 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
         model: draft.object_model || "",
         reference: draft.object_reference || "",
         serial_number: draft.object_serial_number || "",
+        front_photo: draft.object_front_photo || [],
     };
 
     const handleSubmit = async (values: FormValues) => {
-        const { type, brand, model, reference, serial_number } = values;
+        const { type, brand, model, reference, serial_number, front_photo } = values;
 
         try {
             const currentObjectType = objectTypes.find(objectType => objectType.name === type);
@@ -68,6 +71,7 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
                 object_model: model,
                 object_reference: reference,
                 object_serial_number: serial_number,
+                object_front_photo: front_photo,
                 current_step: ClientCertificateStep.Service
             });
         } catch (error) {
@@ -83,6 +87,7 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
     return (
         <div>
             <Steps
+                mode='client'
                 steps={steps} />
 
             <Formik
@@ -123,7 +128,8 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
                                                     if (a.is_active === b.is_active) return 0;
                                                     return a.is_active ? -1 : 1;
                                                 }).map((objectType: ObjectType) => (
-                                                    <div key={objectType.id} onClick={handleObjectTypeSelect}>
+                                                    <div key={objectType.id}
+                                                        onClick={handleObjectTypeSelect}>
                                                         <ObjectTypeCard data={objectType} />
                                                     </div>
                                                 ))}
@@ -196,6 +202,19 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
                                     <FormGroup>
                                         <Label htmlFor="serial_number" label="Numéro de série" required />
                                         <Input id='serial_number' name='serial_number' type='text' placeholder="116610LN" error={errors.serial_number} />
+                                    </FormGroup>
+
+                                    <FormGroup>
+                                        <Label htmlFor='front_photo' label="Photo de face (photo de référence)" required />
+                                        <FileUpload
+                                            bucketName="object_photos"
+                                            uploadPath={draft.id || 'temp'}
+                                            value={values.front_photo}
+                                            onChange={(paths) => setFieldValue('front_photo', paths[0])}
+                                            maxFiles={1}
+                                            maxSizeMB={5}
+                                            acceptedFileTypes={['.jpg', '.png']}
+                                        />
                                     </FormGroup>
                                 </div>
                             </div>

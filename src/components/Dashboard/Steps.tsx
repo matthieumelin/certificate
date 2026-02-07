@@ -2,15 +2,21 @@ import { FaCheck } from "react-icons/fa6";
 import { usePartnerCertificateStore } from "@/stores/certification/partnerCertificateStore";
 import { PartnerCertificateStep, ClientCertificateStep } from "@/types/certificate.d";
 import { PartnerCertificateStepLabels, ClientCertificateStepLabels } from "@/helpers/translations";
+import { useClientCertificateStore } from "@/stores/certification/clientCertificateStore";
 
 interface StepsProps<T extends ClientCertificateStep | PartnerCertificateStep> {
     steps: T[];
+    mode: 'partner' | 'client';
 }
 
 const Steps = <T extends ClientCertificateStep | PartnerCertificateStep>({
-    steps
+    steps,
+    mode
 }: StepsProps<T>) => {
-    const { draft } = usePartnerCertificateStore();
+    const { draft: partnerDraft } = usePartnerCertificateStore();
+    const { draft: customerDraft } = useClientCertificateStore();
+
+    const draft = mode === 'partner' ? partnerDraft : customerDraft;
     const currentStepIndex = steps.indexOf(draft.current_step as T);
 
     const getStepLabel = (step: T): string => {
@@ -43,8 +49,8 @@ const Steps = <T extends ClientCertificateStep | PartnerCertificateStep>({
                                 {isCompleted ? <FaCheck size={16} /> : index + 1}
                             </div>
                             <h3 className={`mt-1 text-xs uppercase font-bold tracking-wide transition-colors duration-200 text-center ${isCompleted || isCurrent
-                                    ? "text-emerald-400"
-                                    : "text-neutral-500"
+                                ? "text-emerald-400"
+                                : "text-neutral-500"
                                 }`}>
                                 {getStepLabel(step)}
                             </h3>
@@ -53,7 +59,7 @@ const Steps = <T extends ClientCertificateStep | PartnerCertificateStep>({
                             <div className='flex-1 h-1 mx-4 relative' style={{ top: '-16px' }}>
                                 <div className='h-full bg-emerald-900/20 rounded-full overflow-hidden'>
                                     <div
-                                        className={`h-full bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-full transition-all duration-500 ${currentStepIndex > index ? "w-full" : "w-0"
+                                        className={`h-full bg-linear-to-r from-emerald-600 to-emerald-500 rounded-full transition-all duration-500 ${currentStepIndex > index ? "w-full" : "w-0"
                                             }`}
                                     />
                                 </div>
