@@ -214,7 +214,7 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
                                             bucketName="object_photos"
                                             uploadPath={draft.id || 'temp'}
                                             value={values.front_photo}
-                                            onChange={(paths) => setFieldValue('front_photo', paths[0])}
+                                            onChange={(paths) => setFieldValue('front_photo', paths)}
                                             maxFiles={1}
                                             maxSizeMB={5}
                                             acceptedFileTypes={['.jpg', '.png']}
