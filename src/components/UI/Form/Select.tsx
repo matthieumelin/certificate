@@ -1,6 +1,7 @@
 import { ErrorMessage } from 'formik';
 import { useState, useEffect, useRef, type FC } from 'react'
 import { useFieldError } from '@/hooks/useFieldError';
+import Alert from '../Alert';
 
 interface FormSelectOption {
     label: string;
@@ -209,11 +210,11 @@ const FormSelect: FC<FormSelectProps> = ({
             </div>
 
             {!disabled && displayErrorMessage && (
-                <p className='text-red-500 text-sm mt-1'>{displayErrorMessage}</p>
+                <Alert className='mt-4' message={displayErrorMessage} type='error' />
             )}
             {useFormik && id && !displayErrorMessage && (
                 <ErrorMessage name={id} render={(errorMessage) => (
-                    <p className='text-red-500 text-sm mt-1'> {errorMessage}</p>
+                    <Alert message={errorMessage} type='error' />
                 )} />
             )}
         </div >

@@ -1,6 +1,7 @@
 import { useStorage } from '@/hooks/useSupabase';
 import { normalizeFileName } from '@/helpers/file';
 import React, { type FC, useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import Alert from '../Alert';
 
 interface FileUploadProps {
     bucketName: string;
@@ -12,6 +13,7 @@ interface FileUploadProps {
     acceptedFileTypes?: string[];
     multiple?: boolean;
     className?: string;
+    error?: string;
 }
 
 const FileUpload: FC<FileUploadProps> = ({
@@ -23,11 +25,12 @@ const FileUpload: FC<FileUploadProps> = ({
     maxSizeMB = 10,
     acceptedFileTypes = [],
     multiple = true,
-    className,
+    className = "",
+    error: externalError,
 }) => {
     const [fileUrls, setFileUrls] = useState<Map<string, string>>(new Map());
     const [isDragging, setIsDragging] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [internalError, setInternalError] = useState<string | null>(null);
     const [zoomImageUrl, setZoomImageUrl] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -36,6 +39,8 @@ const FileUpload: FC<FileUploadProps> = ({
     const { getSignedUrl, uploadFile, deleteFile } = useStorage();
 
     const acceptedTypes = useMemo(() => acceptedFileTypes.join(','), [acceptedFileTypes]);
+
+    const displayError = externalError || internalError;
 
     useEffect(() => {
         const loadUrls = async () => {
@@ -69,14 +74,14 @@ const FileUpload: FC<FileUploadProps> = ({
 
             for (const file of files) {
                 if (file.size > maxSizeMB * 1024 * 1024) {
-                    setError(`${file.name} dépasse ${maxSizeMB}MB`);
+                    setInternalError(`${file.name} dépasse ${maxSizeMB}MB`);
                     continue;
                 }
 
                 if (acceptedFileTypes.length) {
                     const ext = '.' + file.name.split('.').pop()?.toLowerCase();
                     if (!acceptedFileTypes.some(t => t === ext || t === file.type)) {
-                        setError(`Type non accepté: ${file.name}`);
+                        setInternalError(`Type non accepté: ${file.name}`);
                         continue;
                     }
                 }
@@ -85,7 +90,7 @@ const FileUpload: FC<FileUploadProps> = ({
             }
 
             if (value.length + valid.length > maxFiles) {
-                setError(`Maximum ${maxFiles} fichiers`);
+                setInternalError(`Maximum ${maxFiles} fichiers`);
                 return valid.slice(0, maxFiles - value.length);
             }
 
@@ -97,7 +102,7 @@ const FileUpload: FC<FileUploadProps> = ({
     const handleFiles = useCallback(
         async (fileList: FileList | null) => {
             if (!fileList || isUploading) return;
-            setError(null);
+            setInternalError(null);
 
             const files = validateFiles(Array.from(fileList));
             if (!files.length) return;
@@ -116,7 +121,7 @@ const FileUpload: FC<FileUploadProps> = ({
 
                 onChange([...value, ...uploadedPaths]);
             } catch (err) {
-                setError(err instanceof Error ? err.message : 'Erreur upload');
+                setInternalError(err instanceof Error ? err.message : 'Erreur upload');
                 console.error('Upload error:', err);
             } finally {
                 setIsUploading(false);
@@ -127,13 +132,13 @@ const FileUpload: FC<FileUploadProps> = ({
 
     const removeFile = useCallback(
         async (path: string) => {
-            setError(null);
+            setInternalError(null);
 
             try {
                 await deleteFile(bucketName, [path]);
                 onChange(value.filter(p => p !== path));
             } catch (err) {
-                setError(err instanceof Error ? err.message : 'Erreur suppression');
+                setInternalError(err instanceof Error ? err.message : 'Erreur suppression');
                 console.error('Delete error:', err);
             }
         },
@@ -160,7 +165,7 @@ const FileUpload: FC<FileUploadProps> = ({
                 className={`
                     border-2 border-dashed rounded-lg p-8 text-center transition
                     ${isUploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                    ${isDragging ? 'border-green' : 'border-white/10 hover:border-green'}
+                    ${isDragging ? 'border-green' : displayError ? 'border-red-500' : 'border-white/10 hover:border-green'}
                 `}
             >
                 <input
@@ -204,10 +209,8 @@ const FileUpload: FC<FileUploadProps> = ({
                 </p>
             </div>
 
-            {error && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-sm text-red-600">{error}</p>
-                </div>
+            {displayError && (
+                <Alert className='mt-4' message={displayError} type='error' />
             )}
 
             {isLoading && (

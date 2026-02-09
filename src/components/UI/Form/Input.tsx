@@ -2,6 +2,7 @@ import { ErrorMessage, Field } from 'formik';
 import { useState, type FC } from 'react'
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 import { useFieldError } from '@/hooks/useFieldError';
+import Alert from '../Alert';
 
 interface InputProps {
     type: 'text' | 'password' | 'email' | 'checkbox' | 'textarea' | 'number' | 'tel' | 'date';
@@ -152,13 +153,11 @@ const Input: FC<InputProps> = ({
                     />
                 )}
                 {!disabled && displayErrorMessage && (
-                    <p className='text-red-400 text-sm mt-1 font-medium'>{displayErrorMessage}</p>
+                    <Alert message={displayErrorMessage} type='error' />
                 )}
                 {!disabled && !displayErrorMessage && (
                     <ErrorMessage name={name} render={(errorMessage) => (
-                        <p className='text-red-400 text-sm mt-1 font-medium'>
-                            <span>{errorMessage}</span>
-                        </p>
+                        <Alert message={errorMessage} type='error' />
                     )} />
                 )}
             </>
@@ -230,7 +229,7 @@ const Input: FC<InputProps> = ({
                 />
             )}
             {!disabled && displayErrorMessage && (
-                <p className='text-red-400 text-sm mt-1 font-medium'>{displayErrorMessage}</p>
+                <Alert message={displayErrorMessage} type='error' />
             )}
         </>
     );

@@ -218,7 +218,7 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
                                             maxFiles={1}
                                             maxSizeMB={5}
                                             acceptedFileTypes={['.jpg', '.png']}
-                                        />
+                                            error={Array.isArray(errors.front_photo) ? errors.front_photo[0] : errors.front_photo} />
                                     </FormGroup>
                                 </div>
                             </div>
