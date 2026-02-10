@@ -9,10 +9,9 @@ const objectInfosSchema = Yup.object({
     .required("Le numéro de série est requis")
     .matches(
       /^[A-Z0-9\-]+$/i,
-      "Le numéro de série ne peut contenir que des lettres, chiffres et tirets"
+      "Le numéro de série ne peut contenir que des lettres, chiffres et tirets",
     ),
   front_photo: Yup.array()
-    .of(Yup.string())
     .min(1, "La photo de l'objet est requise")
     .required("La photo de l'objet est requise"),
 });

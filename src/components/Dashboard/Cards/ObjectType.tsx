@@ -36,7 +36,7 @@ const ObjectTypeCard: FC<ObjectTypeCardProps> = ({ data }) => {
             aria-disabled={isDisabled}
             tabIndex={isDisabled ? -1 : 0}
             className={`
-                group duration-200 flex flex-col items-center justify-center gap-2 border-2 rounded-xl p-5 transition-all
+                h-full group duration-200 flex flex-col items-center justify-between border-2 rounded-xl p-5 transition-all
                 ${isDisabled
                     ? "opacity-50 cursor-not-allowed border-white/5"
                     : "cursor-pointer focus:outline-none focus:ring-2 focus:ring-green focus:ring-offset-2 focus:ring-offset-gray-900"
@@ -51,15 +51,17 @@ const ObjectTypeCard: FC<ObjectTypeCardProps> = ({ data }) => {
                 }
             `}
         >
-            <div
-                className={`text-4xl transition-transform duration-200 ${!isDisabled ? "group-hover:scale-110" : ""}`}
-                aria-hidden="true"
-            >
-                {data.icon}
+            <div className="flex flex-col items-center gap-2 flex-1 justify-center">
+                <div
+                    className={`text-4xl transition-transform duration-200 ${!isDisabled ? "group-hover:scale-110" : ""}`}
+                    aria-hidden="true"
+                >
+                    {data.icon}
+                </div>
+                <h2 className='text-white text-center font-semibold'>{data.label}</h2>
             </div>
-            <h2 className='text-white text-center font-semibold'>{data.label}</h2>
             {isDisabled && (
-                <span className='text-xs text-white/50 mt-1'>Indisponible</span>
+                <span className='text-xs text-white/50 mt-2'>Indisponible</span>
             )}
         </div>
     )

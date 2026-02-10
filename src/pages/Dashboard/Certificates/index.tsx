@@ -2,6 +2,7 @@ import CertificateCard from '@/components/Dashboard/Cards/Certificate';
 import CertificateStatCard from '@/components/Dashboard/Cards/Certificate/Stat';
 import ClientCertificationCustomerInfosModal from '@/components/Dashboard/Modals/Certification/Client/Infos/Customer';
 import ClientCertificationObjectInfosModal from '@/components/Dashboard/Modals/Certification/Client/Infos/Object';
+import ClientCertificationPartnerModal from '@/components/Dashboard/Modals/Certification/Client/Partner';
 import ClientCertificationPaymentModal from '@/components/Dashboard/Modals/Certification/Client/Payment';
 import ClientCertificationServiceModal from '@/components/Dashboard/Modals/Certification/Client/Service';
 import { Button } from '@/components/UI/Button';
@@ -54,6 +55,8 @@ const CertificatesPage: FC = () => {
                 );
             case ClientCertificateStep.Service:
                 return <ClientCertificationServiceModal certificateTypes={certificateTypes} />;
+            case ClientCertificateStep.Partner:
+                return <ClientCertificationPartnerModal />;
             case ClientCertificateStep.Payment:
                 return (
                     <ClientCertificationPaymentModal
