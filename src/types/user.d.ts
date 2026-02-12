@@ -28,3 +28,28 @@ export interface UserProfile {
   vat_number: string;
   type: UserProfileType;
 }
+
+export interface PartnerInfo {
+  id: number;
+  user_id: string;
+  show_hours: boolean;
+  hours: {
+    monday: DaySchedule;
+    tuesday: DaySchedule;
+    wednesday: DaySchedule;
+    thursday: DaySchedule;
+    friday: DaySchedule;
+    saturday: DaySchedule;
+    sunday: DaySchedule;
+  };
+  by_appointment: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DaySchedule {
+  morning_start: string;
+  morning_end: string;
+  afternoon_start: string;
+  afternoon_end: string;
+}

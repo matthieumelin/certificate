@@ -6,12 +6,16 @@ import routes from '@/utils/routes';
 import title from '@/utils/title';
 import { type FC, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { UserProfileRole } from '@/types/user.d';
+import ProfilePartnerInfoForm from '@/components/Forms/Profile/PartnerInfo';
 
-type SettingsTab = 'profile' | 'security' | 'preferences';
+type SettingsTab = 'profile' | 'security' | 'partner-info';
 
 const DashboardProfilePage: FC = () => {
-    const { user, isLoadingUser, isLoadingProfile } = useAuth();
+    const { user, userProfile, isLoadingUser, isLoadingProfile } = useAuth();
     const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
+
+    const isPartner = userProfile?.role === UserProfileRole.Partner;
 
     if (isLoadingUser || isLoadingProfile) {
         return <Loading />
@@ -49,15 +53,17 @@ const DashboardProfilePage: FC = () => {
                     >
                         Sécurité
                     </button>
-                    {/* <button
-                        onClick={() => setActiveTab('preferences')}
-                        className={`pb-3 px-4 font-medium transition-colors border-b-2 ${activeTab === 'preferences'
-                            ? 'text-emerald-400 border-emerald-400'
-                            : 'text-neutral-400 hover:text-white border-transparent'
-                            }`}
-                    >
-                        Préférences
-                    </button> */}
+                    {isPartner && (
+                        <button
+                            onClick={() => setActiveTab('partner-info')}
+                            className={`pb-3 px-4 font-medium transition-colors border-b-2 ${activeTab === 'partner-info'
+                                ? 'text-emerald-400 border-emerald-400'
+                                : 'text-neutral-400 hover:text-white border-transparent'
+                                }`}
+                        >
+                            Point de contrôle
+                        </button>
+                    )}
                 </div>
 
                 <div className='max-w-3xl'>
@@ -83,12 +89,16 @@ const DashboardProfilePage: FC = () => {
                         </div>
                     )}
 
-                    {activeTab === 'preferences' && (
+                    {activeTab === 'partner-info' && isPartner && (
                         <div className='space-y-6'>
                             <div className='bg-black/40 backdrop-blur-sm border border-emerald-900/30 rounded-2xl p-6'>
                                 <h2 className='text-white text-xl font-semibold mb-4'>
-                                    Préférences
+                                    Informations point de contrôle
                                 </h2>
+                                <p className='text-gray text-sm mb-6'>
+                                    Ces informations seront affichées aux clients lors de la prise de rendez-vous.
+                                </p>
+                                <ProfilePartnerInfoForm />
                             </div>
                         </div>
                     )}

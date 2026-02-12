@@ -5,9 +5,9 @@ import { useFieldError } from '@/hooks/useFieldError';
 import Alert from '../Alert';
 
 interface InputProps {
-    type: 'text' | 'password' | 'email' | 'checkbox' | 'textarea' | 'number' | 'tel' | 'date';
+    type: 'text' | 'password' | 'email' | 'checkbox' | 'textarea' | 'number' | 'tel' | 'date' | 'time';
     name: string;
-    id: string;
+    id?: string;
     error?: string | undefined;
     placeholder?: string;
     label?: string;
@@ -18,6 +18,7 @@ interface InputProps {
     checked?: boolean;
     onChange?: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     useFormik?: boolean;
+    className?: string;
 }
 
 const Input: FC<InputProps> = ({
@@ -33,7 +34,8 @@ const Input: FC<InputProps> = ({
     value,
     checked,
     onChange,
-    useFormik = true
+    useFormik = true,
+    className = ''
 }) => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const { hasError, errorMessage } = useFieldError(name);
@@ -59,7 +61,8 @@ const Input: FC<InputProps> = ({
         return "border-emerald-900/30 focus-within:border-emerald-500";
     };
 
-    const classNames = `${baseClasses} ${getErrorClasses()}`;
+    const classNames = `${baseClasses} ${getErrorClasses()} ${className}`;
+    const inputId = id || name;
 
     if (useFormik) {
         return (
@@ -75,7 +78,7 @@ const Input: FC<InputProps> = ({
                        ${resize ? "resize-y" : "resize-none"}
                        ${disabled ? disabledClasses : ""}
                    `}
-                        id={id}
+                        id={inputId}
                         name={name}
                         placeholder={placeholder}
                     />
@@ -83,7 +86,7 @@ const Input: FC<InputProps> = ({
                     <div className="flex items-center gap-3">
                         <Field
                             type="checkbox"
-                            id={id}
+                            id={inputId}
                             name={name}
                             disabled={disabled}
                             checked={checked}
@@ -98,7 +101,7 @@ const Input: FC<InputProps> = ({
                         />
                         {label && (
                             <label
-                                htmlFor={id}
+                                htmlFor={inputId}
                                 className={`
                                 select-none font-medium
                                 ${disabled ? "text-neutral-600 cursor-not-allowed" : "text-white cursor-pointer"}
@@ -120,7 +123,7 @@ const Input: FC<InputProps> = ({
                             disabled={disabled}
                             className="outline-none w-full bg-transparent"
                             type={showPassword ? "text" : type}
-                            id={id}
+                            id={inputId}
                             name={name}
                             placeholder={placeholder}
                         />
@@ -139,7 +142,7 @@ const Input: FC<InputProps> = ({
                     </div>
                 ) : (
                     <Field
-                        min={0}
+                        min={type === 'number' ? 0 : undefined}
                         disabled={disabled}
                         className={`
                             w-full
@@ -147,7 +150,7 @@ const Input: FC<InputProps> = ({
                             ${disabled ? disabledClasses : "text-white"}
                         `}
                         type={type}
-                        id={id}
+                        id={inputId}
                         name={name}
                         placeholder={placeholder}
                     />
@@ -171,7 +174,7 @@ const Input: FC<InputProps> = ({
                     rows={rows}
                     disabled={disabled}
                     className={`min-h-28 w-full ${classNames} ${resize ? "resize-y" : "resize-none"} ${disabled ? disabledClasses : ""}`}
-                    id={id}
+                    id={inputId}
                     name={name}
                     placeholder={placeholder}
                     value={value}
@@ -181,7 +184,7 @@ const Input: FC<InputProps> = ({
                 <div className="flex items-center gap-3">
                     <input
                         type="checkbox"
-                        id={id}
+                        id={inputId}
                         name={name}
                         disabled={disabled}
                         checked={checked !== undefined ? checked : !!value}
@@ -189,7 +192,7 @@ const Input: FC<InputProps> = ({
                         className={`accent-emerald-600 rounded border-2 ${disabled ? "border-emerald-900/10 bg-emerald-900/5 cursor-not-allowed" : "border-emerald-900/30 bg-[#050a08]/80 cursor-pointer hover:border-emerald-500"}`}
                     />
                     {label && (
-                        <label htmlFor={id} className={`select-none font-medium ${disabled ? "text-neutral-600 cursor-not-allowed" : "text-white cursor-pointer"}`}>
+                        <label htmlFor={inputId} className={`select-none font-medium ${disabled ? "text-neutral-600 cursor-not-allowed" : "text-white cursor-pointer"}`}>
                             {label}
                         </label>
                     )}
@@ -200,7 +203,7 @@ const Input: FC<InputProps> = ({
                         disabled={disabled}
                         className="outline-none w-full bg-transparent"
                         type={showPassword ? "text" : type}
-                        id={id}
+                        id={inputId}
                         name={name}
                         placeholder={placeholder}
                         value={value}
@@ -217,11 +220,11 @@ const Input: FC<InputProps> = ({
                 </div>
             ) : (
                 <input
-                    min={0}
+                    min={type === 'number' ? 0 : undefined}
                     disabled={disabled}
                     className={`w-full ${classNames} ${disabled ? disabledClasses : "text-white"}`}
                     type={type}
-                    id={id}
+                    id={inputId}
                     name={name}
                     placeholder={placeholder}
                     value={value}

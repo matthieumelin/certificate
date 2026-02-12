@@ -1,5 +1,5 @@
 import { type FC, useState, useEffect } from 'react'
-import { ClientCertificateStep, PartnerCertificateStep } from '@/types/certificate.d';
+import { ClientCertificateStep } from '@/types/certificate.d';
 import type { ObjectBrand, ObjectModel, ObjectReference, ObjectType } from '@/types/object.d';
 import { Button } from '@/components/UI/Button';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
@@ -43,7 +43,7 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
     const { draft, setDraft } = useClientCertificateStore();
     const [showObjectTypes, setShowObjectTypes] = useState<boolean>(true);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(draft.object_front_photo_preview || null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const { uploadFile, getSignedUrl } = useStorage();
 
     const steps = Object.values(ClientCertificateStep);
@@ -64,20 +64,18 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
     };
 
     useEffect(() => {
-        const loadExistingPreview = async () => {
+        const loadExistingPhoto = async () => {
             if (draft.object_front_photo && draft.object_front_photo.length > 0) {
                 try {
                     const url = await getSignedUrl('object_photos', draft.object_front_photo[0], 3600);
                     if (url) setPreviewUrl(url);
                 } catch (err) {
-                    console.error('Erreur chargement preview existante:', err);
+                    console.error('Erreur chargement photo existante:', err);
                 }
-            } else if (draft.object_front_photo_preview) {
-                setPreviewUrl(draft.object_front_photo_preview);
             }
         };
 
-        loadExistingPreview();
+        loadExistingPhoto();
     }, []);
 
     const handleSubmit = async (values: FormValues) => {
@@ -115,7 +113,6 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
                 object_reference: reference,
                 object_serial_number: serial_number,
                 object_front_photo: frontPhotoPath,
-                object_front_photo_preview: undefined,
                 current_step: ClientCertificateStep.Service
             });
         } catch (error) {
@@ -130,22 +127,21 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
 
             const reader = new FileReader();
             reader.onloadend = () => {
-                const preview = reader.result as string;
-                setPreviewUrl(preview);
-
-                setDraft({
-                    object_front_photo_preview: preview
-                });
+                setPreviewUrl(reader.result as string);
             };
             reader.readAsDataURL(file);
         } else {
             setPendingFile(null);
             setPreviewUrl(null);
-            setDraft({
-                object_front_photo_preview: undefined,
-                object_front_photo: []
-            });
         }
+    };
+
+    const handlePrevious = () => {
+        if (pendingFile) {
+            setPendingFile(null);
+            setPreviewUrl(null);
+        }
+        setDraft({ current_step: ClientCertificateStep.CustomerInfos });
     };
 
     const handleObjectTypeSelect = () => {
@@ -294,7 +290,7 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
                                                 value={previewUrl ? [previewUrl] : []}
                                                 onChange={(file) => {
                                                     handleFileChange(file);
-                                                    setFieldValue('front_photo', file ? ['pending'] : []);
+                                                    setFieldValue('front_photo', file ? ['pending'] : draft.object_front_photo || []);
                                                 }}
                                                 maxFiles={1}
                                                 maxSizeMB={5}
@@ -310,9 +306,10 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
 
                             <div className='flex justify-end gap-5'>
                                 <Button
+                                    type="button"
                                     theme="secondary"
                                     className='lg:w-max'
-                                    onClick={() => setDraft({ current_step: PartnerCertificateStep.CustomerInfos })}>
+                                    onClick={handlePrevious}>
                                     <IoIosArrowBack /> Précédent
                                 </Button>
                                 <Button

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import type { UserProfile } from "@/types/user.d";
+import type { PartnerInfo, UserProfile } from "@/types/user.d";
 import {
   type CertificateType,
   type Certificate,
@@ -29,6 +29,10 @@ interface CertificateDraftFilters {
 
 interface CustomerCertificateFilters {
   customerId?: string;
+}
+
+interface PartnerInfoFilters {
+  userId?: string;
 }
 
 // Stats
@@ -745,10 +749,7 @@ export const useObjectAttributes = (autoFetch?: boolean, objectId?: number) => {
 
     await setAttributes({
       ...objectAttributes,
-      [key]: [
-        ...existingPaths,
-        ...paths,
-      ],
+      [key]: [...existingPaths, ...paths],
     });
     return paths;
   };
@@ -1090,6 +1091,158 @@ export const useCertificatesBase = (
   };
 };
 
+// Partner Info
+export const usePartnerInfos = (
+  autoFetch: boolean = true,
+  filters?: PartnerInfoFilters,
+) => {
+  const [partnerInfo, setPartnerInfo] = useState<PartnerInfo | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchPartnerInfo = useCallback(async () => {
+    if (!filters?.userId) {
+      setPartnerInfo(null);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      let query = supabase.from("partner_infos").select("*");
+
+      if (filters) {
+        if (filters.userId) {
+          query = query.eq("user_id", filters.userId);
+        }
+      }
+
+      const { data, error } = await query.maybeSingle();
+
+      if (error) throw error;
+      setPartnerInfo(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [filters?.userId]);
+
+  const createPartnerInfo = async (
+    dto: Partial<PartnerInfo>,
+  ): Promise<PartnerInfo> => {
+    try {
+      const { data, error } = await supabase
+        .from("partner_infos")
+        .insert(dto)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      throw err;
+    } finally {
+      mutate();
+    }
+  };
+
+  const updatePartnerInfo = async (
+    userId: string,
+    updates: Partial<PartnerInfo>,
+  ): Promise<PartnerInfo> => {
+    try {
+      const { data, error } = await supabase
+        .from("partner_infos")
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      throw err;
+    } finally {
+      mutate();
+    }
+  };
+
+  const upsertPartnerInfo = async (
+    userId: string,
+    updates: Partial<PartnerInfo>,
+  ): Promise<PartnerInfo> => {
+    try {
+      const { data, error } = await supabase
+        .from("partner_infos")
+        .upsert(
+          {
+            user_id: userId,
+            ...updates,
+            updated_at: new Date().toISOString(),
+          },
+          {
+            onConflict: "user_id",
+          },
+        )
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      throw err;
+    } finally {
+      mutate();
+    }
+  };
+
+  const deletePartnerInfo = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from("partner_infos")
+        .delete()
+        .eq("user_id", userId);
+
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      throw err;
+    } finally {
+      mutate();
+    }
+  };
+
+  const mutate = () => {
+    fetchPartnerInfo();
+  };
+
+  useEffect(() => {
+    if (autoFetch) {
+      fetchPartnerInfo();
+    }
+  }, [fetchPartnerInfo]);
+
+  return {
+    partnerInfo,
+    isLoading,
+    error,
+    mutate,
+    createPartnerInfo,
+    updatePartnerInfo,
+    upsertPartnerInfo,
+    deletePartnerInfo,
+  };
+};
+
 export const usePartnerCertificates = (userId?: string) => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -1120,9 +1273,11 @@ export const usePartnerCertificates = (userId?: string) => {
 
       if (error) throw error;
 
-      const transformedData = data?.map(cert => ({
+      const transformedData = data?.map((cert) => ({
         ...cert,
-        inspection: Array.isArray(cert.inspection) ? cert.inspection[0] : cert.inspection
+        inspection: Array.isArray(cert.inspection)
+          ? cert.inspection[0]
+          : cert.inspection,
       }));
 
       setCertificates(transformedData || []);
@@ -1620,7 +1775,7 @@ export const useCertificates = (autoFetch: boolean = true) => {
     }
   };
 
-  const downloadCertificate = () => { };
+  const downloadCertificate = () => {};
 
   const mutate = () => {
     fetchCertificates();
