@@ -79,7 +79,6 @@ export interface CertificateDraft {
   object_reference: string;
   object_serial_number: string;
   object_front_photo: string[];
-  object_front_photo_preview?: string;
   certificate_type_id: number;
   partner_id?: string;
   payment_method_id: number;

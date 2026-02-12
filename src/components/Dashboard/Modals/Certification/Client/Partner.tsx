@@ -5,35 +5,31 @@ import { ClientCertificateStep } from '@/types/certificate.d';
 import Steps from '@/components/Dashboard/Steps';
 import { Button } from '@/components/UI/Button';
 import { useClientCertificateStore } from '@/stores/certification/clientCertificateStore';
-import { useProfiles } from '@/hooks/useSupabase';
-import { UserProfileRole } from '@/types/user.d';
+import { usePartnerInfos } from '@/hooks/useSupabase';
 import Map from '@/components/Map';
-import type { UserProfile } from '@/types/user.d';
+import type { PartnerInfo } from '@/types/user.d';
 
-interface ClientCertificationPartnerProps {
-}
-
-const ClientCertificationPartnerModal: FC<ClientCertificationPartnerProps> = ({ }) => {
+const ClientCertificationPartnerModal: FC = () => {
     const { draft, setDraft } = useClientCertificateStore();
-    const { userProfiles, isLoading: isLoadingProfiles } = useProfiles();
-    const [selectedPartner, setSelectedPartner] = useState<UserProfile | null>(null);
+    const { partnerInfos: partners, isLoading } = usePartnerInfos(true, {
+        fetchAll: true,
+        includeProfile: true
+    });
+
+    const [selectedPartner, setSelectedPartner] = useState<PartnerInfo | null>(null);
 
     const steps = Object.values(ClientCertificateStep);
 
-    const partners = userProfiles.filter(
-        profile => profile.role === UserProfileRole.Partner && profile.is_active && !profile.is_deleted
-    );
-
     useEffect(() => {
         if (draft.partner_id && partners.length > 0) {
-            const partner = partners.find(p => p.id === draft.partner_id);
+            const partner = partners.find(p => p.user_id === draft.partner_id);
             if (partner) {
                 setSelectedPartner(partner);
             }
         }
     }, [draft.partner_id, partners]);
 
-    const handlePartnerSelect = (partner: UserProfile) => {
+    const handlePartnerSelect = (partner: PartnerInfo) => {
         setSelectedPartner(partner);
     };
 
@@ -45,7 +41,7 @@ const ClientCertificationPartnerModal: FC<ClientCertificationPartnerProps> = ({ 
 
         try {
             setDraft({
-                partner_id: selectedPartner.id,
+                partner_id: selectedPartner.user_id,
                 current_step: ClientCertificateStep.Payment
             });
         } catch (error) {
@@ -54,7 +50,7 @@ const ClientCertificationPartnerModal: FC<ClientCertificationPartnerProps> = ({ 
         }
     }
 
-    if (isLoadingProfiles) {
+    if (isLoading) {
         return (
             <div className="flex items-center justify-center py-12">
                 <div className="text-white">Chargement des points de contrôle...</div>
@@ -66,11 +62,13 @@ const ClientCertificationPartnerModal: FC<ClientCertificationPartnerProps> = ({ 
         return (
             <div>
                 <Steps mode='client' steps={steps} />
-                <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                    <div className="text-white text-xl">Aucun point de contrôle disponible</div>
-                    <p className="text-gray text-center max-w-md">
-                        Il n'y a actuellement aucun point de contrôle actif. Veuillez réessayer plus tard.
-                    </p>
+                <div className="flex flex-col items-center justify-center space-y-8">
+                    <div>
+                        <div className="text-white text-xl text-center">Aucun point de contrôle disponible</div>
+                        <p className="text-gray text-center max-w-md">
+                            Il n'y a actuellement aucun point de contrôle actif. Veuillez réessayer plus tard.
+                        </p>
+                    </div>
                     <Button
                         theme="secondary"
                         onClick={() => setDraft({ current_step: ClientCertificateStep.Service })}>
@@ -100,7 +98,7 @@ const ClientCertificationPartnerModal: FC<ClientCertificationPartnerProps> = ({ 
                             center={{ lat: 46.603354, lng: 1.888334 }}
                             zoom={6}
                             onPartnerSelect={handlePartnerSelect}
-                            selectedPartnerId={selectedPartner?.id}
+                            selectedPartnerId={selectedPartner?.user_id}
                         />
                     </div>
                 </div>
@@ -114,30 +112,30 @@ const ClientCertificationPartnerModal: FC<ClientCertificationPartnerProps> = ({ 
                             <div>
                                 <span className='text-emerald-400 text-sm font-medium block mb-1'>Nom</span>
                                 <span className='text-white text-lg'>
-                                    {selectedPartner.society || `${selectedPartner.first_name} ${selectedPartner.last_name}`}
+                                    {selectedPartner.profile?.society || `${selectedPartner.profile?.first_name} ${selectedPartner.profile?.last_name}`}
                                 </span>
                             </div>
                             <div>
-                                <span className='text-emerald-400 text-sm font-medium block mb-1'>Adresse</span>
+                                <span className='text-emerald-400 text-sm font-medium block mb-1'>Adresse du point de contrôle</span>
                                 <span className='text-white'>
                                     {selectedPartner.address}<br />
                                     {selectedPartner.postal_code} {selectedPartner.city}<br />
                                     {selectedPartner.country}
                                 </span>
                             </div>
-                            {selectedPartner.phone && (
+                            {selectedPartner.profile?.phone && (
                                 <div>
                                     <span className='text-emerald-400 text-sm font-medium block mb-1'>Téléphone</span>
-                                    <a href={`tel:${selectedPartner.phone}`} className='text-white hover:text-emerald-400 transition-colors'>
-                                        {selectedPartner.phone}
+                                    <a href={`tel:${selectedPartner.profile.phone}`} className='text-white hover:text-emerald-400 transition-colors'>
+                                        {selectedPartner.profile.phone}
                                     </a>
                                 </div>
                             )}
-                            {selectedPartner.email && (
+                            {selectedPartner.profile?.email && (
                                 <div>
                                     <span className='text-emerald-400 text-sm font-medium block mb-1'>Email</span>
-                                    <a href={`mailto:${selectedPartner.email}`} className='text-white hover:text-emerald-400 transition-colors'>
-                                        {selectedPartner.email}
+                                    <a href={`mailto:${selectedPartner.profile.email}`} className='text-white hover:text-emerald-400 transition-colors'>
+                                        {selectedPartner.profile.email}
                                     </a>
                                 </div>
                             )}

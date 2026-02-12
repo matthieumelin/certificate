@@ -25,7 +25,6 @@ const CertificatesPage: FC = () => {
     const { objectModels } = useObjectModels();
     const { objectBrands } = useObjectBrands();
     const { objectReferences } = useObjectReferences();
-    const { paymentMethods } = usePaymentMethods();
 
     const { draft, clearDraft } = useClientCertificateStore();
 
@@ -61,7 +60,6 @@ const CertificatesPage: FC = () => {
                 return (
                     <ClientCertificationPaymentModal
                         certificateTypes={certificateTypes}
-                        paymentMethods={paymentMethods}
                         setIsModalOpen={setIsNewCertificationModalOpen}
                         setIsConfirmPaymentModalOpen={() => { }}
                         onSuccess={() => { }}

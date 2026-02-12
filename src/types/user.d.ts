@@ -32,6 +32,12 @@ export interface UserProfile {
 export interface PartnerInfo {
   id: number;
   user_id: string;
+
+  address: string;
+  postal_code: string;
+  city: string;
+  country: string;
+
   show_hours: boolean;
   hours: {
     monday: DaySchedule;
@@ -45,6 +51,9 @@ export interface PartnerInfo {
   by_appointment: boolean;
   created_at: string;
   updated_at: string;
+
+  // Relations
+  profile?: UserProfile;
 }
 
 export interface DaySchedule {

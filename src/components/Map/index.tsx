@@ -4,34 +4,44 @@ import { RxHamburgerMenu } from "react-icons/rx";
 import { LiaTimesSolid } from "react-icons/lia";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import Marker from '@/components/Map/Marker';
-import type { UserProfile } from '@/types/user.d';
 import { useGoogleGeocoding } from '@/hooks/useGoogleGeocoding';
+import type { UserProfile } from '@/types/user';
 
-interface PartnerWithCoords extends UserProfile {
+interface PartnerWithCoords {
+    id: number;
+    user_id: string;
+    address: string;
+    postal_code: string;
+    city: string;
+    country: string;
+    show_hours: boolean;
+    hours: any;
+    by_appointment: boolean;
+    profile?: Partial<UserProfile>;
     coords?: { lat: number; lng: number };
 }
 
 interface MapProps {
-    partners: UserProfile[];
+    partners: any[];
     center: {
         lat: number;
         lng: number;
     };
     zoom: number;
     className?: string;
-    onPartnerSelect?: (partner: UserProfile) => void;
+    onPartnerSelect?: (partner: any) => void;
     selectedPartnerId?: string;
 }
 
 const GOOGLE_MAP_KEY = import.meta.env.VITE_GOOGLE_MAPS_KEY;
 
-const Map: FC<MapProps> = ({ 
-    partners, 
-    center, 
-    zoom, 
+const Map: FC<MapProps> = ({
+    partners,
+    center,
+    zoom,
     className,
     onPartnerSelect,
-    selectedPartnerId 
+    selectedPartnerId
 }) => {
     const [mapInstance, setMapInstance] = useState<any>(null);
     const [mapsApi, setMapsApi] = useState<any>(null);
@@ -39,17 +49,23 @@ const Map: FC<MapProps> = ({
     const [searchValue, setSearchValue] = useState<string>('');
     const [partnersWithCoords, setPartnersWithCoords] = useState<PartnerWithCoords[]>([]);
     const [selectedPartner, setSelectedPartner] = useState<PartnerWithCoords | null>(null);
-    const [isLoadingCoords, setIsLoadingCoords] = useState(true);
+    const [isLoadingCoords, setIsLoadingCoords] = useState<boolean>(true);
 
     const searchBoxRef = useRef<HTMLInputElement>(null);
     const { getCoordsFromAddress, getCurrentPosition } = useGoogleGeocoding();
 
     useEffect(() => {
         const geocodePartners = async () => {
+            console.log('🗺️ Début du géocodage, nombre de partners:', partners.length);
             setIsLoadingCoords(true);
             const partnersWithCoordsData: PartnerWithCoords[] = [];
 
             for (const partner of partners) {
+                if (!partner.address || !partner.city) {
+                    console.warn('⚠️ Partner sans adresse complète:', partner);
+                    continue;
+                }
+
                 const address = `${partner.address}, ${partner.postal_code} ${partner.city}, ${partner.country}`;
                 const coords = await getCoordsFromAddress(address);
 
@@ -58,6 +74,8 @@ const Map: FC<MapProps> = ({
                         ...partner,
                         coords,
                     });
+                } else {
+                    console.warn('❌ Échec du géocodage pour:', address);
                 }
             }
 
@@ -67,12 +85,27 @@ const Map: FC<MapProps> = ({
 
         if (partners.length > 0) {
             geocodePartners();
+        } else {
+            setIsLoadingCoords(false);
         }
     }, [partners]);
 
     useEffect(() => {
         if (selectedPartnerId && partnersWithCoords.length > 0) {
-            const partner = partnersWithCoords.find(p => p.id === selectedPartnerId);
+            const partner = partnersWithCoords.find(p => p.user_id === selectedPartnerId);
+            if (partner) {
+                setSelectedPartner(partner);
+                if (partner.coords && mapInstance) {
+                    mapInstance.panTo(partner.coords);
+                    mapInstance.setZoom(15);
+                }
+            }
+        }
+    }, [selectedPartnerId, partnersWithCoords, mapInstance]);
+
+    useEffect(() => {
+        if (selectedPartnerId && partnersWithCoords.length > 0) {
+            const partner = partnersWithCoords.find(p => p.user_id === selectedPartnerId);
             if (partner) {
                 setSelectedPartner(partner);
                 if (partner.coords && mapInstance) {
@@ -121,10 +154,11 @@ const Map: FC<MapProps> = ({
         if (!searchValue) return true;
         const searchLower = searchValue.toLowerCase();
         return (
-            partner.society?.toLowerCase().includes(searchLower) ||
-            partner.first_name?.toLowerCase().includes(searchLower) ||
-            partner.last_name?.toLowerCase().includes(searchLower) ||
-            partner.city?.toLowerCase().includes(searchLower)
+            partner.profile?.society?.toLowerCase().includes(searchLower) ||
+            partner.profile?.first_name?.toLowerCase().includes(searchLower) ||
+            partner.profile?.last_name?.toLowerCase().includes(searchLower) ||
+            partner.city?.toLowerCase().includes(searchLower) ||
+            partner.address?.toLowerCase().includes(searchLower)
         );
     });
 
@@ -183,14 +217,13 @@ const Map: FC<MapProps> = ({
                                         <li
                                             key={partner.id}
                                             onClick={() => handlePartnerClick(partner)}
-                                            className={`flex items-start gap-3 p-3 rounded cursor-pointer transition-colors hover:bg-emerald-50 ${
-                                                selectedPartner?.id === partner.id ? 'bg-emerald-100' : ''
-                                            }`}
+                                            className={`flex items-start gap-3 p-3 rounded cursor-pointer transition-colors hover:bg-emerald-50 ${selectedPartner?.id === partner.id ? 'bg-emerald-100' : ''
+                                                }`}
                                         >
                                             <FaMapMarkerAlt size={18} className='text-emerald-500 mt-1 shrink-0' />
                                             <div className='flex-1 min-w-0'>
                                                 <p className='font-semibold text-sm truncate'>
-                                                    {partner.society || `${partner.first_name} ${partner.last_name}`}
+                                                    {partner.profile?.society || `${partner.profile?.first_name} ${partner.profile?.last_name}`}
                                                 </p>
                                                 <p className='text-xs text-gray-600 truncate'>
                                                     {partner.address}

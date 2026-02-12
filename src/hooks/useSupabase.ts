@@ -1,6 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type FC } from "react";
 import { supabase } from "@/lib/supabase";
-import type { PartnerInfo, UserProfile } from "@/types/user.d";
+import {
+  UserProfileRole,
+  type PartnerInfo,
+  type UserProfile,
+} from "@/types/user.d";
 import {
   type CertificateType,
   type Certificate,
@@ -29,10 +33,6 @@ interface CertificateDraftFilters {
 
 interface CustomerCertificateFilters {
   customerId?: string;
-}
-
-interface PartnerInfoFilters {
-  userId?: string;
 }
 
 // Stats
@@ -88,6 +88,8 @@ export const useProfiles = (autoFetch: boolean = true) => {
 
   const fetchUserProfiles = useCallback(async () => {
     try {
+      setIsLoading(true);
+
       const { data, error } = await supabase.from("profiles").select("*");
 
       if (error) throw error;
@@ -99,27 +101,6 @@ export const useProfiles = (autoFetch: boolean = true) => {
       setIsLoading(false);
     }
   }, []);
-
-  // const fetchUserProfile = useCallback(async (userId: string) => {
-  //   try {
-  //     setIsLoading(true);
-  //     const { data, error } = await supabase
-  //       .from("profiles")
-  //       .select("*")
-  //       .eq("id", userId)
-  //       .maybeSingle();
-
-  //     if (error) throw error;
-
-  //     setUserProfile(data);
-  //     return data;
-  //   } catch (error) {
-  //     setError(error instanceof Error ? error.message : "An error occured");
-  //     throw error;
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }, []);
 
   const isUserProfileExists = async (email: string): Promise<boolean> => {
     try {
@@ -1092,46 +1073,108 @@ export const useCertificatesBase = (
 };
 
 // Partner Info
+interface PartnerInfoFilters {
+  userId?: string;
+  includeProfile?: boolean;
+  fetchAll?: boolean;
+}
+
+interface PartnerInfoFilters {
+  userId?: string;
+  includeProfile?: boolean;
+  fetchAll?: boolean;
+}
+
 export const usePartnerInfos = (
   autoFetch: boolean = true,
   filters?: PartnerInfoFilters,
 ) => {
-  const [partnerInfo, setPartnerInfo] = useState<PartnerInfo | null>(null);
+  const [partnerInfos, setPartnerInfos] = useState<PartnerInfo[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchPartnerInfo = useCallback(async () => {
-    if (!filters?.userId) {
-      setPartnerInfo(null);
-      setIsLoading(false);
-      return;
-    }
-
     try {
       setIsLoading(true);
 
-      let query = supabase.from("partner_infos").select("*");
+      let query;
 
-      if (filters) {
-        if (filters.userId) {
-          query = query.eq("user_id", filters.userId);
+      if (filters?.fetchAll) {
+        if (filters.includeProfile) {
+          query = supabase.from("partner_infos").select(`
+              *,
+              profile:profiles!user_id(
+                id,
+                society,
+                vat_number,
+                first_name,
+                last_name,
+                email,
+                phone,
+                is_active,
+                role
+              )
+            `);
+        } else {
+          query = supabase.from("partner_infos").select("*");
         }
+
+        const { data, error } = await query;
+
+        if (error) throw error;
+
+        const filteredData = filters.includeProfile
+          ? (data || []).filter(
+              (p) => p.profile?.is_active && p.profile?.role === "partner",
+            )
+          : data || [];
+
+        setPartnerInfos(filteredData);
+      } else if (filters?.userId) {
+        if (filters.includeProfile) {
+          query = supabase
+            .from("partner_infos")
+            .select(
+              `
+              *,
+              profile:profiles!user_id(
+                id,
+                society,
+                vat_number,
+                first_name,
+                last_name,
+                email,
+                phone,
+                is_active
+              )
+            `,
+            )
+            .eq("user_id", filters.userId);
+        } else {
+          query = supabase
+            .from("partner_infos")
+            .select("*")
+            .eq("user_id", filters.userId);
+        }
+
+        const { data, error } = await query.maybeSingle();
+
+        if (error && error.code !== "PGRST116") {
+          throw error;
+        }
+
+        setPartnerInfos(data ? [data] : []);
+      } else {
+        setPartnerInfos([]);
       }
-
-      const { data, error } = await query.maybeSingle();
-
-      if (error) throw error;
-      setPartnerInfo(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
-  }, [filters?.userId]);
+  }, [filters?.userId, filters?.includeProfile, filters?.fetchAll]);
 
-  const createPartnerInfo = async (
-    dto: Partial<PartnerInfo>,
-  ): Promise<PartnerInfo> => {
+  const createPartnerInfo = async (dto: Partial<any>): Promise<any> => {
     try {
       const { data, error } = await supabase
         .from("partner_infos")
@@ -1151,8 +1194,8 @@ export const usePartnerInfos = (
 
   const updatePartnerInfo = async (
     userId: string,
-    updates: Partial<PartnerInfo>,
-  ): Promise<PartnerInfo> => {
+    updates: Partial<any>,
+  ): Promise<any> => {
     try {
       const { data, error } = await supabase
         .from("partner_infos")
@@ -1176,31 +1219,49 @@ export const usePartnerInfos = (
 
   const upsertPartnerInfo = async (
     userId: string,
-    updates: Partial<PartnerInfo>,
-  ): Promise<PartnerInfo> => {
+    updates: Partial<any>,
+  ): Promise<any> => {
     try {
-      const { data, error } = await supabase
+      const { data: existing } = await supabase
         .from("partner_infos")
-        .upsert(
-          {
-            user_id: userId,
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      let result;
+
+      if (existing) {
+        const { data, error } = await supabase
+          .from("partner_infos")
+          .update({
             ...updates,
             updated_at: new Date().toISOString(),
-          },
-          {
-            onConflict: "user_id",
-          },
-        )
-        .select()
-        .single();
+          })
+          .eq("user_id", userId)
+          .select()
+          .single();
 
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        result = data;
+      } else {
+        const { data, error } = await supabase
+          .from("partner_infos")
+          .insert({
+            user_id: userId,
+            ...updates,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = data;
+      }
+
+      setPartnerInfos([result]);
+      return result;
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       throw err;
-    } finally {
-      mutate();
     }
   };
 
@@ -1229,10 +1290,10 @@ export const usePartnerInfos = (
     if (autoFetch) {
       fetchPartnerInfo();
     }
-  }, [fetchPartnerInfo]);
+  }, [autoFetch, fetchPartnerInfo]);
 
   return {
-    partnerInfo,
+    partnerInfos,
     isLoading,
     error,
     mutate,
@@ -1801,33 +1862,53 @@ export const useCertificates = (autoFetch: boolean = true) => {
 };
 
 // Payment Methods
-export const usePaymentMethods = () => {
+interface PaymentMethodFilters {
+  only_partner?: boolean;
+}
+
+export const usePaymentMethods = (
+  autoFetch: boolean = true,
+  filters?: PaymentMethodFilters,
+) => {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchPaymentMethods = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from("payments_methods")
-        .select("*");
+      setIsLoading(true);
+
+      let query = supabase
+        .from("payment_methods")
+        .select("*")
+        .eq("is_active", true);
+
+      if (filters?.only_partner) {
+        query = query.or("only_partner.eq.false,only_partner.eq.true");
+      } else {
+        query = query.eq("only_partner", false);
+      }
+
+      const { data, error } = await query;
+
       if (error) throw error;
       setPaymentMethods(data || []);
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "An error occured");
-      throw error;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [filters?.only_partner]);
 
   const mutate = () => {
     fetchPaymentMethods();
   };
 
   useEffect(() => {
-    fetchPaymentMethods();
-  }, [fetchPaymentMethods]);
+    if (autoFetch) {
+      fetchPaymentMethods();
+    }
+  }, [autoFetch, fetchPaymentMethods]);
 
   return { paymentMethods, isLoading, error, mutate };
 };

@@ -8,10 +8,11 @@ import type { PaymentMethod } from '@/types/payment.d';
 import PaymentMethodCard from '@/components/Dashboard/Cards/PaymentMethod';
 import { Button } from '@/components/UI/Button';
 import Steps from '@/components/Dashboard/Steps';
+import { usePaymentMethods } from '@/hooks/useSupabase';
+import Loading from '@/components/UI/Loading';
 
 interface ClientCertificationPaymentModalProps {
     certificateTypes: CertificateType[];
-    paymentMethods: PaymentMethod[];
     setIsModalOpen: (value: boolean) => void;
     setIsConfirmPaymentModalOpen: (value: boolean) => void;
     onSuccess?: () => void;
@@ -36,13 +37,13 @@ const SummaryItem: FC<SummarItemProps> = ({
 
 const ClientCertificationPaymentModal: FC<ClientCertificationPaymentModalProps> = ({
     certificateTypes,
-    paymentMethods,
     setIsModalOpen,
     setIsConfirmPaymentModalOpen,
     onSuccess
 }) => {
     const { request } = useApi();
     const { draft, setDraft, clearDraft } = useClientCertificateStore();
+    const { paymentMethods, isLoading } = usePaymentMethods(true, { only_partner: false });
 
     const [processPayment, setProcessPayment] = useState<boolean>(false);
 
@@ -147,6 +148,10 @@ const ClientCertificationPaymentModal: FC<ClientCertificationPaymentModalProps> 
         }
     }
 
+    if (isLoading) {
+        return <Loading />
+    }
+
     return (
         <div>
             <Steps
@@ -154,7 +159,7 @@ const ClientCertificationPaymentModal: FC<ClientCertificationPaymentModalProps> 
                 steps={steps} />
             <div>
                 <h2 className='text-white text-2xl font-semibold'>Mode de paiement</h2>
-                <p className='mt-2 text-gray'>Sélectionnez comment le client souhaite payer</p>
+                <p className='mt-2 text-gray'>Veuillez sélectionnez votre mode de paiement</p>
                 <div className='mt-8 border border-white/10 p-5 rounded-xl'>
                     <h3 className='text-white text-xl font-semibold'>Récapitulatif</h3>
                     <div className='mt-8 grid gap-3'>

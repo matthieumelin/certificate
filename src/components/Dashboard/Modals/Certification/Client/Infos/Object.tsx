@@ -42,9 +42,9 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
 }) => {
     const { draft, setDraft } = useClientCertificateStore();
     const [showObjectTypes, setShowObjectTypes] = useState<boolean>(true);
-    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [pendingFile, setPendingFile] = useState<File | null>(draft.object_front_photo_file || null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const { uploadFile, getSignedUrl } = useStorage();
+    const { getSignedUrl } = useStorage();
 
     const steps = Object.values(ClientCertificateStep);
 
@@ -73,6 +73,13 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
                     console.error('Erreur chargement photo existante:', err);
                 }
             }
+            else if (draft.object_front_photo_file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setPreviewUrl(reader.result as string);
+                };
+                reader.readAsDataURL(draft.object_front_photo_file);
+            }
         };
 
         loadExistingPhoto();
@@ -89,22 +96,6 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
 
             const certificateId = draft.id || genCertificateId(currentObjectType, brand);
 
-            let frontPhotoPath: string[] = draft.object_front_photo || [];
-
-            if (pendingFile) {
-                try {
-                    const fileExtension = pendingFile.name.split('.').pop()?.toLowerCase() || 'jpg';
-                    const photoPath = `${certificateId}/front.${fileExtension}`;
-
-                    const result = await uploadFile('object_photos', photoPath, pendingFile);
-                    frontPhotoPath = [result.path];
-                } catch (uploadError) {
-                    console.error("Erreur upload photo:", uploadError);
-                    toast.error("Erreur lors de l'upload de la photo de face");
-                    return;
-                }
-            }
-
             setDraft({
                 id: certificateId,
                 object_type_id: currentObjectType?.id ?? objectTypes[0].id,
@@ -112,7 +103,8 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
                 object_model: model,
                 object_reference: reference,
                 object_serial_number: serial_number,
-                object_front_photo: frontPhotoPath,
+                object_front_photo_file: pendingFile,
+                object_front_photo: draft.object_front_photo || [],
                 current_step: ClientCertificateStep.Service
             });
         } catch (error) {
@@ -137,7 +129,7 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
     };
 
     const handlePrevious = () => {
-        if (pendingFile) {
+        if (pendingFile && !draft.object_front_photo_file) {
             setPendingFile(null);
             setPreviewUrl(null);
         }

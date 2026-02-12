@@ -8,10 +8,11 @@ import type { PaymentMethod } from '@/types/payment.d';
 import PaymentMethodCard from '@/components/Dashboard/Cards/PaymentMethod';
 import { Button } from '@/components/UI/Button';
 import Steps from '@/components/Dashboard/Steps';
+import { usePaymentMethods } from '@/hooks/useSupabase';
+import Loading from '@/components/UI/Loading';
 
 interface PartnerCertificationPaymentModalProps {
     certificateTypes: CertificateType[];
-    paymentMethods: PaymentMethod[];
     setIsModalOpen: (value: boolean) => void;
     setIsConfirmPaymentModalOpen: (value: boolean) => void;
     onSuccess?: () => void;
@@ -36,13 +37,13 @@ const SummaryItem: FC<SummarItemProps> = ({
 
 const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps> = ({
     certificateTypes,
-    paymentMethods,
     setIsModalOpen,
     setIsConfirmPaymentModalOpen,
     onSuccess
 }) => {
     const { request } = useApi();
     const { draft, setDraft, clearDraft } = usePartnerCertificateStore();
+    const { paymentMethods, isLoading } = usePaymentMethods(true, { only_partner: true })
 
     const [processPayment, setProcessPayment] = useState<boolean>(false);
 
@@ -145,6 +146,10 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
         } finally {
             setProcessPayment(false);
         }
+    }
+
+    if (isLoading) {
+        return <Loading />
     }
 
     return (
