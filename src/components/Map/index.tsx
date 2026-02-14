@@ -56,7 +56,6 @@ const Map: FC<MapProps> = ({
 
     useEffect(() => {
         const geocodePartners = async () => {
-            console.log('🗺️ Début du géocodage, nombre de partners:', partners.length);
             setIsLoadingCoords(true);
             const partnersWithCoordsData: PartnerWithCoords[] = [];
 
@@ -91,27 +90,16 @@ const Map: FC<MapProps> = ({
     }, [partners]);
 
     useEffect(() => {
-        if (selectedPartnerId && partnersWithCoords.length > 0) {
+        if (selectedPartnerId && partnersWithCoords.length > 0 && mapInstance) {
             const partner = partnersWithCoords.find(p => p.user_id === selectedPartnerId);
-            if (partner) {
+            if (partner && partner.coords) {
                 setSelectedPartner(partner);
-                if (partner.coords && mapInstance) {
-                    mapInstance.panTo(partner.coords);
-                    mapInstance.setZoom(15);
-                }
-            }
-        }
-    }, [selectedPartnerId, partnersWithCoords, mapInstance]);
 
-    useEffect(() => {
-        if (selectedPartnerId && partnersWithCoords.length > 0) {
-            const partner = partnersWithCoords.find(p => p.user_id === selectedPartnerId);
-            if (partner) {
-                setSelectedPartner(partner);
-                if (partner.coords && mapInstance) {
-                    mapInstance.panTo(partner.coords);
-                    mapInstance.setZoom(15);
-                }
+                mapInstance.panTo({
+                    lat: partner.coords.lat,
+                    lng: partner.coords.lng
+                });
+                mapInstance.setZoom(15);
             }
         }
     }, [selectedPartnerId, partnersWithCoords, mapInstance]);
@@ -144,7 +132,13 @@ const Map: FC<MapProps> = ({
     const handlePartnerClick = (partner: PartnerWithCoords) => {
         setSelectedPartner(partner);
         if (partner.coords && mapInstance) {
-            mapInstance.panTo(partner.coords);
+            const currentZoom = mapInstance.getZoom();
+            const offset = 0.002 / Math.pow(2, currentZoom - 10);
+
+            mapInstance.panTo({
+                lat: partner.coords.lat + offset,
+                lng: partner.coords.lng
+            });
             mapInstance.setZoom(15);
         }
         onPartnerSelect?.(partner);
@@ -241,7 +235,7 @@ const Map: FC<MapProps> = ({
                 </div>
             </div>
 
-            <div className="w-full h-screen">
+            <div className="w-full h-full">
                 <GoogleMapReact
                     options={{
                         fullscreenControl: false,

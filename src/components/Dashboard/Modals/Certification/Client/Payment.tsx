@@ -8,7 +8,7 @@ import type { PaymentMethod } from '@/types/payment.d';
 import PaymentMethodCard from '@/components/Dashboard/Cards/PaymentMethod';
 import { Button } from '@/components/UI/Button';
 import Steps from '@/components/Dashboard/Steps';
-import { usePaymentMethods } from '@/hooks/useSupabase';
+import { usePaymentMethods, useStorage } from '@/hooks/useSupabase';
 import Loading from '@/components/UI/Loading';
 
 interface ClientCertificationPaymentModalProps {
@@ -44,6 +44,7 @@ const ClientCertificationPaymentModal: FC<ClientCertificationPaymentModalProps> 
     const { request } = useApi();
     const { draft, setDraft, clearDraft } = useClientCertificateStore();
     const { paymentMethods, isLoading } = usePaymentMethods(true, { only_partner: false });
+    const { uploadFile } = useStorage();
 
     const [processPayment, setProcessPayment] = useState<boolean>(false);
 
@@ -82,7 +83,31 @@ const ClientCertificationPaymentModal: FC<ClientCertificationPaymentModalProps> 
             return;
         }
 
+        if (!draft.partner_id) {
+            toast.error("Aucun point de contrôle n'a été sélectionné.");
+            return;
+        }
+
+        setProcessPayment(true);
+
         try {
+            let frontPhotoPath: string[] = draft.object_front_photo || [];
+
+            if (draft.object_front_photo_file) {
+                try {
+                    const fileExtension = draft.object_front_photo_file.name.split('.').pop()?.toLowerCase() || 'jpg';
+                    const photoPath = `${draft.id}/front.${fileExtension}`;
+
+                    const result = await uploadFile('object_photos', photoPath, draft.object_front_photo_file);
+                    frontPhotoPath = [result.path];
+                } catch (uploadError) {
+                    console.error("❌ Erreur upload photo:", uploadError);
+                    toast.error("Erreur lors de l'upload de la photo");
+                    setProcessPayment(false);
+                    return;
+                }
+            }
+
             await request('/upsert-certificate-draft', {
                 method: 'POST',
                 body: {
@@ -93,25 +118,21 @@ const ClientCertificationPaymentModal: FC<ClientCertificationPaymentModalProps> 
                     object_model: draft.object_model,
                     object_reference: draft.object_reference,
                     object_serial_number: draft.object_serial_number,
+                    object_front_photo: frontPhotoPath,
                     certificate_type_id: draft.certificate_type_id,
+                    partner_id: draft.partner_id,
                     payment_method_id: draft.payment_method_id,
                     created_by: draft.created_by,
                 }
             });
-        } catch (error) {
-            toast.error("Erreur lors de la création du brouillon");
-            return;
-        }
 
-        if (!currentPaymentMethod.is_online) {
-            setIsModalOpen(false);
-            setIsConfirmPaymentModalOpen(true);
-            return;
-        }
+            if (!currentPaymentMethod.is_online) {
+                setIsModalOpen(false);
+                setIsConfirmPaymentModalOpen(true);
+                setProcessPayment(false);
+                return;
+            }
 
-        setProcessPayment(true);
-
-        try {
             const response = await request('/create-checkout-session', {
                 method: 'POST',
                 body: {
@@ -122,7 +143,9 @@ const ClientCertificationPaymentModal: FC<ClientCertificationPaymentModalProps> 
                     objectBrand: draft.object_brand,
                     objectReference: draft.object_reference,
                     objectSerialNumber: draft.object_serial_number,
+                    objectFrontPhoto: frontPhotoPath,
                     certificateTypeId: draft.certificate_type_id,
+                    partnerId: draft.partner_id,
                     paymentMethodId: draft.payment_method_id,
                     createdBy: draft.created_by,
                 }
@@ -132,7 +155,7 @@ const ClientCertificationPaymentModal: FC<ClientCertificationPaymentModalProps> 
                 throw new Error("Erreur serveur");
             }
 
-            toast.success("Lien de paiement envoyé avec succès au client !");
+            toast.success("Lien de paiement envoyé avec succès !");
 
             setIsModalOpen(false);
             clearDraft();
@@ -141,7 +164,7 @@ const ClientCertificationPaymentModal: FC<ClientCertificationPaymentModalProps> 
                 await onSuccess();
             }
         } catch (error: any) {
-            console.error("Erreur paiement:", error);
+            console.error("❌ Erreur paiement:", error);
             toast.error(error.message || "Une erreur est survenue");
         } finally {
             setProcessPayment(false);
@@ -173,23 +196,26 @@ const ClientCertificationPaymentModal: FC<ClientCertificationPaymentModalProps> 
                     </div>
                 </div>
                 {filteredPaymentMethods && filteredPaymentMethods.length > 0 ? (
-                    <div className='mt-8 grid gap-4'>
-                        {filteredPaymentMethods.map((paymentMethod: PaymentMethod) => (
-                            <PaymentMethodCard
-                                key={paymentMethod.id}
-                                selected={paymentMethod.id === currentPaymentMethod?.id}
-                                data={paymentMethod}
-                                onSelect={() => handleSelectPaymentMethod(paymentMethod)} />
-                        ))}
+                    <div className='space-y-6'>
+                        <div className='mt-8 grid gap-4'>
+                            {filteredPaymentMethods.map((paymentMethod: PaymentMethod) => (
+                                <PaymentMethodCard
+                                    key={paymentMethod.id}
+                                    selected={paymentMethod.id === currentPaymentMethod?.id}
+                                    data={paymentMethod}
+                                    onSelect={() => handleSelectPaymentMethod(paymentMethod)} />
+                            ))}
+                        </div>
+                        <p className='text-neutral-400 italic'>En appuyant sur confirmer vous acceptez les conditions générales de ventes et d'utilisation</p>
                     </div>
                 ) : (
-                    <p className="my-8 text-gray">Aucun moyen de paiement n'est disponible.</p>
+                    <p className="my-8 text-neutral-400">Aucun moyen de paiement n'est disponible.</p>
                 )}
                 <div className='mt-8 flex flex-col md:flex-row justify-end gap-5'>
                     <Button
                         theme="secondary"
                         className='lg:w-max'
-                        onClick={() => setDraft({ current_step: ClientCertificateStep.Service })}>
+                        onClick={() => setDraft({ current_step: ClientCertificateStep.Partner })}>
                         <IoIosArrowBack /> Précédent
                     </Button>
                     <Button

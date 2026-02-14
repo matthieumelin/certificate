@@ -108,7 +108,7 @@ const CertificatesPage: FC = () => {
                 </div>
 
                 {certificates && certificates.length > 0 ? (
-                    <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                    <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr'>
                         {certificates.map(certificate => (
                             <CertificateCard
                                 key={certificate.id}

@@ -269,7 +269,9 @@ app.post("/upsert-certificate-draft", async (req, res) => {
     object_model,
     object_reference,
     object_serial_number,
+    object_front_photo,
     certificate_type_id,
+    partner_id,
     payment_method_id,
     created_by,
   } = req.body;
@@ -289,7 +291,9 @@ app.post("/upsert-certificate-draft", async (req, res) => {
         object_model,
         object_reference,
         object_serial_number,
+        object_front_photo,
         certificate_type_id,
+        partner_id,
         payment_method_id,
         created_by,
         updated_at: new Date().toISOString(),
@@ -765,7 +769,9 @@ app.post("/create-checkout-session", async (req, res) => {
     objectBrand,
     objectReference,
     objectSerialNumber,
+    objectFrontPhoto,
     certificateTypeId,
+    partnerId,
     paymentMethodId,
     createdBy,
   } = req.body;
@@ -781,6 +787,7 @@ app.post("/create-checkout-session", async (req, res) => {
     !objectReference ||
     !objectSerialNumber ||
     !certificateTypeId ||
+    !partnerId ||
     !paymentMethodId ||
     !createdBy
   ) {
@@ -822,7 +829,9 @@ app.post("/create-checkout-session", async (req, res) => {
         object_brand: objectBrand,
         object_reference: objectReference,
         object_serial_number: objectSerialNumber,
+        object_front_photo: objectFrontPhoto,
         certificate_type_id: certificateTypeId,
+        partner_id: partnerId,
         payment_method_id: paymentMethodId,
         created_by: createdBy,
         payment_link_sent: true,
