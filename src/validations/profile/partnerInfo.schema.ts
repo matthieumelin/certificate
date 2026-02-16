@@ -70,6 +70,10 @@ const partnerInfoSchema = Yup.object().shape({
     .min(2, "Le nom du pays doit contenir au moins 2 caractères")
     .max(100, "Le nom du pays ne peut pas dépasser 100 caractères"),
 
+  address_type: Yup.string().required(
+    "Le type de point de contrôle est requis",
+  ),
+
   show_hours: Yup.boolean(),
 
   hours: Yup.object().shape({

@@ -6,7 +6,11 @@ import {
 } from "@/types/certificate.d";
 import { ObjectDocumentType, ObjectStatus } from "@/types/object.d";
 import { TransactionType } from "@/types/transaction.d";
-import { UserProfileRole, UserProfileType } from "@/types/user.d";
+import {
+  PartnerInfoAddressType,
+  UserProfileRole,
+  UserProfileType,
+} from "@/types/user.d";
 
 // Steps
 export const PartnerCertificateStepLabels: Record<
@@ -19,7 +23,10 @@ export const PartnerCertificateStepLabels: Record<
   [PartnerCertificateStep.Payment]: "Paiement",
 };
 
-export const ClientCertificateStepLabels: Record<ClientCertificateStep, string> = {
+export const ClientCertificateStepLabels: Record<
+  ClientCertificateStep,
+  string
+> = {
   [ClientCertificateStep.CustomerInfos]: "Client",
   [ClientCertificateStep.ObjectInfos]: "Objet",
   [ClientCertificateStep.Service]: "Service",
@@ -79,6 +86,15 @@ export const UserTypeLabels: Record<UserProfileType, string> = {
   [UserProfileType.Individual]: "Particulier",
 };
 
+// Partner types
+export const PartnerInfoAddressTypeLabels: Record<
+  PartnerInfoAddressType,
+  string
+> = {
+  [PartnerInfoAddressType.RepairShop]: "Atelier de réparation",
+  [PartnerInfoAddressType.Store]: "Boutique",
+};
+
 // User Role
 export const UserRoleLabels: Record<UserProfileRole, string> = {
   [UserProfileRole.Admin]: "Administrateur",
@@ -99,4 +115,10 @@ export const getUserProfileRoleLabel = (role: UserProfileRole): string => {
 
 export const getObjectStatusLabel = (status: ObjectStatus): string => {
   return ObjectStatusLabels[status] || status;
+};
+
+export const getPartnerInfoAddressTypeLabel = (
+  addressType: PartnerInfoAddressType,
+): string => {
+  return PartnerInfoAddressTypeLabels[addressType] || addressType;
 };

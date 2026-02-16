@@ -9,6 +9,11 @@ export enum UserProfileRole {
   Admin = "admin",
 }
 
+export enum PartnerInfoAddressType {
+  RepairShop = "repair_shop",
+  Store = "store",
+}
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -37,6 +42,15 @@ export interface PartnerInfo {
   postal_code: string;
   city: string;
   country: string;
+  address_type: PartnerInfoAddressType;
+
+  delivery_address: string;
+  delivery_postal_code: string;
+  delivery_city: string;
+  delivery_country: string;
+
+  delivery_same_as_main: boolean;
+  hide_delivery_address: boolean;
 
   show_hours: boolean;
   hours: {
