@@ -1,5 +1,6 @@
 import { type FC, useState, useEffect } from 'react'
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
+import { FiClock } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { ClientCertificateStep } from '@/types/certificate.d';
 import Steps from '@/components/Dashboard/Steps';
@@ -7,7 +8,7 @@ import { Button } from '@/components/UI/Button';
 import { useClientCertificateStore } from '@/stores/certification/clientCertificateStore';
 import { usePartnerInfos } from '@/hooks/useSupabase';
 import Map from '@/components/Map';
-import type { PartnerInfo } from '@/types/user.d';
+import type { PartnerInfo, DaySchedule } from '@/types/user.d';
 
 const ClientCertificationPartnerModal: FC = () => {
     const { draft, setDraft } = useClientCertificateStore();
@@ -17,6 +18,7 @@ const ClientCertificationPartnerModal: FC = () => {
     });
 
     const [selectedPartner, setSelectedPartner] = useState<PartnerInfo | null>(null);
+    const [showHours, setShowHours] = useState<boolean>(false);
 
     const steps = Object.values(ClientCertificateStep);
 
@@ -49,6 +51,33 @@ const ClientCertificationPartnerModal: FC = () => {
             toast.error("Erreur lors de la sauvegarde");
         }
     }
+
+    const formatTimeSlot = (start: string, end: string) => {
+        if (!start || !end) return null;
+        return `${start} - ${end}`;
+    };
+
+    const getDaySchedule = (daySchedule: DaySchedule) => {
+        const slots = [];
+        
+        const morning = formatTimeSlot(daySchedule.morning_start, daySchedule.morning_end);
+        if (morning) slots.push(morning);
+        
+        const afternoon = formatTimeSlot(daySchedule.afternoon_start, daySchedule.afternoon_end);
+        if (afternoon) slots.push(afternoon);
+        
+        return slots.length > 0 ? slots.join(' | ') : 'Fermé';
+    };
+
+    const days = [
+        { key: 'monday', label: 'Lundi' },
+        { key: 'tuesday', label: 'Mardi' },
+        { key: 'wednesday', label: 'Mercredi' },
+        { key: 'thursday', label: 'Jeudi' },
+        { key: 'friday', label: 'Vendredi' },
+        { key: 'saturday', label: 'Samedi' },
+        { key: 'sunday', label: 'Dimanche' },
+    ];
 
     if (isLoading) {
         return (
@@ -115,6 +144,7 @@ const ClientCertificationPartnerModal: FC = () => {
                                     {selectedPartner.profile?.society || `${selectedPartner.profile?.first_name} ${selectedPartner.profile?.last_name}`}
                                 </span>
                             </div>
+                            
                             <div>
                                 <span className='text-emerald-400 text-sm font-medium block mb-1'>Adresse du point de contrôle</span>
                                 <span className='text-white'>
@@ -123,6 +153,78 @@ const ClientCertificationPartnerModal: FC = () => {
                                     {selectedPartner.country}
                                 </span>
                             </div>
+
+                            {/* Adresse de livraison */}
+                            <div>
+                                <span className='text-emerald-400 text-sm font-medium block mb-1'>Adresse de livraison</span>
+                                {selectedPartner.hide_delivery_address ? (
+                                    <div className='p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg'>
+                                        <p className='text-orange-400 text-sm'>
+                                            ⚠️ Le partenaire vous contactera pour convenir d'une adresse de livraison
+                                        </p>
+                                    </div>
+                                ) : selectedPartner.delivery_same_as_main ? (
+                                    <div className='p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg'>
+                                        <p className='text-blue-400 text-sm'>
+                                            ℹ️ Identique à l'adresse du point de contrôle
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <span className='text-white'>
+                                        {selectedPartner.delivery_address}<br />
+                                        {selectedPartner.delivery_postal_code} {selectedPartner.delivery_city}<br />
+                                        {selectedPartner.delivery_country}
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Horaires d'ouverture */}
+                            {selectedPartner.show_hours && selectedPartner.hours && (
+                                <div>
+                                    <button
+                                        onClick={() => setShowHours(!showHours)}
+                                        className='w-full flex items-center justify-between text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors py-2'
+                                    >
+                                        <span className='flex items-center gap-2'>
+                                            <FiClock className='w-4 h-4' />
+                                            Horaires d'ouverture
+                                        </span>
+                                        <svg
+                                            className={`w-4 h-4 transition-transform ${showHours ? 'rotate-180' : ''}`}
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+
+                                    {showHours && (
+                                        <div className='mt-2 p-4 bg-white/5 rounded-lg border border-white/10 space-y-2'>
+                                            {selectedPartner.by_appointment && (
+                                                <div className='mb-3 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded'>
+                                                    <p className='text-yellow-400 text-xs'>
+                                                        📅 Uniquement sur rendez-vous
+                                                    </p>
+                                                </div>
+                                            )}
+                                            
+                                            {days.map((day) => {
+                                                const schedule = selectedPartner.hours[day.key as keyof typeof selectedPartner.hours];
+                                                return (
+                                                    <div key={day.key} className='flex justify-between items-center'>
+                                                        <span className='text-gray text-sm font-medium'>{day.label}</span>
+                                                        <span className='text-white text-sm'>
+                                                            {getDaySchedule(schedule)}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {selectedPartner.profile?.phone && (
                                 <div>
                                     <span className='text-emerald-400 text-sm font-medium block mb-1'>Téléphone</span>
@@ -131,6 +233,7 @@ const ClientCertificationPartnerModal: FC = () => {
                                     </a>
                                 </div>
                             )}
+                            
                             {selectedPartner.profile?.email && (
                                 <div>
                                     <span className='text-emerald-400 text-sm font-medium block mb-1'>Email</span>
