@@ -1120,7 +1120,6 @@ export const usePartnerInfos = (
         }
 
         const { data, error } = await query;
-
         if (error) throw error;
 
         const filteredData = filters.includeProfile

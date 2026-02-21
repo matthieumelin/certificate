@@ -17,6 +17,8 @@ const ClientCertificationPartnerModal: FC = () => {
         includeProfile: true
     });
 
+    console.log(partners)
+
     const [selectedPartner, setSelectedPartner] = useState<PartnerInfo | null>(null);
     const [showHours, setShowHours] = useState<boolean>(false);
 
@@ -154,7 +156,6 @@ const ClientCertificationPartnerModal: FC = () => {
                                 </span>
                             </div>
 
-                            {/* Adresse de livraison */}
                             <div>
                                 <span className='text-emerald-400 text-sm font-medium block mb-1'>Adresse de livraison</span>
                                 {selectedPartner.hide_delivery_address ? (
@@ -178,7 +179,6 @@ const ClientCertificationPartnerModal: FC = () => {
                                 )}
                             </div>
 
-                            {/* Horaires d'ouverture */}
                             {selectedPartner.show_hours && selectedPartner.hours && (
                                 <div>
                                     <button
