@@ -67,6 +67,20 @@ function checkRateLimit(identifier) {
   return true;
 }
 
+async function insertObjectPhoto(objectId, path, type) {
+  if (!path.length) return;
+
+  const { error } = await supabase.from("object_photos").insert({
+    object_id: objectId,
+    path,
+    type,
+  });
+
+  if (error) {
+    console.error("Erreur insertion object_photos:", error);
+  }
+}
+
 app.post(
   "/webhook",
   express.raw({ type: "application/json" }),
@@ -443,6 +457,12 @@ app.post("/confirm-instore-payment", async (req, res) => {
       return res.status(500).json({ error: "Erreur création objet" });
     }
 
+    await insertObjectPhoto(
+      object.id,
+      draftData.object_front_photo[0],
+      "front",
+    );
+
     const { data: certificate, error: certError } = await supabase
       .from("certificates")
       .insert({
@@ -519,7 +539,7 @@ app.post("/verify-payment", async (req, res) => {
       return res.json({ success: false, message: "Paiement non confirmé" });
     }
 
-    const { draft_id, certificate_type } = session.metadata;
+    const { draft_id, certificate_type, price } = session.metadata;
     if (!draft_id) {
       return res.status(400).json({ error: "Draft ID manquant dans metadata" });
     }
@@ -636,6 +656,12 @@ app.post("/verify-payment", async (req, res) => {
         .json({ error: "Impossible de créer l'objet associé au certificat" });
     }
 
+    await insertObjectPhoto(
+      object.id,
+      draftData.object_front_photo[0],
+      "front",
+    );
+
     const { data: certificate, error: certError } = await supabase
       .from("certificates")
       .insert({
@@ -659,11 +685,11 @@ app.post("/verify-payment", async (req, res) => {
 
     await supabase.from("certificate_drafts").delete().eq("id", draft_id);
 
-    await emailService.sendCertificate({
+    await emailService.sendPaymentConfirmation({
       to: customer.email,
       customerName: `${customer.first_name} ${customer.last_name}`,
       certificateName: certificate_type,
-      certificateDetailsLink: `${process.env.FRONTEND_URL}/dashboard/certificates/details/${certificate.id}`,
+      amount: price,
     });
 
     if (isNewGuestProfile) {
@@ -867,6 +893,7 @@ app.post("/create-checkout-session", async (req, res) => {
         draft_id: draftId,
         customer_name: customerName,
         certificate_type: certificateType.name,
+        price: certificateType.price,
       },
     });
 

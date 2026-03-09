@@ -14,7 +14,7 @@ export const emailTemplates = {
           </p>
           <p style="font-size: 16px; color: #ffffff;">
             Montant à régler : <strong style="font-size: 20px;">${amount.toFixed(
-              2
+              2,
             )} €</strong>
           </p>
 
@@ -58,12 +58,13 @@ export const emailTemplates = {
           },</p>
           <p style="font-size: 16px; color: #ffffff; line-height: 1.6;">
             Nous avons bien reçu votre paiement de <strong>${amount.toFixed(
-              2
+              2,
             )} €</strong> pour le certificat :<br>
             <strong style="font-size: 18px; color: #03AB62;">${certificateName}</strong>
           </p>
           <p style="font-size: 16px; color: #ffffff; line-height: 1.6;">
-            Votre certificat est en cours de génération et vous sera envoyé dans les prochaines minutes.
+            Votre certificat est en cours de génération par notre partenaire.<br />
+            Un mail vous sera envoyé une fois votre certificat créé.
           </p>
 
           <hr style="border: 0; border-top: 1px solid #333333; margin: 40px 0;">
