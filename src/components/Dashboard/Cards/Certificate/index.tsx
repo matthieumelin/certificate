@@ -5,13 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import routes from '@/utils/routes';
 import { Button } from '@/components/UI/Button';
 import Modal from '@/components/UI/Modal';
-import { CertificateInspectionResult, CertificateStatus, CertificateVerificationStatus, PartnerCertificateStep, type Certificate, type CertificateDraft, type CertificateInspection, type CertificateType } from '@/types/certificate.d';
-import { useCertificateDrafts, useCertificateInspections, useCertificates } from '@/hooks/useSupabase';
+import { CertificateInspectionResult, CertificateStatus, CertificateTypeVerificationStatus, PartnerCertificateStep, type Certificate, type CertificateDraft, type CertificateType } from '@/types/certificate.d';
+import { useCertificateDrafts, useCertificateInspections, useCertificates, useStorage } from '@/hooks/useSupabase';
 import { UserProfileRole } from '@/types/user.d';
 import Alert from '@/components/UI/Alert';
 import { getUserProfileRoleLabel } from '@/helpers/translations';
 import { useApi } from '@/hooks/useApi';
 import { useCertificateStore } from '@/stores/certificateStore';
+import { formatDate } from '@/helpers/date';
 
 interface CertificateCardProps {
     draft?: CertificateDraft;
@@ -50,8 +51,8 @@ const CertificateCard: FC<CertificateCardProps> = ({
     const { clearDraft, setDraft } = usePartnerCertificateStore();
     const { setSelectedCertificate } = useCertificateStore();
 
+    const { getSignedUrl } = useStorage();
     const { deleteCertificateDraft, getCertificateDraftById } = useCertificateDrafts(false);
-    const { getCertificateInspectionPhotoSignedUrl } = useCertificateInspections();
     const { deleteCertificate } = useCertificates(false);
 
     const [showDeleteConfirm, setShowDeleteConfirm] = useState<boolean>(false);
@@ -75,7 +76,7 @@ const CertificateCard: FC<CertificateCardProps> = ({
     }
 
     const handleViewCertificate = () => {
-        navigate(routes.Dashboard.Certificates.Details.replace(':id', `${certificate?.id}`))
+        navigate(routes.Certificate.replace(':id', `${certificate?.id}`))
     }
 
     const handleDownloadCertificate = () => {
@@ -281,21 +282,21 @@ const CertificateCard: FC<CertificateCardProps> = ({
         );
     };
 
-    const getVerificationBadge = (verificationStatus?: CertificateVerificationStatus) => {
+    const getVerificationBadge = (verificationStatus?: CertificateTypeVerificationStatus) => {
         if (!verificationStatus) return null;
 
         const verificationConfig = {
-            [CertificateVerificationStatus.Registered]: {
+            [CertificateTypeVerificationStatus.Registered]: {
                 icon: '📋',
                 label: 'Enregistré',
                 color: 'text-neutral-400'
             },
-            [CertificateVerificationStatus.Authenticated]: {
+            [CertificateTypeVerificationStatus.Verified]: {
                 icon: '✅',
-                label: 'Authentifié',
+                label: 'Verifié',
                 color: 'text-blue-400'
             },
-            [CertificateVerificationStatus.Certified]: {
+            [CertificateTypeVerificationStatus.Certified]: {
                 icon: '🏆',
                 label: 'Certifié',
                 color: 'text-emerald-400'
@@ -309,17 +310,6 @@ const CertificateCard: FC<CertificateCardProps> = ({
                 <span>{config.label}</span>
             </span>
         );
-    };
-
-    const formatDate = (dateString?: string) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('fr-FR', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: "numeric"
-        });
     };
 
     const canDelete = isDraft ||
@@ -341,7 +331,7 @@ const CertificateCard: FC<CertificateCardProps> = ({
             if (certificate?.inspection?.photos) {
                 const certificateInspectionPhoto = certificate.inspection.photos[0] ?? null;
                 if (certificateInspectionPhoto) {
-                    const signedPhoto = await getCertificateInspectionPhotoSignedUrl(certificateInspectionPhoto);
+                    const signedPhoto = await getSignedUrl("certificate_inspections", certificateInspectionPhoto);
                     setObjectPhoto(signedPhoto);
                 }
             }
@@ -366,9 +356,9 @@ const CertificateCard: FC<CertificateCardProps> = ({
                                 />
                             )}
                             <div className='space-y-2'>
-                                {!isDraft && certificate?.verification_status && (
+                                {!isDraft && certificate?.type?.verification_status && (
                                     <div className="text-right">
-                                        {getVerificationBadge(certificate.verification_status)}
+                                        {getVerificationBadge(certificate.type.verification_status)}
                                     </div>
                                 )}
                                 <h3 className="text-white font-bold text-lg">

@@ -22,8 +22,8 @@ export interface UserProfile {
   role: UserProfileRole;
   is_deleted: boolean;
   is_active: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
   phone: string;
   address: string;
   city: string;
@@ -63,8 +63,8 @@ export interface PartnerInfo {
     sunday: DaySchedule;
   };
   by_appointment: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
 
   // Relations
   profile?: UserProfile;

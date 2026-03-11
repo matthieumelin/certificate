@@ -7,7 +7,7 @@ import { withCurrentValueOption } from '@/helpers/select';
 import { CertificateInspectionResult, CertificateStatus, type CertificateType } from '@/types/certificate.d';
 import useAuth from '@/contexts/AuthContext';
 import { useApi } from '@/hooks/useApi';
-import { useCertificateInspections, usePartnerCertificates } from '@/hooks/useSupabase';
+import { useCertificateInspections, usePartnerCertificates, useStorage } from '@/hooks/useSupabase';
 import FormGroup from '@/components/UI/Form/Group';
 import Label from '@/components/UI/Form/Label';
 import certificateInspectionSchema from '@/validations/certificate/partner/inspection.schema';
@@ -15,6 +15,7 @@ import FileUpload from '@/components/UI/Form/FileUpload';
 import Input from '@/components/UI/Form/Input';
 import { Button } from '@/components/UI/Button';
 import { useCertificateStore } from '@/stores/certificateStore';
+import { normalizeFileName } from '@/helpers/file';
 
 interface ResultButtonProps {
     authentic: boolean;
@@ -55,6 +56,7 @@ interface FormValues {
     suspectPoints: string[];
     comment: string;
     photos: string[];
+    photoFiles: File[];
 }
 
 const ResultButton: FC<ResultButtonProps> = ({ authentic, label, active, onSelectResult }) => {
@@ -116,6 +118,7 @@ const PartnerCertificationInspectionModal: FC<PartnerCertificationInspectionModa
     const { updatePartnerCertificate } = usePartnerCertificates();
     const { createCertificateInspection } = useCertificateInspections();
     const { request } = useApi();
+    const { uploadFile } = useStorage();
 
     const formRef = useRef<FormikProps<FormValues>>(null);
 
@@ -127,7 +130,8 @@ const PartnerCertificationInspectionModal: FC<PartnerCertificationInspectionModa
         result: null,
         suspectPoints: [],
         comment: '',
-        photos: []
+        photos: [],
+        photoFiles: [],
     }
 
     const suspectPoints = [
@@ -161,13 +165,30 @@ const PartnerCertificationInspectionModal: FC<PartnerCertificationInspectionModa
             return;
         }
 
+        let photoPaths: string[] = [];
+        if (values.photoFiles.length > 0) {
+            try {
+                photoPaths = await Promise.all(
+                    values.photoFiles.map(async (file, index) => {
+                        const fileName = normalizeFileName(file.name);
+                        const path = `${selectedCertificate.id}/${Date.now()}_${index}_${fileName}`;
+                        const result = await uploadFile('certificate_inspections', path, file);
+                        return result.path;
+                    })
+                );
+            } catch (err) {
+                toast.error("Erreur lors de l'upload des photos");
+                return;
+            }
+        }
+
         const result = await createCertificateInspection(
             selectedCertificate.id,
             user?.id!,
             values.result!,
             values.suspectPoints,
             values.comment,
-            values.photos);
+            photoPaths);
 
         if (!result) {
             toast.error("Impossible de créer l'inspection");
@@ -379,10 +400,10 @@ const PartnerCertificationInspectionModal: FC<PartnerCertificationInspectionModa
                                 <FormGroup>
                                     <Label htmlFor='photos' label='Photos' required />
                                     <FileUpload
-                                        bucketName="certificate_inspections"
-                                        uploadPath={selectedCertificate?.id || 'temp'}
                                         value={values.photos}
-                                        onChange={(paths) => setFieldValue('photos', paths)}
+                                        onFilesChange={(files) => {
+                                            setFieldValue('photoFiles', [...values.photoFiles, ...files]);
+                                        }}
                                         maxFiles={5}
                                         maxSizeMB={5}
                                         acceptedFileTypes={['.jpg', '.png']}
@@ -393,7 +414,7 @@ const PartnerCertificationInspectionModal: FC<PartnerCertificationInspectionModa
                                     <Button
                                         type='submit'
                                         disabled={isSubmitting || !values.result
-                                            || !values.photos || values.photos.length < 5
+                                            || !values.photos || values.photoFiles.length < 5
                                         }>
                                         {values.result === CertificateInspectionResult.AuthenticItem ? "Poursuivre" :
                                             "Terminer l'inspection"}

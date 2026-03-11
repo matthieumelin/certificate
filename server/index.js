@@ -67,8 +67,22 @@ function checkRateLimit(identifier) {
   return true;
 }
 
+function generateRandomPin(min = 6, max = 8) {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const length = Math.floor(Math.random() * (max - min + 1)) + min;
+
+  let pin = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * chars.length);
+    pin += chars[randomIndex];
+  }
+
+  return pin.toUpperCase();
+}
+
 async function insertObjectPhoto(objectId, path, type) {
-  if (!path.length) return;
+  if (!path || !path.length) return;
 
   const { error } = await supabase.from("object_photos").insert({
     object_id: objectId,
@@ -152,7 +166,7 @@ app.post("/send-certificate-email", async (req, res) => {
       to: customer.email,
       customerName: `${customer.first_name} ${customer.last_name}`,
       certificateName: certType?.name || "Certificat",
-      certificateDetailsLink: `${process.env.FRONTEND_URL}/dashboard/certificates/details/${certificate.id}`,
+      certificateDetailsLink: `${process.env.FRONTEND_URL}/certificate/${certificate.id}`,
     });
 
     return res.json({ success: true });
@@ -236,7 +250,7 @@ app.post("/send-inauthentic-alert", async (req, res) => {
       customerName: `${customer.first_name} ${customer.last_name}`,
       certificateType: certType?.name || "Certificat",
       certificateDetailsLink:
-        `${process.env.FRONTEND_URL}/dashboard/certificates/details/${certificateId}` ||
+        `${process.env.FRONTEND_URL}/certificate/${certificateId}` ||
         "",
       objectBrand: objectBrand || "",
       objectModel: objectModel || "",
@@ -487,7 +501,7 @@ app.post("/confirm-instore-payment", async (req, res) => {
       to: customer.email,
       customerName: `${customer.first_name} ${customer.last_name}`,
       certificateName: "Certificat",
-      certificateDetailsLink: `${process.env.FRONTEND_URL}/dashboard/certificates/details/${certificate.id}`,
+      certificateDetailsLink: `${process.env.FRONTEND_URL}/certificate/${certificate.id}`,
     });
 
     if (isNewGuestProfile) {
@@ -671,6 +685,7 @@ app.post("/verify-payment", async (req, res) => {
         customer_id: userProfile.id,
         certificate_type_id: draftData.certificate_type_id,
         payment_method_id: draftData.payment_method_id,
+        pin_code: generateRandomPin(3, 4),
         status: "payment_confirmed",
       })
       .select()
@@ -935,6 +950,94 @@ app.post("/create-checkout-session", async (req, res) => {
       error: "Échec création session",
       details: error.message,
     });
+  }
+});
+
+app.get("/get-certificate/:id", async (req, res) => {
+  const { id } = req.params;
+  const pinCode = req.query.pin || null;
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Non authentifié" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser(token);
+
+  if (userError || !user) {
+    return res.status(401).json({ error: "Token invalide" });
+  }
+
+  try {
+    const { data: certificate, error: certError } = await supabase
+      .from("certificates")
+      .select(
+        `
+        *,
+        customer:profiles(*),
+        type:certificate_types(*),
+        object:objects(
+          *,
+          object_type:object_types(*),
+          object_photos(*)
+        ),
+        inspection:certificate_inspections(*)
+      `,
+      )
+      .eq("id", id)
+      .single();
+
+    if (certError || !certificate) {
+      return res.status(404).json({ error: "Certificat introuvable" });
+    }
+
+    const isOwner =
+      certificate.object?.owner_id === user.id ||
+      certificate.customer_id === user.id;
+
+    const pinIsValid =
+      !isOwner &&
+      pinCode &&
+      certificate.pin_code &&
+      certificate.pin_code === pinCode;
+
+    const hasFullAccess = isOwner || pinIsValid;
+
+    if (!hasFullAccess) {
+      if (certificate.customer?.last_name) {
+        certificate.customer.last_name = `${certificate.customer.last_name.charAt(0)}.`;
+      }
+
+      if (certificate.object?.serial_number) {
+        const sn = certificate.object.serial_number;
+
+        if (sn.length > 4) {
+          certificate.object.serial_number = `${sn.slice(0, 2)}${"X".repeat(sn.length - 4)}${sn.slice(-2)}`;
+        }
+      }
+
+      if (certificate.customer) {
+        certificate.customer.email = null;
+        certificate.customer.phone = null;
+        certificate.customer.address = null;
+        certificate.customer.vat_number = null;
+      }
+    }
+
+    delete certificate.pin_code;
+
+    return res.json({
+      ...certificate,
+      _access: hasFullAccess ? "full" : "masked",
+    });
+  } catch (error) {
+    console.error("❌ Erreur get-certificate:", error);
+    return res.status(500).json({ error: "Erreur serveur" });
   }
 });
 

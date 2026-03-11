@@ -11,6 +11,7 @@ import {
   type CertificateDraft,
   CertificateInspectionResult,
   type CertificateInspection,
+  CertificateStatus,
 } from "@/types/certificate.d";
 import type { PaymentMethod } from "@/types/payment.d";
 import {
@@ -1365,9 +1366,11 @@ export const usePartnerCertificates = (userId?: string) => {
         .select(
           `
           *,
+          inspection:certificate_inspections!certificate_id(id, photos, result),
           customer:profiles!customer_id(id, email, first_name, last_name, society, vat_number),
           creator:profiles!created_by(role),
-          object:objects!object_id(id, type_id, owner_id)
+          object:objects!object_id(id, type_id, owner_id),
+          type:certificate_types!certificate_type_id(*)
         `,
         )
         .single();
@@ -1416,9 +1419,11 @@ export const useCustomerCertificates = (
         .select(
           `
           *,
+          inspection:certificate_inspections!certificate_id(id, photos, result),
         customer:profiles!customer_id(id, email, first_name, last_name, society, vat_number),
           creator:profiles!created_by(role),
-          object:objects!object_id(id, type_id, owner_id)
+          object:objects!object_id(id, type_id, owner_id),
+          type:certificate_types!certificate_type_id(*)
         `,
         )
         .order("created_at", { ascending: false });
@@ -1488,7 +1493,6 @@ export const useCustomerCertificates = (
 };
 
 export const useCertificateInspections = () => {
-  const { getSignedUrl } = useStorage();
   const [error, setError] = useState<string | null>(null);
 
   const getCertificateInspection = async (
@@ -1570,27 +1574,11 @@ export const useCertificateInspections = () => {
     }
   };
 
-  const getCertificateInspectionPhotoSignedUrl = async (
-    photoPath: string,
-  ): Promise<string> => {
-    try {
-      const signedUrl = await getSignedUrl(
-        "certificate_inspections",
-        photoPath,
-      );
-      return signedUrl;
-    } catch (error) {
-      console.error("Error getting signed URL:", error);
-      throw error;
-    }
-  };
-
   return {
     error,
     isCertificateInspectionExists,
     createCertificateInspection,
     getCertificateInspection,
-    getCertificateInspectionPhotoSignedUrl,
   };
 };
 
@@ -1731,17 +1719,43 @@ export const useCertificateDrafts = (
   };
 };
 
-export const useCertificates = (autoFetch: boolean = true) => {
+interface CertificateFilters {
+  id?: string;
+  createdBy?: string;
+  customerId?: string;
+  status?: CertificateStatus;
+}
+
+export const useCertificates = (
+  autoFetch: boolean = false,
+  filters?: CertificateFilters,
+) => {
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchCertificates = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("certificates")
-        .select("*")
+        .select(
+          `
+        *,
+        inspection:certificate_inspections!certificate_id(id, photos, result),
+        customer:profiles!customer_id(email, first_name, last_name, society, vat_number, phone, address, city, country, postal_code),
+        type:certificate_types!certificate_type_id(*),
+        object:objects!object_id(*, object_type:object_types(*), object_attributes(attributes), object_photos:object_photos(path, type))
+    `,
+        )
         .order("created_at", { ascending: false });
+
+      if (filters?.id) query = query.eq("id", filters.id);
+      if (filters?.createdBy) query = query.eq("created_by", filters.createdBy);
+      if (filters?.customerId)
+        query = query.eq("customer_id", filters.customerId);
+      if (filters?.status) query = query.eq("status", filters.status);
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setCertificates(data || []);
@@ -1750,30 +1764,7 @@ export const useCertificates = (autoFetch: boolean = true) => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
-
-  const getCertificateById = async (id: string): Promise<Certificate> => {
-    try {
-      const { data, error } = await supabase
-        .from("certificates")
-        .select(
-          `
-          *,
-          customer:profiles!customer_id(email, first_name, last_name, society, vat_number),
-          certificate_type:certificate_types!certificate_type_id(name, price, features, physical),
-          object:objects!object_id(brand, model, reference, serial_number, owner_id, object_documents(id, file_name, file_path), object_type:object_types(label), object_attributes(attributes))
-        `,
-        )
-        .eq("id", id)
-        .single();
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "An error occured");
-      throw error;
-    }
-  };
+  }, [filters?.createdBy, filters?.customerId, filters?.status]);
 
   const createCertificate = async (
     dto: Partial<Certificate>,
@@ -1837,6 +1828,57 @@ export const useCertificates = (autoFetch: boolean = true) => {
 
   const downloadCertificate = () => {};
 
+  interface UnlockCertificateResponse {
+    customer: UserProfile;
+    object: Object;
+  }
+
+  const unlockCertificateWithPin = async (
+    id: string,
+    pin: string,
+  ): Promise<UnlockCertificateResponse> => {
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        `public-certificate?id=${id}`,
+        {
+          method: "POST",
+          body: { pin },
+        },
+      );
+
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Erreur lors du déblocage du certificat via son pin",
+      );
+      throw err;
+    }
+  };
+
+  const getPublicCertificate = async (id: string): Promise<Certificate> => {
+    try {
+      const { data, error } = await supabase.functions.invoke<Certificate>(
+        `public-certificate?id=${id}`,
+        {
+          method: "GET",
+        },
+      );
+
+      if (error) throw error;
+      return data!;
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Erreur lors de la récupération du certificat",
+      );
+      throw err;
+    }
+  };
+
   const mutate = () => {
     fetchCertificates();
   };
@@ -1856,7 +1898,8 @@ export const useCertificates = (autoFetch: boolean = true) => {
     deleteCertificate,
     downloadCertificate,
     updateCertificate,
-    getCertificateById,
+    unlockCertificateWithPin,
+    getPublicCertificate,
   };
 };
 

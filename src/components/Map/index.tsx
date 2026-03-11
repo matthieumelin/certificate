@@ -172,13 +172,13 @@ const Map: FC<MapProps> = ({
                     />
                     <button
                         onClick={() => haveSearch ? handleDeleteSearch() : handleSetOwnLocation()}
-                        className={`${!haveSearch ? "mt-2 lg:mt-0 rounded shadow bg-[#ECECEC] text-sm w-full lg:w-max" : ""} p-1`}
+                        className={`${!haveSearch ? "mt-2 lg:mt-0 bg-transparent text-sm w-full lg:w-max" : ""} p-1`}
                         type="button"
                     >
                         {haveSearch ? (
                             <LiaTimesSolid size={18} />
                         ) : (
-                            `Votre localisation`
+                            `Ma localisation`
                         )}
                     </button>
                 </div>

@@ -1,4 +1,4 @@
-import { type FC, useState } from 'react'
+import { type FC, useState, useEffect } from 'react'
 import { PartnerCertificateStep } from '@/types/certificate.d';
 import type { ObjectBrand, ObjectModel, ObjectReference, ObjectType } from '@/types/object.d';
 import { Button } from '@/components/UI/Button';
@@ -15,6 +15,8 @@ import { withCurrentValueOption } from '@/helpers/select';
 import { genCertificateId } from '@/helpers/hash';
 import Steps from '@/components/Dashboard/Steps';
 import objectInfosSchema from '@/validations/certificate/partner/objectInfos.schema';
+import FileUpload from '@/components/UI/Form/FileUpload';
+import { useStorage } from '@/hooks/useSupabase';
 
 interface PartnerCertificationObjectInfosModalProps {
     objectTypes: ObjectType[];
@@ -29,6 +31,7 @@ export interface FormValues {
     model: string;
     reference: string;
     serial_number: string;
+    front_photo: string[];
 }
 
 const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosModalProps> = ({
@@ -39,6 +42,9 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
 }) => {
     const { draft, setDraft } = usePartnerCertificateStore();
     const [showObjectTypes, setShowObjectTypes] = useState<boolean>(true);
+    const [pendingFile, setPendingFile] = useState<File | null>(draft.object_front_photo_file || null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const { getSignedUrl } = useStorage();
 
     const steps = Object.values(PartnerCertificateStep);
 
@@ -50,7 +56,29 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
         model: draft.object_model || "",
         reference: draft.object_reference || "",
         serial_number: draft.object_serial_number || "",
+        front_photo: draft.object_front_photo || [],
     };
+
+    useEffect(() => {
+        const loadExistingPhoto = async () => {
+            if (draft.object_front_photo && draft.object_front_photo.length > 0) {
+                try {
+                    const url = await getSignedUrl('object_photos', draft.object_front_photo[0], 3600);
+                    if (url) setPreviewUrl(url);
+                } catch (err) {
+                    console.error('Erreur chargement photo existante:', err);
+                }
+            } else if (draft.object_front_photo_file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setPreviewUrl(reader.result as string);
+                };
+                reader.readAsDataURL(draft.object_front_photo_file);
+            }
+        };
+
+        loadExistingPhoto();
+    }, []);
 
     const handleSubmit = async (values: FormValues) => {
         const { type, brand, model, reference, serial_number } = values;
@@ -68,6 +96,8 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
                 object_model: model,
                 object_reference: reference,
                 object_serial_number: serial_number,
+                object_front_photo_file: pendingFile,
+                object_front_photo: draft.object_front_photo || [],
                 current_step: PartnerCertificateStep.Service
             });
         } catch (error) {
@@ -76,15 +106,27 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
         }
     }
 
+    const handleFileChange = (file: File | null) => {
+        if (file) {
+            setPendingFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewUrl(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setPendingFile(null);
+            setPreviewUrl(null);
+        }
+    };
+
     const handleObjectTypeSelect = () => {
         setShowObjectTypes(false);
     }
 
     return (
         <div>
-            <Steps
-                mode='partner'
-                steps={steps} />
+            <Steps mode='partner' steps={steps} />
 
             <Formik
                 initialValues={initialFormValues}
@@ -93,131 +135,161 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
                 validateOnChange={false}
                 validateOnMount={false}
                 onSubmit={handleSubmit}>
-                {({ errors, values, setFieldValue, isSubmitting }) => (
-                    <Form>
-                        <div className='space-y-8'>
-                            <div className='space-y-4'>
-                                <div className='flex items-center justify-between'>
-                                    <h2 className='text-white text-xl font-semibold'>Type d'objet</h2>
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowObjectTypes(!showObjectTypes)}
-                                        className="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
-                                    >
-                                        <span>{showObjectTypes ? 'Masquer' : 'Afficher'}</span>
-                                        <svg
-                                            className={`w-4 h-4 transition-transform ${showObjectTypes ? 'rotate-180' : ''}`}
-                                            fill="none"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </button>
-                                </div>
+                {({ errors, values, setFieldValue, isSubmitting }) => {
+                    useEffect(() => {
+                        if (previewUrl && values.front_photo.length === 0) {
+                            setFieldValue('front_photo', ['preview']);
+                        }
+                    }, [previewUrl]);
 
-                                {showObjectTypes && (
-                                    <>
-                                        {objectTypes && objectTypes.length > 0 ? (
-                                            <FormGroup className='grid lg:grid-cols-4 gap-5'>
-                                                {objectTypes.sort((a, b) => {
-                                                    if (a.is_active === b.is_active) return 0;
-                                                    return a.is_active ? -1 : 1;
-                                                }).map((objectType: ObjectType) => (
-                                                    <div key={objectType.id} onClick={handleObjectTypeSelect}>
-                                                        <ObjectTypeCard data={objectType} />
-                                                    </div>
-                                                ))}
-                                            </FormGroup>
-                                        ) : (
-                                            <p className="text-gray">
-                                                Il n'y a aucun type d'objet
-                                            </p>
-                                        )}
-                                    </>
-                                )}
-
-                                {!showObjectTypes && draftObjectType && (
-                                    <div className='p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30'>
-                                        <span className="text-emerald-400/60 text-xs uppercase font-bold">Type sélectionné : </span>
-                                        <span className="text-white font-medium">{draftObjectType.name}</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className='space-y-4 border-t border-white/10 py-6'>
-                                <h2 className='text-white text-xl font-semibold'>Informations de l'objet</h2>
-
+                    return (
+                        <Form>
+                            <div className='space-y-8'>
                                 <div className='space-y-4'>
-                                    <FormGroup>
-                                        <Label htmlFor='brand' label='Marque' required />
-                                        <Select
-                                            allowAdd
-                                            id="brand"
-                                            value={values.brand}
-                                            error={errors.brand}
-                                            onChange={(value) => setFieldValue("brand", value)}
-                                            options={withCurrentValueOption(objectBrands.map(objectBrand => ({
-                                                label: objectBrand.name,
-                                                value: objectBrand.name,
-                                            })), values.brand)}
-                                        />
-                                    </FormGroup>
+                                    <div className='flex items-center justify-between'>
+                                        <h2 className='text-white text-xl font-semibold'>Type d'objet</h2>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowObjectTypes(!showObjectTypes)}
+                                            className="flex items-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
+                                        >
+                                            <span>{showObjectTypes ? 'Masquer' : 'Afficher'}</span>
+                                            <svg
+                                                className={`w-4 h-4 transition-transform ${showObjectTypes ? 'rotate-180' : ''}`}
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+                                    </div>
 
-                                    <FormGroup>
-                                        <Label htmlFor='model' label='Modèle' required />
-                                        <Select
-                                            allowAdd
-                                            id="model"
-                                            value={values.model}
-                                            error={errors.model}
-                                            onChange={(value) => setFieldValue("model", value)}
-                                            options={withCurrentValueOption(objectModels.map(objectModel => ({
-                                                label: objectModel.name,
-                                                value: objectModel.name,
-                                            })), values.model)}
-                                        />
-                                    </FormGroup>
+                                    {showObjectTypes && (
+                                        <>
+                                            {objectTypes && objectTypes.length > 0 ? (
+                                                <FormGroup className='grid lg:grid-cols-4 gap-5'>
+                                                    {objectTypes.sort((a, b) => {
+                                                        if (a.is_active === b.is_active) return 0;
+                                                        return a.is_active ? -1 : 1;
+                                                    }).map((objectType: ObjectType) => (
+                                                        <div key={objectType.id} onClick={handleObjectTypeSelect}>
+                                                            <ObjectTypeCard data={objectType} />
+                                                        </div>
+                                                    ))}
+                                                </FormGroup>
+                                            ) : (
+                                                <p className="text-gray">Il n'y a aucun type d'objet</p>
+                                            )}
+                                        </>
+                                    )}
 
-                                    <FormGroup>
-                                        <Label htmlFor='reference' label='Référence' required />
-                                        <Select
-                                            allowAdd
-                                            id="reference"
-                                            value={values.reference}
-                                            error={errors.reference}
-                                            onChange={(value) => setFieldValue("reference", value)}
-                                            options={withCurrentValueOption(objectReferences.map(objectReference => ({
-                                                label: objectReference.name,
-                                                value: objectReference.name,
-                                            })), values.reference)}
-                                        />
-                                    </FormGroup>
+                                    {!showObjectTypes && draftObjectType && (
+                                        <div className='p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30'>
+                                            <span className="text-emerald-400/60 text-xs uppercase font-bold">Type sélectionné : </span>
+                                            <span className="text-white font-medium">{draftObjectType.label}</span>
+                                        </div>
+                                    )}
+                                </div>
 
-                                    <FormGroup>
-                                        <Label htmlFor="serial_number" label="Numéro de série" required />
-                                        <Input id='serial_number' name='serial_number' type='text' placeholder="116610LN" error={errors.serial_number} />
-                                    </FormGroup>
+                                <div className='space-y-4 border-t border-white/10 py-6'>
+                                    <h2 className='text-white text-xl font-semibold'>Informations de l'objet</h2>
+
+                                    <div className='space-y-4'>
+                                        <FormGroup>
+                                            <Label htmlFor='brand' label='Marque' required />
+                                            <Select
+                                                allowAdd
+                                                id="brand"
+                                                value={values.brand}
+                                                error={errors.brand}
+                                                onChange={(value) => setFieldValue("brand", value)}
+                                                options={withCurrentValueOption(objectBrands.map(objectBrand => ({
+                                                    label: objectBrand.name,
+                                                    value: objectBrand.name,
+                                                })), values.brand)}
+                                            />
+                                        </FormGroup>
+
+                                        <FormGroup>
+                                            <Label htmlFor='model' label='Modèle' required />
+                                            <Select
+                                                allowAdd
+                                                id="model"
+                                                value={values.model}
+                                                error={errors.model}
+                                                onChange={(value) => setFieldValue("model", value)}
+                                                options={withCurrentValueOption(objectModels.map(objectModel => ({
+                                                    label: objectModel.name,
+                                                    value: objectModel.name,
+                                                })), values.model)}
+                                            />
+                                        </FormGroup>
+
+                                        <FormGroup>
+                                            <Label htmlFor='reference' label='Référence' required />
+                                            <Select
+                                                allowAdd
+                                                id="reference"
+                                                value={values.reference}
+                                                error={errors.reference}
+                                                onChange={(value) => setFieldValue("reference", value)}
+                                                options={withCurrentValueOption(objectReferences.map(objectReference => ({
+                                                    label: objectReference.name,
+                                                    value: objectReference.name,
+                                                })), values.reference)}
+                                            />
+                                        </FormGroup>
+
+                                        <FormGroup>
+                                            <Label htmlFor="serial_number" label="Numéro de série" required />
+                                            <Input id='serial_number' name='serial_number' type='text' placeholder="116610LN" error={errors.serial_number} />
+                                        </FormGroup>
+
+                                        <FormGroup>
+                                            <Label htmlFor='front_photo' label="Photo de face (photo de référence)" required />
+                                            <FileUpload
+                                                value={previewUrl ? [previewUrl] : []}
+                                                onFilesChange={(files) => {
+                                                    if (files.length > 0) {
+                                                        handleFileChange(files[0]);
+                                                        setFieldValue('front_photo', ['pending']);
+                                                    }
+                                                }}
+                                                onChange={(path) => {
+                                                    if (path === null) {
+                                                        handleFileChange(null);
+                                                        setFieldValue('front_photo', draft.object_front_photo || []);
+                                                    }
+                                                }}
+                                                maxFiles={1}
+                                                maxSizeMB={5}
+                                                acceptedFileTypes={[".jpg", ".png"]}
+                                                error={Array.isArray(errors.front_photo) ? errors.front_photo[0] : errors.front_photo}
+                                                existingPreview={previewUrl}
+                                            />
+                                        </FormGroup>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className='flex justify-end gap-5'>
-                            <Button
-                                theme="secondary"
-                                className='lg:w-max'
-                                onClick={() => setDraft({ current_step: PartnerCertificateStep.CustomerInfos })}>
-                                <IoIosArrowBack /> Précédent
-                            </Button>
-                            <Button
-                                type='submit'
-                                className='lg:w-max'
-                                disabled={isSubmitting}>
-                                Suivant <IoIosArrowForward />
-                            </Button>
-                        </div>
-                    </Form>
-                )}
+                            <div className='flex justify-end gap-5'>
+                                <Button
+                                    theme="secondary"
+                                    className='lg:w-max'
+                                    onClick={() => setDraft({ current_step: PartnerCertificateStep.CustomerInfos })}>
+                                    <IoIosArrowBack /> Précédent
+                                </Button>
+                                <Button
+                                    type='submit'
+                                    className='lg:w-max'
+                                    disabled={isSubmitting}>
+                                    Suivant <IoIosArrowForward />
+                                </Button>
+                            </div>
+                        </Form>
+                    );
+                }}
             </Formik>
         </div>
     )

@@ -1,5 +1,6 @@
-export const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("fr-FR", {
+export const formatDate = (date: Date): string | null => {
+  if (!date) return null;
+  return new Date(date).toLocaleDateString("fr-FR", {
     day: "numeric",
     month: "long",
     year: "numeric",

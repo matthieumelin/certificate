@@ -17,8 +17,6 @@ const ClientCertificationPartnerModal: FC = () => {
         includeProfile: true
     });
 
-    console.log(partners)
-
     const [selectedPartner, setSelectedPartner] = useState<PartnerInfo | null>(null);
     const [showHours, setShowHours] = useState<boolean>(false);
 

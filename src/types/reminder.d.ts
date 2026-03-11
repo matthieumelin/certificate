@@ -17,6 +17,6 @@ export interface Reminder {
   price: number;
   date: Date;
   status: ReminderStatus;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
 }

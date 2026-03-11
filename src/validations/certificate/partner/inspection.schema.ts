@@ -18,7 +18,7 @@ const certificateInspectionSchema = Yup.object({
     then: (schema) => schema.required("Le commentaire est requis pour une pièce inauthentique"),
     otherwise: (schema) => schema.notRequired(),
   }),
-  photos: Yup.array()
+  photoFiles: Yup.array()
     .min(5, "Vous devez ajouter au moins 5 photos")
     .required("Les photos sont requises"),
 });

@@ -62,9 +62,19 @@ const FormSelect: FC<FormSelectProps> = ({
                 setOpen(false);
             }
         };
+
+        const handleSelectOpen = (event: CustomEvent) => {
+            if (event.detail.id !== id) setOpen(false);
+        }
+
         document.addEventListener('click', handleClickOutside);
-        return () => document.removeEventListener('click', handleClickOutside);
-    }, []);
+        document.addEventListener('select:open', handleSelectOpen as EventListener);
+
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+            document.removeEventListener('select:open', handleSelectOpen as EventListener);
+        };
+    }, [id]);
 
     const updateValue = (newValue: string | string[]) => {
         if (onChange) onChange(newValue);
@@ -136,7 +146,13 @@ const FormSelect: FC<FormSelectProps> = ({
                     id={id}
                     disabled={disabled}
                     className={`w-full h-full flex justify-between items-center rounded-xl px-3 py-2 border transition-all ${getButtonClasses()}`}
-                    onClick={() => setOpen(prev => !prev)}
+                    onClick={() => {
+                        const newOpen = !open;
+                        if (newOpen) {
+                            document.dispatchEvent(new CustomEvent('select:open', { detail: { id } }));
+                        }
+                        setOpen(newOpen);
+                    }}
                 >
                     <span className={getDisplayText() === placeholder ? "text-neutral-400" : ""}>
                         {getDisplayText()}

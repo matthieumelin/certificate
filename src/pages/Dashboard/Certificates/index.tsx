@@ -9,7 +9,7 @@ import { Button } from '@/components/UI/Button';
 import Loading from '@/components/UI/Loading';
 import Modal from '@/components/UI/Modal';
 import useAuth from '@/contexts/AuthContext'
-import { useCertificateDrafts, useCertificateTypes, useCustomerCertificates, useObjectBrands, useObjectModels, useObjectReferences, useObjectTypes, usePaymentMethods } from '@/hooks/useSupabase';
+import { useCertificateDrafts, useCertificateTypes, useCustomerCertificates, useObjectBrands, useObjectModels, useObjectReferences, useObjectTypes } from '@/hooks/useSupabase';
 import { useClientCertificateStore } from '@/stores/certification/clientCertificateStore';
 import { CertificateStatus, ClientCertificateStep } from '@/types/certificate.d';
 import routes from '@/utils/routes';
@@ -19,7 +19,7 @@ import { Navigate } from 'react-router-dom';
 const CertificatesPage: FC = () => {
     const { user, isLoadingUser } = useAuth();
     const { certificateDrafts } = useCertificateDrafts(true, { customerEmail: user?.email });
-    const { certificates, isLoading: isLoadingCertificates } = useCustomerCertificates(true, { customerId: user?.id });
+    const { certificates, isLoading: isLoadingCertificates, mutate: mutateCertificates } = useCustomerCertificates(true, { customerId: user?.id });
     const { certificateTypes } = useCertificateTypes();
     const { objectTypes } = useObjectTypes();
     const { objectModels } = useObjectModels();
@@ -61,8 +61,7 @@ const CertificatesPage: FC = () => {
                     <ClientCertificationPaymentModal
                         certificateTypes={certificateTypes}
                         setIsModalOpen={setIsNewCertificationModalOpen}
-                        setIsConfirmPaymentModalOpen={() => { }}
-                        onSuccess={() => { }}
+                        onSuccess={mutateCertificates}
                     />
                 );
             default:

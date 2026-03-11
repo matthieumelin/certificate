@@ -2,7 +2,7 @@ import {
   PartnerCertificateStep,
   ClientCertificateStep,
   CertificateStatus,
-  CertificateVerificationStatus,
+  CertificateTypeVerificationStatus,
 } from "@/types/certificate.d";
 import { ObjectDocumentType, ObjectStatus } from "@/types/object.d";
 import { TransactionType } from "@/types/transaction.d";
@@ -44,13 +44,13 @@ export const CertificateStatusLabels: Record<CertificateStatus, string> = {
   [CertificateStatus.Cancelled]: "Annulé",
 };
 
-export const CertificateVerificationStatusLabels: Record<
-  CertificateVerificationStatus,
+export const CertificateTypeVerificationStatusLabels: Record<
+  CertificateTypeVerificationStatus,
   string
 > = {
-  [CertificateVerificationStatus.Registered]: "Enregistré",
-  [CertificateVerificationStatus.Authenticated]: "Authentifié",
-  [CertificateVerificationStatus.Certified]: "Certifié",
+  [CertificateTypeVerificationStatus.Registered]: "Enregistré",
+  [CertificateTypeVerificationStatus.Verified]: "Verifié",
+  [CertificateTypeVerificationStatus.Certified]: "Certifié",
 };
 
 // Objects
@@ -107,6 +107,11 @@ export const getCertificateStatusLabel = (
   status: CertificateStatus,
 ): string => {
   return CertificateStatusLabels[status] || status;
+};
+export const getCertificateTypeVerificationStatus = (
+  status: CertificateTypeVerificationStatus,
+): string => {
+  return CertificateTypeVerificationStatusLabels[status] || status;
 };
 
 export const getUserProfileRoleLabel = (role: UserProfileRole): string => {

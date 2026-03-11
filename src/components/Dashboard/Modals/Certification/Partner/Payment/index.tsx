@@ -8,7 +8,7 @@ import type { PaymentMethod } from '@/types/payment.d';
 import PaymentMethodCard from '@/components/Dashboard/Cards/PaymentMethod';
 import { Button } from '@/components/UI/Button';
 import Steps from '@/components/Dashboard/Steps';
-import { usePaymentMethods } from '@/hooks/useSupabase';
+import { usePaymentMethods, useStorage } from '@/hooks/useSupabase';
 import Loading from '@/components/UI/Loading';
 
 interface PartnerCertificationPaymentModalProps {
@@ -44,6 +44,7 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
     const { request } = useApi();
     const { draft, setDraft, clearDraft } = usePartnerCertificateStore();
     const { paymentMethods, isLoading } = usePaymentMethods(true, { only_partner: true })
+    const { uploadFile } = useStorage();
 
     const [processPayment, setProcessPayment] = useState<boolean>(false);
 
@@ -51,7 +52,6 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
 
     const currentPaymentMethod = paymentMethods.find(paymentMethod => paymentMethod.id === draft.payment_method_id);
     const currentCertificateType = certificateTypes.find(certificateType => certificateType.id === draft.certificate_type_id);
-    const certificateTypePrice = `${currentCertificateType?.price ? `${currentCertificateType.price} €` : "Prix indisponible"}`;
 
     const filteredPaymentMethods = paymentMethods.filter(paymentMethod => paymentMethod.is_active);
 
@@ -77,12 +77,28 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
             return;
         }
 
-        if (!currentPaymentMethod) {
+        if (!isFree && !currentPaymentMethod) {
             toast.error("Aucune méthode de paiement n'a été trouvée.")
             return;
         }
 
         try {
+            let frontPhotoPath: string[] = draft.object_front_photo || [];
+
+            if (draft.object_front_photo_file) {
+                try {
+                    const fileExtension = draft.object_front_photo_file.name.split('.').pop()?.toLowerCase() || 'jpg';
+                    const photoPath = `${draft.id}/front.${fileExtension}`;
+
+                    const result = await uploadFile('object_photos', photoPath, draft.object_front_photo_file);
+                    frontPhotoPath = [result.path];
+                } catch (uploadError) {
+                    console.error("❌ Erreur upload photo:", uploadError);
+                    toast.error("Erreur lors de l'upload de la photo");
+                    return;
+                }
+            }
+
             await request('/upsert-certificate-draft', {
                 method: 'POST',
                 body: {
@@ -93,6 +109,7 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
                     object_model: draft.object_model,
                     object_reference: draft.object_reference,
                     object_serial_number: draft.object_serial_number,
+                    object_front_photo: frontPhotoPath,
                     certificate_type_id: draft.certificate_type_id,
                     payment_method_id: draft.payment_method_id,
                     created_by: draft.created_by,
@@ -103,7 +120,31 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
             return;
         }
 
-        if (!currentPaymentMethod.is_online) {
+        if (isFree) {
+            setProcessPayment(true);
+            try {
+                const response = await request("/confirm-instore-payment", {
+                    method: "POST",
+                    body: { draftId: draft.id }
+                });
+
+                if (!response.success) {
+                    throw new Error("Erreur lors de la confirmation");
+                }
+
+                toast.success("Certificat créé avec succès !");
+                setIsModalOpen(false);
+                clearDraft();
+                if (onSuccess) onSuccess();
+            } catch (error: any) {
+                toast.error(error.message || "Une erreur est survenue");
+            } finally {
+                setProcessPayment(false);
+            }
+            return;
+        }
+
+        if (!currentPaymentMethod!.is_online) {
             setIsModalOpen(false);
             setIsConfirmPaymentModalOpen(true);
             return;
@@ -152,6 +193,8 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
         return <Loading />
     }
 
+    const isFree = currentCertificateType?.price === 0;
+
     return (
         <div>
             <Steps
@@ -159,31 +202,36 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
                 steps={steps} />
             <div>
                 <h2 className='text-white text-2xl font-semibold'>Mode de paiement</h2>
-                <p className='mt-2 text-gray'>Sélectionnez comment le client souhaite payer</p>
-                <div className='mt-8 border border-white/10 p-5 rounded-xl'>
+                <p className='mt-2 text-gray'>
+                    {isFree ? "Veuillez confirmer le paiement" : "Sélectionnez comment le client souhaite payer"}
+                </p>                <div className='mt-8 border border-white/10 p-5 rounded-xl'>
                     <h3 className='text-white text-xl font-semibold'>Récapitulatif</h3>
                     <div className='mt-8 grid gap-3'>
                         <SummaryItem label='Client' value={customerFullName} />
                         {currentCertificateType && (
                             <>
                                 <SummaryItem label='Service' value={currentCertificateType.name} />
-                                <SummaryItem label='Total' value={certificateTypePrice} />
+                                <SummaryItem label='Total' value={`${currentCertificateType.price} €`} />
                             </>
                         )}
                     </div>
                 </div>
-                {filteredPaymentMethods && filteredPaymentMethods.length > 0 ? (
-                    <div className='mt-8 grid gap-4'>
-                        {filteredPaymentMethods.map((paymentMethod: PaymentMethod) => (
-                            <PaymentMethodCard
-                                key={paymentMethod.id}
-                                selected={paymentMethod.id === currentPaymentMethod?.id}
-                                data={paymentMethod}
-                                onSelect={() => handleSelectPaymentMethod(paymentMethod)} />
-                        ))}
-                    </div>
-                ) : (
-                    <p className="my-8 text-gray">Aucun moyen de paiement n'est disponible.</p>
+                {!isFree && (
+                    <>
+                        {filteredPaymentMethods && filteredPaymentMethods.length > 0 ? (
+                            <div className='mt-8 grid gap-4'>
+                                {filteredPaymentMethods.map((paymentMethod: PaymentMethod) => (
+                                    <PaymentMethodCard
+                                        key={paymentMethod.id}
+                                        selected={paymentMethod.id === currentPaymentMethod?.id}
+                                        data={paymentMethod}
+                                        onSelect={() => handleSelectPaymentMethod(paymentMethod)} />
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="my-8 text-gray">Aucun moyen de paiement n'est disponible.</p>
+                        )}
+                    </>
                 )}
                 <div className='mt-8 flex flex-col md:flex-row justify-end gap-5'>
                     <Button
@@ -193,7 +241,7 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
                         <IoIosArrowBack /> Précédent
                     </Button>
                     <Button
-                        disabled={currentPaymentMethod == null || processPayment}
+                        disabled={((!isFree && currentPaymentMethod == null) || processPayment)}
                         className='lg:w-max'
                         onClick={handleSubmit}>
                         {processPayment ? "Confirmation..." : "Confirmer"}

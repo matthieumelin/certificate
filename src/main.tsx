@@ -12,7 +12,7 @@ import DashboardLayout from './components/Layouts/DashboardLayout'
 import LogoutPage from './pages/Auth/Logout'
 import DashboardPage from './pages/Dashboard'
 import CertificatesPage from './pages/Dashboard/Certificates'
-import CertificateDetailsPage from './pages/Dashboard/Certificates/Details'
+import CertificateDetailsPage from './pages/CertificateDetails'
 import AdminDashboardPage from './pages/Dashboard/Admin/Dashboard'
 import PartnerCertificates from './pages/Dashboard/Certificates/Partner'
 import PaymentPage from './pages/Payment'
@@ -40,6 +40,7 @@ const router = createBrowserRouter([
       { path: routes.ResetPassword, element: <ResetPasswordPage /> },
       { path: routes.NotFound, element: <NotFoundPage /> },
       { path: routes.Dashboard.Payment, element: <PaymentPage /> },
+      { path: routes.Certificate, element: <CertificateDetailsPage /> },
     ]
   },
   {
@@ -49,9 +50,7 @@ const router = createBrowserRouter([
       { path: routes.Dashboard.Main, element: <DashboardPage /> },
       { path: routes.Dashboard.Profile, element: <DashboardProfilePage /> },
 
-      { path: routes.Dashboard.Certificates.Main, element: <CertificatesPage /> },
-      { path: routes.Dashboard.Certificates.Details, element: <CertificateDetailsPage /> },
-
+      { path: routes.Dashboard.Certificates, element: <CertificatesPage /> },
       { path: routes.Dashboard.Admin.Main, element: <AdminDashboardPage /> },
 
       { path: routes.Dashboard.Partner.Certificates.List, element: <PartnerCertificates /> }

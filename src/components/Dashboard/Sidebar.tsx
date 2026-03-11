@@ -42,7 +42,7 @@ const menus: SidebarMenu[] = [
             },
             {
                 name: "Certificats",
-                to: routes.Dashboard.Certificates.Main,
+                to: routes.Dashboard.Certificates,
                 icon: <LiaCertificateSolid size={18} />
             }
         ],

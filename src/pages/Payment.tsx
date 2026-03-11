@@ -53,7 +53,7 @@ const PaymentPage: FC = () => {
     useEffect(() => {
         if (!isVerifying) {
             const timeout = setTimeout(() => {
-                navigate(routes.Dashboard.Certificates.Main);
+                navigate(routes.Dashboard.Certificates);
             }, paymentVerified ? 2000 : 4000);
             return () => clearTimeout(timeout);
         }

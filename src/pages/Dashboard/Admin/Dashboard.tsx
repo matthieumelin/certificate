@@ -11,7 +11,7 @@ interface Payment {
     id: string;
     amount: number;
     client_name: string;
-    created_at: string;
+    created_at: Date;
     status: string;
 }
 

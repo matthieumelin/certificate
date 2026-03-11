@@ -57,6 +57,7 @@ const PartnerCertificationReportBraceletClaspModal: FC<PartnerCertificationRepor
 
     ];
     const braceletClaspMaterials = [
+        "Acier",
         "Or jaune 18K",
         "Or jaune 14K",
         "Or jaune 24K",

@@ -24,7 +24,6 @@ const ClientCertificationServiceModal: FC<ClientCertificationServiceModalProps> 
     const steps = Object.values(ClientCertificateStep);
 
     const filteredCertificateTypes = certificateTypes
-        .filter((certificateType: CertificateType) => certificateType.physical)
         .sort((a: CertificateType, b: CertificateType) => a.price - b.price);
 
     const initialFormValues: FormValues = {

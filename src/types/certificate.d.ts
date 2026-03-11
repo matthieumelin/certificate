@@ -10,9 +10,9 @@ export enum CertificateStatus {
   Cancelled = "cancelled",
 }
 
-export enum CertificateVerificationStatus {
+export enum CertificateTypeVerificationStatus {
   Registered = "registered",
-  Authenticated = "authenticated",
+  Verified = "verified",
   Certified = "certified",
 }
 
@@ -43,11 +43,11 @@ export interface Certificate {
   created_by: string;
   certificate_type_id: number | null;
   status: CertificateStatus;
-  verification_status: CertificateVerificationStatus;
+  pin_code: string;
   payment_method_id?: number | null;
-  created_at: string;
-  updated_at: string;
-  completed_at?: string;
+  created_at: Date;
+  updated_at: Date;
+  completed_at?: Date;
 
   // Relations
   creator?: {
@@ -55,7 +55,9 @@ export interface Certificate {
   };
   customer?: Partial<UserProfile>;
   object?: Object;
+  history?: CertificateHistory;
   inspection?: CertificateInspection;
+  type?: CertificateType;
 }
 
 export interface CertificateInspection {
@@ -66,7 +68,7 @@ export interface CertificateInspection {
   result: CertificateInspectionResult;
   suspect_points: string[];
   photos: string[];
-  created_at: string;
+  created_at: Date;
 }
 
 export interface CertificateDraft {
@@ -85,8 +87,8 @@ export interface CertificateDraft {
   stripe_session_id: string;
   current_step: ClientCertificateStep | PartnerCertificateStep;
   payment_link_sent: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface CertificateTypeReportLimits {
@@ -107,8 +109,9 @@ export interface CertificateType {
   excluded_report_form_fields: string[];
   goal: string;
   report_limits: CertificateTypeReportLimits;
-  created_at: string;
-  updated_at: string;
+  verification_status: CertificateTypeVerificationStatus;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export interface CertificateDocument {
@@ -126,12 +129,12 @@ export interface CertificateDocument {
 
 export interface CertificateHistory {
   id: number;
-  certificate_id: number;
-  status: CertificateStatus;
-  verification_status: CertificateVerificationStatus;
-  changed_by: string;
-  notes?: string;
-  created_at: string;
+  object_id: number;
+  previous_place: string;
+  seller: string;
+  buying_date: Date;
+  buying_price: number;
+  created_at: Date;
 }
 
 export interface CertificateFilters {

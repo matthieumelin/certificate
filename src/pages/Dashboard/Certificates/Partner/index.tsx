@@ -12,7 +12,6 @@ import {
 import {
     useCertificateDrafts,
     useCertificateTypes,
-    usePaymentMethods,
     usePartnerCertificates,
     useObjectTypes,
     useObjectModels,
@@ -47,7 +46,6 @@ const PartnerCertificates = () => {
     const { objectModels } = useObjectModels();
     const { objectBrands } = useObjectBrands();
     const { objectReferences } = useObjectReferences();
-    const { paymentMethods } = usePaymentMethods();
 
     const { draft, clearDraft } = usePartnerCertificateStore();
     const { setSelectedCertificate } = useCertificateStore();
@@ -204,7 +202,6 @@ const PartnerCertificates = () => {
                 return (
                     <PartnerCertificationPaymentModal
                         certificateTypes={certificateTypes}
-                        paymentMethods={paymentMethods}
                         setIsModalOpen={setIsModalOpen}
                         setIsConfirmPaymentModalOpen={setIsConfirmPaymentModalOpen}
                         onSuccess={handleRefreshData}

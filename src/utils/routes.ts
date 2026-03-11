@@ -11,15 +11,13 @@ const routes = {
   Logout: "/logout",
   SetPassword: "/set-password",
   ResetPassword: "/reset-password",
+  Certificate: "/certificate/:id",
 
   /** Dashboard routes */
   Dashboard: {
     Main: "/dashboard",
     Profile: "/dashboard/profile",
-    Certificates: {
-      Main: "/dashboard/certificates",
-      Details: "/dashboard/certificates/details/:id",
-    },
+    Certificates: "/dashboard/certificates",
     Reminders: "/dashboard/reminders",
 
     /** Dashboard admin routes */

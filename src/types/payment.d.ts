@@ -10,6 +10,6 @@ export interface PaymentMethod {
   stripe_payment_link: string;
   is_active: boolean;
   is_online: boolean;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
 }

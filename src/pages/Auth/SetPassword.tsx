@@ -54,7 +54,7 @@ const SetPasswordPage: FC = () => {
             }
 
             toast.success("Compte activé avec succès !");
-            navigate(routes.Dashboard.Certificates.Main);
+            navigate(routes.Dashboard.Certificates);
         } catch (error: any) {
             console.error("Erreur activation compte:", error);
             helpers.setStatus(error.message || "Erreur lors de l'activation");

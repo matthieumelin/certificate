@@ -7,7 +7,7 @@ export interface ObjectType {
   description: string;
   thumbnail: string;
   is_active: boolean;
-  created_at: string;
+  created_at: Date;
 }
 
 export interface ObjectCategory {
@@ -16,7 +16,7 @@ export interface ObjectCategory {
   name: string;
   display_name: string;
   position: number;
-  created_at: string;
+  created_at: Date;
 }
 
 export type ObjectAttributeValue = string | number | boolean | string[] | null;
@@ -27,8 +27,16 @@ export interface ObjectAttribute {
   id: number;
   object_id: number;
   attributes: ObjectAttributes;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ObjectPhoto {
+  id: number;
+  object_id: number;
+  path: string;
+  type: ObjectPhotoType;
+  created_at: Date;
 }
 
 export interface Object {
@@ -42,8 +50,13 @@ export interface Object {
   surname: string;
   year_manufacture: string;
   status: ObjectStatus;
-  created_at: string;
-  updated_at: string;
+  object_photos: ObjectPhoto[];
+  created_at: Date;
+  updated_at: Date;
+  
+  // Relations
+  photo_url?: string;
+  object_type?: ObjectType;
 }
 
 export interface ObjectHistory {
@@ -85,8 +98,8 @@ export interface ObjectDocument {
   file_name: string;
   file_path: string;
   type: ObjectDocumentType;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
 }
 
 export enum ObjectDocumentType {
@@ -112,4 +125,8 @@ export enum ObjectStatus {
   Loss = "loss",
   Fraud = "fraud",
   Destroyed = "destroyed",
+}
+
+export enum ObjectPhotoType {
+  Front = "front",
 }
