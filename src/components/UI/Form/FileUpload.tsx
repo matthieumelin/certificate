@@ -42,17 +42,19 @@ const FileUpload: FC<FileUploadProps> = ({
     const errorMessage = Array.isArray(externalError) ? externalError[0] : externalError;
     const displayError = errorMessage || internalError;
 
+    const safeValue = Array.isArray(value) ? value : [];
+
     useEffect(() => {
         if (onFilesChange) return;
         if (existingPreview && !isMultiple) {
             setPreviews([existingPreview]);
             return;
         }
-
+    
         const loadPreviews = async () => {
-            if (!value.length || !bucketName) return;
+            if (!safeValue.length || !bucketName) return;
             const urls = await Promise.all(
-                value.map(async (v) => {
+                safeValue.map(async (v) => {
                     if (v.startsWith('http')) return v;
                     try { return await getSignedUrl(bucketName, v, 3600); }
                     catch { return null; }
@@ -60,9 +62,9 @@ const FileUpload: FC<FileUploadProps> = ({
             );
             setPreviews(urls.filter(Boolean) as string[]);
         };
-
+    
         loadPreviews();
-    }, [value, bucketName, existingPreview]);
+    }, [safeValue, bucketName, existingPreview]);
 
     const validateFile = (file: File): boolean => {
         if (file.size > maxSizeMB * 1024 * 1024) {
@@ -148,10 +150,9 @@ const FileUpload: FC<FileUploadProps> = ({
     return (
         <div className={`w-full space-y-3 ${className}`}>
             {isMultiple && previews.length > 0 && (
-                <div className="grid grid-cols-3 gap-2">
+                <div className="flex flex-wrap gap-2">
                     {previews.map((preview, index) => (
-                        <div key={index} className="relative border border-white/10 rounded-lg overflow-hidden bg-white/5">
-                            <img src={preview} alt={`Photo ${index + 1}`} className="w-full h-24 object-cover" />
+                        <div key={index} className="relative border border-white/10 rounded-lg overflow-hidden bg-white/5 aspect-square w-24">                            <img src={preview} alt={`Photo ${index + 1}`} className="w-full h-full object-contain" />
                             <button
                                 type="button"
                                 onClick={() => removeFile(index)}

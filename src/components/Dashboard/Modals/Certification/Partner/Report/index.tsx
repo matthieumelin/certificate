@@ -363,7 +363,7 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
 
             await updateCertificate(selectedCertificate.id, {
                 status: CertificateStatus.PendingCertification,
-                updated_at: new Date().toISOString()
+                updated_at: new Date()
             });
 
             toast.success("Rapport sauvegardé avec succès");
@@ -431,7 +431,7 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
 
             await updateCertificate(selectedCertificate.id, {
                 status: CertificateStatus.Completed,
-                completed_at: new Date().toISOString()
+                completed_at: new Date()
             });
 
             toast.success("Rapport sauvegardé et terminé avec succès");

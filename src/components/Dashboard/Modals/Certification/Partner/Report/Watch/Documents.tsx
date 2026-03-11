@@ -119,7 +119,7 @@ const PartnerCertificationReportDocumentsModal: FC<PartnerCertificationReportDoc
 
     const certificateType = certificateTypes.find((certificateType: CertificateType) => certificateType.id === selectedCertificate?.certificate_type_id);
     const certificateTypeExcludedFormFields = certificateType?.excluded_report_form_fields ? certificateType?.excluded_report_form_fields.filter((excludedFormField: string) => excludedFormField.startsWith("documents")) : []
-    const documentsLimit = certificateType?.report_limits.max_documents || 5;
+    const documentsLimit = certificateType?.report_limits ? certificateType?.report_limits.max_documents : 5;
 
     return (
         <div className="h-full overflow-y-auto">
@@ -274,18 +274,24 @@ const PartnerCertificationReportDocumentsModal: FC<PartnerCertificationReportDoc
                                                                                 bucketName="object_attributes"
                                                                                 uploadPath={`objects/${selectedCertificate?.object_id}`}
                                                                                 value={doc.paths}
-                                                                                onChange={(paths) => {
+                                                                                onChange={(path) => {
+                                                                                    if (path === null) {
+                                                                                        setFieldValue(`documents.${index}.paths`, []);
+                                                                                        return;
+                                                                                    }
+
                                                                                     const filesInOtherDocs = values.documents
                                                                                         .filter((_, i) => i !== index)
                                                                                         .reduce((acc, d) => acc + d.paths.length, 0);
 
-                                                                                    const newTotal = objectDocuments.length + filesInOtherDocs + paths.length;
+                                                                                    const newTotal = objectDocuments.length + filesInOtherDocs + doc.paths.length + 1;
 
                                                                                     if (newTotal > documentsLimit) {
                                                                                         toast.error(`Limite de ${documentsLimit} fichiers atteinte`);
                                                                                         return;
                                                                                     }
-                                                                                    setFieldValue(`documents.${index}.paths`, paths);
+
+                                                                                    setFieldValue(`documents.${index}.paths`, [...doc.paths, path]);
                                                                                 }}
                                                                                 maxSizeMB={5}
                                                                                 maxFiles={1}

@@ -347,7 +347,7 @@ const CertificateCard: FC<CertificateCardProps> = ({
             <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm border border-emerald-900/30 hover:border-emerald-500/50 transition-all flex flex-col">
                 <div className='p-6 shrink-0'>
                     <div className="flex items-center justify-between mb-3">
-                        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+                        <div className="flex flex-col gap-3">
                             {objectPhoto && (
                                 <img
                                     className='w-24 h-24 object-cover border border-white/10 rounded-xl'
@@ -605,7 +605,7 @@ const CertificateCard: FC<CertificateCardProps> = ({
                         )}
 
                         {certificate?.status === CertificateStatus.Completed && isPartner && (
-                            <div className='grid md:grid-cols-2 gap-3'>
+                            <div className='grid lgs:grid-cols-2 gap-3'>
                                 <Button
                                     onClick={handleViewCertificate}
                                     className="w-full bg-black/40 border border-emerald-900/30 hover:border-emerald-500/50 text-white py-3 rounded-xl font-bold uppercase transition-all"
