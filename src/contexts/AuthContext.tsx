@@ -236,17 +236,18 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
             if (userProfile) {
                 setUserProfile({
                     ...userProfile,
-                    email: email,
+                    email,
                     first_name: firstName,
                     last_name: lastName,
-                    society: society,
+                    society,
                     vat_number: vatNumber,
-                    address: address,
-                    city: city,
+                    address,
+                    city,
                     postal_code: postalCode,
-                    country: country,
-                    type: type,
-                    updated_at: new Date().toISOString()
+                    country,
+                    type,
+                    phone,
+                    updated_at: new Date()
                 });
             }
 

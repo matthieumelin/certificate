@@ -3,6 +3,7 @@ import { useState, useRef, type FC } from 'react'
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 import { useFieldError } from '@/hooks/useFieldError';
 import Alert from '../Alert';
+import PHONE_CODES from '@/utils/phone';
 
 interface InputProps {
     type: 'text' | 'password' | 'email' | 'checkbox' | 'textarea' | 'number' | 'tel' | 'date' | 'time';
@@ -20,6 +21,8 @@ interface InputProps {
     useFormik?: boolean;
     className?: string;
     maxLength?: number;
+    phoneCode?: string;
+    onPhoneCodeChange?: (code: string) => void;
 }
 
 interface DateInputProps {
@@ -114,6 +117,8 @@ const DateInput: FC<DateInputProps> = ({
     );
 };
 
+const uniqueSortedCodes = [...new Set(PHONE_CODES)].sort();
+
 const Input: FC<InputProps> = ({
     type,
     name,
@@ -130,6 +135,8 @@ const Input: FC<InputProps> = ({
     useFormik = true,
     className = '',
     maxLength,
+    phoneCode = '+33',
+    onPhoneCodeChange,
 }) => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const { hasError, errorMessage } = useFieldError(name);
@@ -166,12 +173,7 @@ const Input: FC<InputProps> = ({
                         as="textarea"
                         rows={rows}
                         disabled={disabled}
-                        className={`
-                           min-h-28 w-full
-                           ${classNames}
-                           ${resize ? "resize-y" : "resize-none"}
-                           ${disabled ? disabledClasses : "text-white"}
-                       `}
+                        className={`min-h-28 w-full ${classNames} ${resize ? "resize-y" : "resize-none"} ${disabled ? disabledClasses : "text-white"}`}
                         id={inputId}
                         name={name}
                         placeholder={placeholder}
@@ -186,34 +188,19 @@ const Input: FC<InputProps> = ({
                             disabled={disabled}
                             checked={checked}
                             onChange={onChange}
-                            className={`
-                                accent-emerald-600 rounded border-2
-                                ${disabled
-                                    ? "border-emerald-900/10 bg-emerald-900/5 cursor-not-allowed"
-                                    : "border-emerald-900/30 bg-[#050a08]/80 cursor-pointer hover:border-emerald-500"
-                                }
-                            `}
+                            className={`accent-emerald-600 rounded border-2 ${disabled ? "border-emerald-900/10 bg-emerald-900/5 cursor-not-allowed" : "border-emerald-900/30 bg-[#050a08]/80 cursor-pointer hover:border-emerald-500"}`}
                         />
                         {label && (
                             <label
                                 htmlFor={inputId}
-                                className={`
-                                    select-none font-medium
-                                    ${disabled ? "text-neutral-600 cursor-not-allowed" : "text-white cursor-pointer"}
-                                `}
+                                className={`select-none font-medium ${disabled ? "text-neutral-600 cursor-not-allowed" : "text-white cursor-pointer"}`}
                             >
                                 {label}
                             </label>
                         )}
                     </div>
                 ) : type === "password" ? (
-                    <div
-                        className={`
-                            group flex
-                            ${classNames}
-                            ${disabled ? disabledClasses : "text-white"}
-                        `}
-                    >
+                    <div className={`group flex ${classNames} ${disabled ? disabledClasses : "text-white"}`}>
                         <Field
                             disabled={disabled}
                             className="outline-none w-full bg-transparent"
@@ -226,10 +213,7 @@ const Input: FC<InputProps> = ({
                         <button
                             type="button"
                             disabled={disabled}
-                            className={`
-                                text-neutral-400
-                                ${disabled ? "cursor-not-allowed text-neutral-600" : "group-focus-within:text-emerald-400"}
-                            `}
+                            className={`text-neutral-400 ${disabled ? "cursor-not-allowed text-neutral-600" : "group-focus-within:text-emerald-400"}`}
                             onClick={handleTogglePassword}
                         >
                             {showPassword ? <IoEyeOffOutline size={20} /> : <IoEyeOutline size={20} />}
@@ -244,15 +228,37 @@ const Input: FC<InputProps> = ({
                         className={`w-full ${classNames} ${disabled ? disabledClasses : "text-white"}`}
                         useFormik={true}
                     />
+                ) : type === "tel" ? (
+                    <div className="flex gap-2">
+                        <select
+                            value={phoneCode}
+                            onChange={(e) => onPhoneCodeChange?.(e.target.value)}
+                            disabled={disabled}
+                            className={`${baseClasses} ${getErrorClasses()} w-28 shrink-0 text-white cursor-pointer ${disabled ? disabledClasses : ''}`}
+                        >
+                            {uniqueSortedCodes.map((code) => (
+                                <option key={code} value={code} className="bg-neutral-900">
+                                    {code}
+                                </option>
+                            ))}
+                        </select>
+                        <Field
+                            disabled={disabled}
+                            className={`flex-1 ${classNames} ${disabled ? disabledClasses : 'text-white'}`}
+                            type="text"
+                            inputMode="numeric"
+                            id={inputId}
+                            name={name}
+                            placeholder={placeholder || '612345678'}
+                            maxLength={14}
+                            {...(onChange ? { onChange } : {})}
+                        />
+                    </div>
                 ) : (
                     <Field
                         min={type === 'number' ? 0 : undefined}
                         disabled={disabled}
-                        className={`
-                            w-full
-                            ${classNames}
-                            ${disabled ? disabledClasses : "text-white"}
-                        `}
+                        className={`w-full ${classNames} ${disabled ? disabledClasses : "text-white"}`}
                         type={type}
                         id={inputId}
                         name={name}
@@ -335,6 +341,33 @@ const Input: FC<InputProps> = ({
                     onChange={onChange as ((e: React.ChangeEvent<HTMLInputElement>) => void) | undefined}
                     useFormik={false}
                 />
+            ) : type === "tel" ? (
+                <div className="flex gap-2">
+                    <select
+                        value={phoneCode}
+                        onChange={(e) => onPhoneCodeChange?.(e.target.value)}
+                        disabled={disabled}
+                        className={`${baseClasses} ${getErrorClasses()} w-28 shrink-0 text-white cursor-pointer ${disabled ? disabledClasses : ''}`}
+                    >
+                        {uniqueSortedCodes.map((code) => (
+                            <option key={code} value={code} className="bg-neutral-900">
+                                {code}
+                            </option>
+                        ))}
+                    </select>
+                    <input
+                        disabled={disabled}
+                        className={`flex-1 ${classNames} ${disabled ? disabledClasses : 'text-white'}`}
+                        type="text"
+                        inputMode="numeric"
+                        id={inputId}
+                        name={name}
+                        placeholder={placeholder || '612345678'}
+                        value={value}
+                        maxLength={14}
+                        onChange={onChange}
+                    />
+                </div>
             ) : (
                 <input
                     min={type === 'number' ? 0 : undefined}

@@ -16,12 +16,11 @@ const customerInfosSchema = Yup.object({
     .email("L'email doit être valide"),
 
   phone: Yup.string()
+    .nullable()
     .matches(
-      /^\+?[1-9]\d{1,14}$/,
-      "Le numéro doit être au format international (ex: +33612345678)"
-    )
-    .min(10, "Le numéro est trop court")
-    .max(15, "Le numéro est trop long"),
+      /^\d{6,14}$/,
+      "Le numéro doit contenir entre 6 et 14 chiffres",
+    ),
 
   address: Yup.string().max(
     200,

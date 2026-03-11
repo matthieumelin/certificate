@@ -10,6 +10,7 @@ import Score from '@/components/UI/Form/Score'
 import Input from '@/components/UI/Form/Input'
 import FileUpload from '@/components/UI/Form/FileUpload'
 import { useCertificateStore } from '@/stores/certificateStore'
+import { useReportFileUpload } from '@/hooks/useReportFileUpload'
 
 interface FormValues {
     accessories_factory: string[];
@@ -27,6 +28,7 @@ const PartnerCertificationReportAccessoriesModal: FC<PartnerCertificationReportA
     const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
     const formRef = useRef<FormikProps<FormValues>>(null);
+    const accessoriesImagesProps = useReportFileUpload('accessories_images');
 
     const accessories = [
         "Aucun",
@@ -144,12 +146,9 @@ const PartnerCertificationReportAccessoriesModal: FC<PartnerCertificationReportA
                                                     label="Photos des accessoires"
                                                     required />
                                                 <FileUpload
-                                                    bucketName="object_attributes"
-                                                    uploadPath={`objects/${selectedCertificate?.object?.id}`}
-                                                    value={values.accessories_images}
-                                                    onChange={(paths) => setFieldValue('accessories_images', paths)}
+                                                    {...accessoriesImagesProps}
                                                     acceptedFileTypes={[".jpg", ".png"]}
-                                                />
+                                                    maxFiles={5} />
                                             </FormGroup>
                                         )}
                                     </>

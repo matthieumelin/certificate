@@ -12,6 +12,7 @@ import Input from '@/components/UI/Form/Input'
 import Score from '@/components/UI/Form/Score'
 import FileUpload from '@/components/UI/Form/FileUpload'
 import { useCertificateStore } from '@/stores/certificateStore'
+import { useReportFileUpload } from '@/hooks/useReportFileUpload'
 
 interface FormValues {
     bracelet_type: string;
@@ -47,6 +48,7 @@ interface PartnerCertificationReportBraceletModalProps {
 const PartnerCertificationReportBraceletModal: FC<PartnerCertificationReportBraceletModalProps> = ({ certificateTypes }) => {
     const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
+    const braceletImagesProps = useReportFileUpload('bracelet_images');
 
     const braceletTypes = [
         "Aucun",
@@ -545,10 +547,7 @@ const PartnerCertificationReportBraceletModal: FC<PartnerCertificationReportBrac
                                                             required />
 
                                                         <FileUpload
-                                                            bucketName="object_attributes"
-                                                            uploadPath={`objects/${selectedCertificate?.object_id}`}
-                                                            value={values.bracelet_images}
-                                                            onChange={(paths) => setFieldValue('bracelet_images', paths)}
+                                                            {...braceletImagesProps}
                                                             acceptedFileTypes={[".jpg", ".png"]}
                                                         />
                                                     </FormGroup>

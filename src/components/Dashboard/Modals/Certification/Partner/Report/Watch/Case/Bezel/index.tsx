@@ -12,6 +12,7 @@ import Input from '@/components/UI/Form/Input'
 import Score from '@/components/UI/Form/Score'
 import FileUpload from '@/components/UI/Form/FileUpload'
 import { useCertificateStore } from '@/stores/certificateStore'
+import { useReportFileUpload } from '@/hooks/useReportFileUpload'
 
 interface FormValues {
     case_bezel_type: string;
@@ -39,6 +40,7 @@ interface PartnerCertificationReportCaseBezelModalProps {
 const PartnerCertificationReportCaseBezelModal: FC<PartnerCertificationReportCaseBezelModalProps> = ({ certificateTypes }) => {
     const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
+    const caseBezelImagesProps = useReportFileUpload('case_bezel_images');
 
     const bezelTypes = [
         "Fixe",
@@ -337,10 +339,7 @@ const PartnerCertificationReportCaseBezelModal: FC<PartnerCertificationReportCas
                                         <FormGroup>
                                             <Label htmlFor="case_bezel_images" label="Photos de la lunette" required />
                                             <FileUpload
-                                                bucketName="object_attributes"
-                                                uploadPath={`objects/${selectedCertificate?.object_id}`}
-                                                value={values.case_bezel_images}
-                                                onChange={(paths) => setFieldValue('case_bezel_images', paths)}
+                                                {...caseBezelImagesProps}
                                                 acceptedFileTypes={[".jpg", ".png"]}
                                             />
                                         </FormGroup>

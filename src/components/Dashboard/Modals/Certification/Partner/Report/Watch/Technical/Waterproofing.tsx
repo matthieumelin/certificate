@@ -6,6 +6,7 @@ import FormRow from '@/components/UI/Form/Row';
 import Score from '@/components/UI/Form/Score';
 import Select from '@/components/UI/Form/Select';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
+import { useReportFileUpload } from '@/hooks/useReportFileUpload';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
@@ -34,6 +35,7 @@ interface PartnerCertificationReportTechnicalWaterproofingModalProps {
 const PartnerCertificationReportTechnicalWaterproofingModal: FC<PartnerCertificationReportTechnicalWaterproofingModalProps> = ({ certificateTypes }) => {
     const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
+    const waterproofingTestResultProps = useReportFileUpload('technical_waterproofing_test_result');
 
     const resistances = [
         "10m (1 ATM)",
@@ -127,12 +129,9 @@ const PartnerCertificationReportTechnicalWaterproofingModal: FC<PartnerCertifica
 
                                     {!certificateTypeExcludedFormFields?.includes("technical_waterproofing_test_result") && (
                                         <FormGroup>
-                                            <Label htmlFor='technical_waterproofing_test_result' label='Résultat du test'/>
+                                            <Label htmlFor='technical_waterproofing_test_result' label='Résultat du test' />
                                             <FileUpload
-                                                bucketName="object_attributes"
-                                                uploadPath={`objects/${selectedCertificate?.object_id}`}
-                                                value={values.technical_waterproofing_test_result}
-                                                onChange={(paths) => setFieldValue('technical_waterproofing_test_result', paths)}
+                                                {...waterproofingTestResultProps}
                                                 acceptedFileTypes={[".jpg", ".png"]}
                                             />
                                         </FormGroup>

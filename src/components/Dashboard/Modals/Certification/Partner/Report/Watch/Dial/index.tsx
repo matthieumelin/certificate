@@ -12,6 +12,7 @@ import Input from '@/components/UI/Form/Input';
 import Score from '@/components/UI/Form/Score';
 import FileUpload from '@/components/UI/Form/FileUpload';
 import { useCertificateStore } from '@/stores/certificateStore';
+import { useReportFileUpload } from '@/hooks/useReportFileUpload';
 
 interface FormValues {
     dial_type: string;
@@ -46,6 +47,7 @@ interface PartnerCertificationReportDialModalProps {
 const PartnerCertificationReportDialModal: FC<PartnerCertificationReportDialModalProps> = ({ certificateTypes }) => {
     const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
+    const dialImagesProps = useReportFileUpload('dial_images');
 
     const dialTypes = [
         "Plein",
@@ -587,10 +589,7 @@ const PartnerCertificationReportDialModal: FC<PartnerCertificationReportDialModa
                                                     required />
 
                                                 <FileUpload
-                                                    bucketName="object_attributes"
-                                                    uploadPath={`objects/${selectedCertificate?.object_id}`}
-                                                    value={values.dial_images}
-                                                    onChange={(paths) => setFieldValue('dial_images', paths)}
+                                                    {...dialImagesProps}
                                                     acceptedFileTypes={[".jpg", ".png"]}
                                                 />
                                             </FormGroup>

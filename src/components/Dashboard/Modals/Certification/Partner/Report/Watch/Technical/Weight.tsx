@@ -4,6 +4,7 @@ import Input from '@/components/UI/Form/Input';
 import Label from '@/components/UI/Form/Label';
 import FormRow from '@/components/UI/Form/Row';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
+import { useReportFileUpload } from '@/hooks/useReportFileUpload';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
@@ -30,6 +31,7 @@ interface PartnerCertificationReportTechnicalWeightModalProps {
 const PartnerCertificationReportTechnicalWeightModal: FC<PartnerCertificationReportTechnicalWeightModalProps> = ({ certificateTypes }) => {
     const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
+    const weightImagesProps = useReportFileUpload('technical_weight_images');
 
     const initialValues: FormValues = {
         technical_weight_total_watch: formData.technical_weight_total_watch || 0,
@@ -62,7 +64,7 @@ const PartnerCertificationReportTechnicalWeightModal: FC<PartnerCertificationRep
 
                                     {!certificateTypeExcludedFormFields?.includes("technical_weight_total_watch") && (
                                         <FormGroup>
-                                            <Label htmlFor='technical_weight_total_watch' label='Poids total de la montre (g)'/>
+                                            <Label htmlFor='technical_weight_total_watch' label='Poids total de la montre (g)' />
                                             <Input
                                                 error={errors.technical_weight_total_watch}
                                                 id='technical_weight_total_watch'
@@ -122,10 +124,7 @@ const PartnerCertificationReportTechnicalWeightModal: FC<PartnerCertificationRep
                                                     label="Photos des poids" />
 
                                                 <FileUpload
-                                                    bucketName="object_attributes"
-                                                    uploadPath={`objects/${selectedCertificate?.object_id}`}
-                                                    value={values.technical_weight_images}
-                                                    onChange={(paths) => setFieldValue('technical_weight_images', paths)}
+                                                    {...weightImagesProps}
                                                     acceptedFileTypes={[".jpg", ".png"]}
                                                 />
                                             </FormGroup>

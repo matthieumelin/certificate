@@ -343,172 +343,166 @@ const CertificateCard: FC<CertificateCardProps> = ({
     }, [certificate]);
 
     return (
-        <div className="h-full">
-            <div className="h-full rounded-2xl bg-black/40 backdrop-blur-sm border border-emerald-900/30 hover:border-emerald-500/50 transition-all flex flex-col">
-                <div className='p-6 shrink-0'>
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="flex flex-col gap-3">
-                            {objectPhoto && (
-                                <img
-                                    className='w-24 h-24 object-cover border border-white/10 rounded-xl'
-                                    src={objectPhoto}
-                                    alt={`${certificate?.object?.brand} ${certificate?.object?.model}`}
-                                />
-                            )}
-                            <div className='space-y-2'>
-                                {!isDraft && certificate?.type?.verification_status && (
-                                    <div className="text-right">
-                                        {getVerificationBadge(certificate.type.verification_status)}
-                                    </div>
-                                )}
-                                <h3 className="text-white font-bold text-lg">
-                                    {isDraft ? `Brouillon #${item.id}` : `Certificat #${item.id}`}
-                                </h3>
-                                <div className='flex flex-wrap gap-2'>
-                                    {getStatusBadge(certificate?.status)}
-                                    {getInspectionStatusBadge(certificate?.inspection?.result)}
+        <div className="h-full overflow-visible" onBlur={() => setShowMoreInfo(false)}>
+            <div className="h-full rounded-2xl bg-black/40 border border-emerald-900/30 hover:border-emerald-500/50 transition-all flex flex-col overflow-visible">                    <div className='p-6 shrink-0'>
+                <div className="flex items-center justify-between mb-3">
+                    <div className="flex flex-col gap-3">
+                        {objectPhoto && (
+                            <img
+                                className='w-24 h-24 object-cover border border-white/10 rounded-xl'
+                                src={objectPhoto}
+                                alt={`${certificate?.object?.brand} ${certificate?.object?.model}`}
+                            />
+                        )}
+                        <div className='space-y-2'>
+                            {!isDraft && certificate?.type?.verification_status && (
+                                <div className="text-right">
+                                    {getVerificationBadge(certificate.type.verification_status)}
                                 </div>
+                            )}
+                            <h3 className="text-white font-bold text-lg">
+                                {isDraft ? `Brouillon #${item.id}` : `Certificat #${item.id}`}
+                            </h3>
+                            <div className='flex flex-wrap gap-2'>
+                                {getStatusBadge(certificate?.status)}
+                                {getInspectionStatusBadge(certificate?.inspection?.result)}
                             </div>
                         </div>
-                        {isPartner && canDelete && (
-                            <button
-                                onClick={handleDeleteClick}
-                                className="text-neutral-400 hover:text-red-400 transition-colors"
-                                title="Supprimer"
-                            >
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                            </button>
-                        )}
                     </div>
-
-                    {hasObjectInfo && (
-                        <div className='mt-6 p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30'>
-                            <h3 className='text-emerald-400/60 text-xs uppercase font-bold mb-2'>Informations de l'objet</h3>
-                            <ul className='space-y-1'>
-                                {isDraft ? (
-                                    <>
-                                        {draft.object_brand && (
-                                            <li className="text-white font-medium text-sm">
-                                                <span className="text-neutral-400">Marque:</span> {draft.object_brand}
-                                            </li>
-                                        )}
-                                        {draft.object_model && (
-                                            <li className="text-white font-medium text-sm">
-                                                <span className="text-neutral-400">Modèle:</span> {draft.object_model}
-                                            </li>
-                                        )}
-                                        {draft.object_reference && (
-                                            <li className="text-white font-medium text-sm">
-                                                <span className="text-neutral-400">Référence:</span> {draft.object_reference}
-                                            </li>
-                                        )}
-                                        {draft.object_serial_number && (
-                                            <li className="text-white font-medium text-sm">
-                                                <span className="text-neutral-400">N° de série:</span> {draft.object_serial_number}
-                                            </li>
-                                        )}
-                                    </>
-                                ) : (
-                                    <>
-                                        {certificate?.object?.brand && (
-                                            <li className="text-white font-medium text-sm">
-                                                <span className="text-neutral-400">Marque:</span> {certificate.object.brand}
-                                            </li>
-                                        )}
-                                        {certificate?.object?.model && (
-                                            <li className="text-white font-medium text-sm">
-                                                <span className="text-neutral-400">Modèle:</span> {certificate.object.model}
-                                            </li>
-                                        )}
-                                        {certificate?.object?.reference && (
-                                            <li className="text-white font-medium text-sm">
-                                                <span className="text-neutral-400">Référence:</span> {certificate.object.reference}
-                                            </li>
-                                        )}
-                                        {certificate?.object?.serial_number && (
-                                            <li className="text-white font-medium text-sm">
-                                                <span className="text-neutral-400">N° de série:</span> {certificate.object.serial_number}
-                                            </li>
-                                        )}
-                                    </>
-                                )}
-                            </ul>
-                        </div>
-                    )}
-
-                    {isPartner && customerData && (
-                        <div className='mt-4 p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30'>
-                            <h3 className='text-emerald-400/60 text-xs uppercase font-bold mb-2'>Informations du client</h3>
-                            <ul className='space-y-1'>
-                                <li className="text-white text-sm font-medium">
-                                    {customerData.first_name} {customerData.last_name}
-                                </li>
-                                <li className="text-neutral-400 text-sm">
-                                    {customerData.email}
-                                </li>
-                            </ul>
-                        </div>
-                    )}
-
-                    {hasGeneralInfo && (
-                        <div className="mt-4 relative">
-                            <button
-                                onClick={() => setShowMoreInfo(!showMoreInfo)}
-                                className="w-full flex items-center justify-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
-                            >
-                                <span>{showMoreInfo ? 'Voir moins' : 'Voir plus d\'informations'}</span>
-                                <svg
-                                    className={`w-4 h-4 transition-transform ${showMoreInfo ? 'rotate-180' : ''}`}
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-
-                            {showMoreInfo && (
-                                <>
-                                    <div
-                                        className="fixed inset-0 z-40"
-                                        onClick={() => setShowMoreInfo(false)}
-                                    />
-
-                                    <div className='absolute left-0 right-0 top-full mt-2 p-4 bg-black/95 backdrop-blur-sm rounded-xl border border-emerald-500/50 shadow-2xl space-y-3 z-50 max-h-80 overflow-y-auto'>
-                                        <h3 className='text-emerald-400/60 text-xs uppercase font-bold'>Informations générales</h3>
-
-                                        {certificateType && (
-                                            <div>
-                                                <span className="text-xs text-neutral-400 block mb-1">Type de certificat</span>
-                                                <span className="text-sm text-white font-medium">{certificateType?.name}</span>
-                                            </div>
-                                        )}
-                                        {item.created_at && (
-                                            <div>
-                                                <span className="text-xs text-neutral-400 block mb-1">Créé le</span>
-                                                <span className="text-sm text-white font-medium">{formatDate(item.created_at)}</span>
-                                            </div>
-                                        )}
-                                        {item.updated_at && (
-                                            <div>
-                                                <span className="text-xs text-neutral-400 block mb-1">Mis à jour le</span>
-                                                <span className="text-sm text-white font-medium">{formatDate(item.updated_at)}</span>
-                                            </div>
-                                        )}
-                                        {certificate?.creator?.role === UserProfileRole.Partner && (
-                                            <div>
-                                                <span className="text-xs text-neutral-400 block mb-1">Créé par</span>
-                                                <span className='text-sm text-emerald-400 font-medium'>{getUserProfileRoleLabel(certificate.creator?.role)}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
-                            )}
-                        </div>
+                    {isPartner && canDelete && (
+                        <button
+                            onClick={handleDeleteClick}
+                            className="text-neutral-400 hover:text-red-400 transition-colors"
+                            title="Supprimer"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
                     )}
                 </div>
+
+                {hasObjectInfo && (
+                    <div className='mt-6 p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30'>
+                        <h3 className='text-emerald-400/60 text-xs uppercase font-bold mb-2'>Informations de l'objet</h3>
+                        <ul className='space-y-1'>
+                            {isDraft ? (
+                                <>
+                                    {draft.object_brand && (
+                                        <li className="text-white font-medium text-sm">
+                                            <span className="text-neutral-400">Marque:</span> {draft.object_brand}
+                                        </li>
+                                    )}
+                                    {draft.object_model && (
+                                        <li className="text-white font-medium text-sm">
+                                            <span className="text-neutral-400">Modèle:</span> {draft.object_model}
+                                        </li>
+                                    )}
+                                    {draft.object_reference && (
+                                        <li className="text-white font-medium text-sm">
+                                            <span className="text-neutral-400">Référence:</span> {draft.object_reference}
+                                        </li>
+                                    )}
+                                    {draft.object_serial_number && (
+                                        <li className="text-white font-medium text-sm">
+                                            <span className="text-neutral-400">N° de série:</span> {draft.object_serial_number}
+                                        </li>
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    {certificate?.object?.brand && (
+                                        <li className="text-white font-medium text-sm">
+                                            <span className="text-neutral-400">Marque:</span> {certificate.object.brand}
+                                        </li>
+                                    )}
+                                    {certificate?.object?.model && (
+                                        <li className="text-white font-medium text-sm">
+                                            <span className="text-neutral-400">Modèle:</span> {certificate.object.model}
+                                        </li>
+                                    )}
+                                    {certificate?.object?.reference && (
+                                        <li className="text-white font-medium text-sm">
+                                            <span className="text-neutral-400">Référence:</span> {certificate.object.reference}
+                                        </li>
+                                    )}
+                                    {certificate?.object?.serial_number && (
+                                        <li className="text-white font-medium text-sm">
+                                            <span className="text-neutral-400">N° de série:</span> {certificate.object.serial_number}
+                                        </li>
+                                    )}
+                                </>
+                            )}
+                        </ul>
+                    </div>
+                )}
+
+                {isPartner && customerData && (
+                    <div className='mt-4 p-4 bg-emerald-900/10 rounded-xl border border-emerald-900/30'>
+                        <h3 className='text-emerald-400/60 text-xs uppercase font-bold mb-2'>Informations du client</h3>
+                        <ul className='space-y-1'>
+                            <li className="text-white text-sm font-medium">
+                                {customerData.first_name} {customerData.last_name}
+                            </li>
+                            <li className="text-neutral-400 text-sm">
+                                {customerData.email}
+                            </li>
+                        </ul>
+                    </div>
+                )}
+
+                {hasGeneralInfo && (
+                    <div className="mt-4 relative">
+                        <button
+                            onClick={() => setShowMoreInfo(!showMoreInfo)}
+                            className="w-full flex items-center justify-center gap-2 text-emerald-400 hover:text-emerald-300 text-sm font-medium transition-colors"
+                        >
+                            <span>{showMoreInfo ? 'Voir moins' : 'Voir plus d\'informations'}</span>
+                            <svg
+                                className={`w-4 h-4 transition-transform ${showMoreInfo ? 'rotate-180' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        {showMoreInfo && (
+                            <>
+                                <div className='absolute left-0 right-0 top-full mt-2 p-4 bg-black/95 backdrop-blur-sm rounded-xl border border-emerald-500/50 shadow-2xl space-y-3 z-50 max-h-80 overflow-y-auto'>
+                                    <h3 className='text-emerald-400/60 text-xs uppercase font-bold'>Informations générales</h3>
+
+                                    {certificateType && (
+                                        <div>
+                                            <span className="text-xs text-neutral-400 block mb-1">Type de certificat</span>
+                                            <span className="text-sm text-white font-medium">{certificateType?.name}</span>
+                                        </div>
+                                    )}
+                                    {item.created_at && (
+                                        <div>
+                                            <span className="text-xs text-neutral-400 block mb-1">Créé le</span>
+                                            <span className="text-sm text-white font-medium">{formatDate(item.created_at)}</span>
+                                        </div>
+                                    )}
+                                    {item.updated_at && (
+                                        <div>
+                                            <span className="text-xs text-neutral-400 block mb-1">Mis à jour le</span>
+                                            <span className="text-sm text-white font-medium">{formatDate(item.updated_at)}</span>
+                                        </div>
+                                    )}
+                                    {certificate?.creator?.role === UserProfileRole.Partner && (
+                                        <div>
+                                            <span className="text-xs text-neutral-400 block mb-1">Créé par</span>
+                                            <span className='text-sm text-emerald-400 font-medium'>{getUserProfileRoleLabel(certificate.creator?.role)}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                )}
+            </div>
 
                 <div className='p-6 border-t border-emerald-900/30 grow flex flex-col'>
                     <div className="mt-auto shrink-0">

@@ -3,6 +3,7 @@ import FormGroup from '@/components/UI/Form/Group';
 import Label from '@/components/UI/Form/Label';
 import Select from '@/components/UI/Form/Select';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
+import { useReportFileUpload } from '@/hooks/useReportFileUpload';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
@@ -23,6 +24,7 @@ interface PartnerCertificationReportTechnicalRustCorrosionModalProps {
 const PartnerCertificationReportTechnicalRustCorrosionModal: FC<PartnerCertificationReportTechnicalRustCorrosionModalProps> = ({ certificateTypes }) => {
     const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
+    const rustCorrosionImagesProps = useReportFileUpload('technical_rust_corrosion_images');
 
     const rustedZones = [
         "Boîtier",
@@ -92,10 +94,7 @@ const PartnerCertificationReportTechnicalRustCorrosionModal: FC<PartnerCertifica
                                             label="Photos de la corrosion" />
 
                                         <FileUpload
-                                            bucketName="object_attributes"
-                                            uploadPath={`objects/${selectedCertificate?.object_id}`}
-                                            value={values.technical_rust_corrosion_images}
-                                            onChange={(paths) => setFieldValue('technical_rust_corrosion_images', paths)}
+                                            {...rustCorrosionImagesProps}
                                             acceptedFileTypes={[".jpg", ".png"]}
                                             maxFiles={10}
                                         />

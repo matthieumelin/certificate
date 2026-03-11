@@ -10,6 +10,7 @@ import Input from '@/components/UI/Form/Input'
 import Score from '@/components/UI/Form/Score'
 import FileUpload from '@/components/UI/Form/FileUpload'
 import { useCertificateStore } from '@/stores/certificateStore'
+import { useReportFileUpload } from '@/hooks/useReportFileUpload'
 
 interface FormValues {
     case_crown_type: string;
@@ -39,6 +40,8 @@ interface PartnerCertificationReportCaseCrownModalProps {
 const PartnerCertificationReportCaseCrownModal: FC<PartnerCertificationReportCaseCrownModalProps> = ({ certificateTypes }) => {
     const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
+    const caseCrownImagesProps = useReportFileUpload('case_crown_images');
+    const caseCrownPusherImagesProps = useReportFileUpload('case_crown_pusher_images');
 
     const crownTypes = [
         "Non Vissée",
@@ -207,10 +210,7 @@ const PartnerCertificationReportCaseCrownModal: FC<PartnerCertificationReportCas
                                     <FormGroup>
                                         <Label htmlFor="case_crown_images" label="Photos de la couronne" required />
                                         <FileUpload
-                                            bucketName="object_attributes"
-                                            uploadPath={`objects/${selectedCertificate?.object_id}`}
-                                            value={values.case_crown_images}
-                                            onChange={(paths) => setFieldValue('case_crown_images', paths)}
+                                            {...caseCrownImagesProps}
                                             acceptedFileTypes={[".jpg", ".png"]}
                                         />
                                     </FormGroup>
@@ -327,10 +327,7 @@ const PartnerCertificationReportCaseCrownModal: FC<PartnerCertificationReportCas
                                                 <FormGroup>
                                                     <Label htmlFor="case_crown_pusher_images" label="Photos des poussoirs" required />
                                                     <FileUpload
-                                                        bucketName="object_attributes"
-                                                        uploadPath={`objects/${selectedCertificate?.object_id}`}
-                                                        value={values.case_crown_pusher_images}
-                                                        onChange={(paths) => setFieldValue('case_crown_pusher_images', paths)}
+                                                        {...caseCrownPusherImagesProps}
                                                         acceptedFileTypes={[".jpg", ".png"]}
                                                     />
                                                 </FormGroup>

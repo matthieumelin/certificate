@@ -155,7 +155,7 @@ export const useProfiles = (autoFetch: boolean = true) => {
         .from("profiles")
         .update({
           ...updates,
-          updated_at: new Date().toISOString(),
+          updated_at: new Date(),
         })
         .eq("id", userId)
         .select()
@@ -403,7 +403,7 @@ export const useObjects = (autoFetch: boolean = true, ownerId?: string) => {
         .from("objects")
         .update({
           ...updates,
-          updated_at: new Date().toISOString(),
+          updated_at: new Date(),
         })
         .eq("id", id)
         .select()
@@ -701,7 +701,7 @@ export const useObjectAttributes = (autoFetch?: boolean, objectId?: number) => {
         .upsert({
           object_id: objectId,
           attributes: attributes,
-          updated_at: new Date().toISOString(),
+          updated_at: new Date(),
         })
         .select()
         .single();
@@ -1201,7 +1201,7 @@ export const usePartnerInfos = (
         .from("partner_infos")
         .update({
           ...updates,
-          updated_at: new Date().toISOString(),
+          updated_at: new Date(),
         })
         .eq("user_id", userId)
         .select()
@@ -1235,7 +1235,7 @@ export const usePartnerInfos = (
           .from("partner_infos")
           .update({
             ...updates,
-            updated_at: new Date().toISOString(),
+            updated_at: new Date(),
           })
           .eq("user_id", userId)
           .select()
@@ -1360,7 +1360,7 @@ export const usePartnerCertificates = (userId?: string) => {
         .from("certificates")
         .update({
           ...updates,
-          updated_at: new Date().toISOString(),
+          updated_at: new Date(),
         })
         .eq("id", id)
         .select(
@@ -1456,7 +1456,7 @@ export const useCustomerCertificates = (
         .from("certificates")
         .update({
           ...updates,
-          updated_at: new Date().toISOString(),
+          updated_at: new Date(),
         })
         .eq("id", id)
         .select(
@@ -1659,7 +1659,7 @@ export const useCertificateDrafts = (
         .from("certificate_drafts")
         .update({
           ...updates,
-          updated_at: new Date().toISOString(),
+          updated_at: new Date(),
         })
         .eq("id", id)
         .select()
@@ -1809,7 +1809,7 @@ export const useCertificates = (
         .from("certificates")
         .update({
           ...updates,
-          updated_at: new Date().toISOString(),
+          updated_at: new Date(),
         })
         .eq("id", id)
         .select()

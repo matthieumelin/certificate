@@ -324,7 +324,7 @@ app.post("/upsert-certificate-draft", async (req, res) => {
         partner_id,
         payment_method_id,
         created_by,
-        updated_at: new Date().toISOString(),
+        updated_at: new Date(),
       })
       .select()
       .single();
@@ -918,7 +918,7 @@ app.post("/create-checkout-session", async (req, res) => {
       .from("certificate_drafts")
       .update({
         stripe_session_id: session.id,
-        updated_at: new Date().toISOString(),
+        updated_at: new Date(),
       })
       .eq("id", draftId);
 

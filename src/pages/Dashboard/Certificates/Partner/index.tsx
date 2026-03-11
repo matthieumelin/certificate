@@ -362,19 +362,18 @@ const PartnerCertificates = () => {
                                         {filteredItems.length} résultat{filteredItems.length > 1 ? 's' : ''}
                                     </div>
 
-                                    <div className="grid lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-                                        {filteredItems.map((item) => (
-                                            <CertificateCard
-                                                key={item.type === 'draft' ? `draft-${item.data.id}` : `cert-${item.data.id}`}
-                                                draft={item.type === 'draft' ? (item.data as CertificateDraft) : undefined}
-                                                certificate={item.type === 'certificate' ? (item.data as Certificate) : undefined}
-                                                certificateTypes={certificateTypes}
-                                                setIsModalOpen={setIsModalOpen}
-                                                setIsInspectionModalOpen={setIsInspectionModalOpen}
-                                                onStartReport={item.type === 'certificate' ? () => handleStartReport(item.data as Certificate) : undefined}
-                                                onDeleteSuccess={handleRefreshData}
-                                            />
-                                        ))}
+                                    <div className="grid lg:grid-cols-3 2xl:grid-cols-4 gap-4 overflow-visible">                                        {filteredItems.map((item) => (
+                                        <CertificateCard
+                                            key={item.type === 'draft' ? `draft-${item.data.id}` : `cert-${item.data.id}`}
+                                            draft={item.type === 'draft' ? (item.data as CertificateDraft) : undefined}
+                                            certificate={item.type === 'certificate' ? (item.data as Certificate) : undefined}
+                                            certificateTypes={certificateTypes}
+                                            setIsModalOpen={setIsModalOpen}
+                                            setIsInspectionModalOpen={setIsInspectionModalOpen}
+                                            onStartReport={item.type === 'certificate' ? () => handleStartReport(item.data as Certificate) : undefined}
+                                            onDeleteSuccess={handleRefreshData}
+                                        />
+                                    ))}
                                     </div>
                                 </div>
                             )}

@@ -12,14 +12,16 @@ import Input from '@/components/UI/Form/Input';
 import { Button } from '@/components/UI/Button';
 import { useClientCertificateStore } from '@/stores/certification/clientCertificateStore';
 import countries from '@/data/countries';
+import PHONE_CODES from '@/utils/phone';
 
 interface FormValues {
-    address: string,
-    city: string,
-    country: string,
-    email: string,
-    first_name: string,
+    address: string;
+    city: string;
+    country: string;
+    email: string;
+    first_name: string;
     last_name: string;
+    phone_code: string;
     phone: string;
     postal_code: string;
 }
@@ -27,8 +29,13 @@ interface FormValues {
 const ClientCertificationCustomerInfosModal: FC = () => {
     const { user, userProfile } = useAuth();
     const { draft, setDraft } = useClientCertificateStore();
-
     const formikRef = useRef<FormikProps<FormValues>>(null);
+
+    const existingPhone = draft.customer_data?.phone || userProfile?.phone || '';
+    const matchedCode = PHONE_CODES
+        .filter(c => existingPhone.startsWith(c))
+        .sort((a, b) => b.length - a.length)[0] || '+33';
+    const existingNumber = existingPhone.replace(matchedCode, '');
 
     const initialValues: FormValues = {
         address: draft.customer_data?.address || "",
@@ -37,7 +44,8 @@ const ClientCertificationCustomerInfosModal: FC = () => {
         email: draft.customer_data?.email || "",
         first_name: draft.customer_data?.first_name || "",
         last_name: draft.customer_data?.last_name || "",
-        phone: draft.customer_data?.phone || "",
+        phone_code: matchedCode,
+        phone: existingNumber,
         postal_code: draft.customer_data?.postal_code || "",
     }
 
@@ -47,9 +55,13 @@ const ClientCertificationCustomerInfosModal: FC = () => {
             return;
         }
         try {
+            const fullPhone = values.phone ? `${values.phone_code}${values.phone}` : '';
             setDraft({
                 id: draft.id,
-                customer_data: values,
+                customer_data: {
+                    ...values,
+                    phone: fullPhone,
+                },
                 created_by: user.id,
                 current_step: ClientCertificateStep.ObjectInfos
             });
@@ -62,8 +74,12 @@ const ClientCertificationCustomerInfosModal: FC = () => {
     useEffect(() => {
         if (formikRef.current) {
             const { setFieldValue } = formikRef.current;
-
-            const countryName = countries.find(country => country.code === userProfile?.country)?.name || userProfile?.country || "";
+            const countryName = countries.find(c => c.code === userProfile?.country)?.name || userProfile?.country || "";
+            const phone = userProfile?.phone || '';
+            const code = PHONE_CODES
+                .filter(c => phone.startsWith(c))
+                .sort((a, b) => b.length - a.length)[0] || '+33';
+            const number = phone.replace(code, '');
 
             setFieldValue('address', userProfile?.address || "");
             setFieldValue('city', userProfile?.city || "");
@@ -71,7 +87,8 @@ const ClientCertificationCustomerInfosModal: FC = () => {
             setFieldValue('email', userProfile?.email || "");
             setFieldValue('first_name', userProfile?.first_name || "");
             setFieldValue('last_name', userProfile?.last_name || "");
-            setFieldValue('phone', userProfile?.phone || "");
+            setFieldValue('phone_code', code);
+            setFieldValue('phone', number);
             setFieldValue('postal_code', userProfile?.postal_code || "");
         }
     }, [])
@@ -80,10 +97,7 @@ const ClientCertificationCustomerInfosModal: FC = () => {
 
     return (
         <div>
-            <Steps
-                mode='client'
-                steps={steps} />
-                
+            <Steps mode='client' steps={steps} />
             <Formik
                 innerRef={formikRef}
                 initialValues={initialValues}
@@ -92,85 +106,54 @@ const ClientCertificationCustomerInfosModal: FC = () => {
                 validateOnChange={false}
                 validateOnMount={false}
                 onSubmit={handleSubmit}>
-                {({ errors, isSubmitting }) => (
+                {({ errors, isSubmitting, setFieldValue, values }) => (
                     <Form className='space-y-4'>
                         <div className='grid gap-4'>
                             <FormRow>
                                 <FormGroup>
                                     <Label htmlFor='first_name' label='Prénom' required />
-                                    <Input
-                                        disabled
-                                        error={errors.first_name}
-                                        id='first_name'
-                                        name="first_name"
-                                        type='text'
-                                        placeholder='John'
-                                    />
+                                    <Input disabled error={errors.first_name} id='first_name' name="first_name" type='text' placeholder='John' />
                                 </FormGroup>
                                 <FormGroup>
                                     <Label htmlFor='last_name' label='Nom' required />
-                                    <Input
-                                        disabled
-                                        error={errors.last_name}
-                                        id='last_name'
-                                        name="last_name"
-                                        type='text'
-                                        placeholder='Doe'
-                                    />
+                                    <Input disabled error={errors.last_name} id='last_name' name="last_name" type='text' placeholder='Doe' />
                                 </FormGroup>
                             </FormRow>
                             <FormRow>
                                 <FormGroup>
                                     <Label htmlFor='email' label='Email' required />
-                                    <Input disabled error={errors.email}
-                                        id='email'
-                                        name="email"
-                                        type='email'
-                                        placeholder='john.doe@example.com'
-                                    />
+                                    <Input disabled error={errors.email} id='email' name="email" type='email' placeholder='john.doe@example.com' />
                                 </FormGroup>
                                 <FormGroup>
                                     <Label htmlFor='phone' label='Téléphone' />
-                                    <Input disabled error={errors.phone}
+                                    <Input
+                                        disabled
+                                        error={errors.phone}
                                         id='phone'
                                         name="phone"
                                         type='tel'
-                                        placeholder='+33 6 12 34 56 78'
+                                        placeholder='612345678'
+                                        phoneCode={values.phone_code}
+                                        onPhoneCodeChange={(code) => setFieldValue('phone_code', code)}
                                     />
                                 </FormGroup>
                             </FormRow>
                             <FormGroup>
                                 <Label htmlFor='address' label='Adresse' />
-                                <Input disabled error={errors.address}
-                                    id='address'
-                                    name="address"
-                                    type='text'
-                                    placeholder='123 Rue de la Paix' />
+                                <Input disabled error={errors.address} id='address' name="address" type='text' placeholder='123 Rue de la Paix' />
                             </FormGroup>
                             <FormRow>
                                 <FormGroup>
                                     <Label htmlFor='city' label='Ville' />
-                                    <Input disabled error={errors.city}
-                                        id='city'
-                                        name="city"
-                                        type='text'
-                                        placeholder='Paris' />
+                                    <Input disabled error={errors.city} id='city' name="city" type='text' placeholder='Paris' />
                                 </FormGroup>
                                 <FormGroup>
                                     <Label htmlFor='postal_code' label='Code Postal' />
-                                    <Input disabled error={errors.postal_code}
-                                        id='postal_code'
-                                        name="postal_code"
-                                        type='text'
-                                        placeholder='75001' />
+                                    <Input disabled error={errors.postal_code} id='postal_code' name="postal_code" type='text' placeholder='75001' />
                                 </FormGroup>
                                 <FormGroup>
                                     <Label htmlFor='country' label='Pays' />
-                                    <Input disabled error={errors.country}
-                                        id='country'
-                                        name="country"
-                                        type='text'
-                                        placeholder='France' />
+                                    <Input disabled error={errors.country} id='country' name="country" type='text' placeholder='France' />
                                 </FormGroup>
                             </FormRow>
                             <div className='flex justify-end'>
@@ -180,7 +163,7 @@ const ClientCertificationCustomerInfosModal: FC = () => {
                     </Form>
                 )}
             </Formik>
-        </div >
+        </div>
     )
 }
 

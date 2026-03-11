@@ -12,6 +12,7 @@ import Input from '@/components/UI/Form/Input'
 import Score from '@/components/UI/Form/Score'
 import FileUpload from '@/components/UI/Form/FileUpload'
 import { useCertificateStore } from '@/stores/certificateStore'
+import { useReportFileUpload } from '@/hooks/useReportFileUpload'
 
 interface FormValues {
     case_shape: string;
@@ -49,6 +50,7 @@ interface PartnerCertificationReportCaseModalProps {
 const PartnerCertificationReportCaseModal: FC<PartnerCertificationReportCaseModalProps> = ({ certificateTypes }) => {
     const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
+    const caseImagesProps = useReportFileUpload('case_images');
 
     const forms = [
         "Rond",
@@ -520,10 +522,7 @@ const PartnerCertificationReportCaseModal: FC<PartnerCertificationReportCaseModa
                                                 required />
 
                                             <FileUpload
-                                                bucketName="object_attributes"
-                                                uploadPath={`objects/${selectedCertificate?.object_id}`}
-                                                value={values.case_images}
-                                                onChange={(paths) => setFieldValue('case_images', paths)}
+                                                {...caseImagesProps}
                                                 acceptedFileTypes={[".jpg", ".png"]}
                                             />
                                         </FormGroup>

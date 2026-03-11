@@ -12,11 +12,13 @@ import { useState, type FC, useRef } from 'react';
 import FormRow from '@/components/UI/Form/Row';
 import { UserProfileType } from '@/types/user.d';
 import countries from '@/data/countries';
+import PHONE_CODES from '@/utils/phone';
 
 interface FormValues {
     email: string;
     first_name: string;
     last_name: string;
+    phone_code: string;
     phone: string;
     society: string;
     vat_number: string;
@@ -34,11 +36,18 @@ const ProfileCredentialsForm: FC = () => {
     const [selectedCompany, setSelectedCompany] = useState<any>(null);
     const isUpdatingRef = useRef(false);
 
+    const existingPhone = userProfile?.phone || '';
+    const matchedCode = PHONE_CODES
+        .filter(c => existingPhone.startsWith(c))
+        .sort((a, b) => b.length - a.length)[0] || '+33';
+    const existingNumber = existingPhone.replace(matchedCode, '');
+
     const initialValues: FormValues = {
         email: userProfile?.email || "",
         first_name: userProfile?.first_name || "",
         last_name: userProfile?.last_name || "",
-        phone: userProfile?.phone || "",
+        phone_code: matchedCode,
+        phone: existingNumber,
         society: userProfile?.society || "",
         vat_number: userProfile?.vat_number || "",
         address: userProfile?.address || "",
@@ -57,11 +66,13 @@ const ProfileCredentialsForm: FC = () => {
             setSuccessMessage(null);
             setErrorMessage(null);
 
+            const fullPhone = values.phone ? `${values.phone_code}${values.phone}` : '';
+
             const result = await updateCredentials(
                 values.email,
                 values.first_name,
                 values.last_name,
-                values.phone,
+                fullPhone,
                 values.society,
                 values.vat_number,
                 values.address,
@@ -70,7 +81,7 @@ const ProfileCredentialsForm: FC = () => {
                 values.country,
                 values.type
             );
-
+            console.log('phone:', values.phone, 'code:', values.phone_code, 'full:', fullPhone);
             if (result.success) {
                 setSuccessMessage('Vos informations ont été mises à jour.');
             }
@@ -166,9 +177,12 @@ const ProfileCredentialsForm: FC = () => {
                                 <Input
                                     error={errors.phone}
                                     id='phone'
-                                    type='text'
+                                    type='tel'
                                     name='phone'
-                                    placeholder='+33123456789' />
+                                    phoneCode={values.phone_code}
+                                    onPhoneCodeChange={(code) => setFieldValue('phone_code', code)}
+                                    placeholder='612345678'
+                                />
                             </FormGroup>
 
                             <FormGroup>
@@ -206,12 +220,10 @@ const ProfileCredentialsForm: FC = () => {
                                         value={values.country}
                                         error={errors.country}
                                         id='country'
-                                        options={countries.map((country) => (
-                                            {
-                                                label: country.name,
-                                                value: country.code,
-                                            }
-                                        ))}
+                                        options={countries.map((country) => ({
+                                            label: country.name,
+                                            value: country.code,
+                                        }))}
                                         onChange={(value) => setFieldValue('country', value)} />
                                 </FormGroup>
                             </FormRow>
@@ -240,9 +252,7 @@ const ProfileCredentialsForm: FC = () => {
                                         )}
                                         {selectedCompany && (
                                             <div className="mt-2 p-3 bg-emerald-900/10 border border-emerald-900/30 rounded-lg">
-                                                <p className="text-emerald-400 text-xs">
-                                                    ✓ Entreprise sélectionnée
-                                                </p>
+                                                <p className="text-emerald-400 text-xs">✓ Entreprise sélectionnée</p>
                                                 <p className="text-neutral-400 text-xs mt-1">
                                                     SIREN: {selectedCompany.siren} • SIRET: {selectedCompany.siret}
                                                 </p>
@@ -265,10 +275,7 @@ const ProfileCredentialsForm: FC = () => {
                             )}
 
                             <FormGroup>
-                                <Button
-                                    disabled={isSubmitting}
-                                    type='submit'
-                                >
+                                <Button disabled={isSubmitting} type='submit'>
                                     {isSubmitting ? 'Mise à jour...' : 'Mettre à jour'}
                                 </Button>
                             </FormGroup>

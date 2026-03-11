@@ -5,6 +5,7 @@ import Label from '@/components/UI/Form/Label';
 import Score from '@/components/UI/Form/Score';
 import Select from '@/components/UI/Form/Select';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
+import { useReportFileUpload } from '@/hooks/useReportFileUpload';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
@@ -29,6 +30,7 @@ interface PartnerCertificationReportTechnicalMovementModalProps {
 const PartnerCertificationReportTechnicalMovementModal: FC<PartnerCertificationReportTechnicalMovementModalProps> = ({ certificateTypes }) => {
     const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
+    const technicalMovementTestResultProps = useReportFileUpload('technical_movement_test_result');
 
     const initialValues: FormValues = {
         technical_movement_power_reserve_observed: formData.technical_movement_power_reserve_observed || 0,
@@ -127,10 +129,7 @@ const PartnerCertificationReportTechnicalMovementModal: FC<PartnerCertificationR
                                         <FormGroup>
                                             <Label htmlFor='technical_movement_test_result' label='Résultat du test (ticket de réglage)' required />
                                             <FileUpload
-                                                bucketName="object_attributes"
-                                                uploadPath={`objects/${selectedCertificate?.object_id}`}
-                                                value={values.technical_movement_test_result}
-                                                onChange={(paths) => setFieldValue('technical_movement_test_result', paths)}
+                                                {...technicalMovementTestResultProps}
                                                 acceptedFileTypes={[".png", ".jpg", ".pdf", ".doc", ".docx"]}
                                             />
                                         </FormGroup>

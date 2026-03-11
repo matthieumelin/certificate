@@ -41,10 +41,12 @@ import { useCertificateReportFormStore } from '@/stores/certificateReportFormSto
 import useValidateCertificateReport from '@/hooks/useValidateCertificateReport';
 import { toast } from 'react-toastify';
 import { supabase } from '@/lib/supabase';
-import { useCertificates, useObjectAttributes } from '@/hooks/useSupabase';
+import { useCertificates, useObjectAttributes, useStorage } from '@/hooks/useSupabase';
 import { Button } from '@/components/UI/Button';
 import Alert from '@/components/UI/Alert';
 import { useCertificateStore } from '@/stores/certificateStore';
+import { useReportFilesStore } from '@/stores/reportFilesStore';
+import { normalizeFileName } from '@/helpers/file';
 
 interface SubCategory {
     id: string;
@@ -75,12 +77,12 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
     const [isSavingAndFinishing, setIsSavingAndFinishing] = useState<boolean>(false);
 
     const { selectedCertificate } = useCertificateStore();
-
     const { updateCertificate } = useCertificates(false);
     const { objectAttributes } = useObjectAttributes(true, selectedCertificate?.object_id);
-
     const { getAllFormData, resetFormData, validationErrors, clearValidationErrors, hasErrors, loadInitialData } = useCertificateReportFormStore();
     const { validateReport } = useValidateCertificateReport(certificateTypes);
+    const { fileEntries, clearAll } = useReportFilesStore();
+    const { uploadFile } = useStorage();
 
     useEffect(() => {
         loadInitialData(objectAttributes);
@@ -281,7 +283,7 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
             .from('objects')
             .update({
                 ...objectData,
-                updated_at: new Date().toISOString()
+                updated_at: new Date()
             })
             .eq('id', objectId);
 
@@ -307,7 +309,7 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
                 .from('object_attributes')
                 .update({
                     attributes,
-                    updated_at: new Date().toISOString()
+                    updated_at: new Date()
                 })
                 .eq('object_id', objectId);
 
@@ -318,11 +320,52 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
                 .insert({
                     object_id: objectId,
                     attributes,
-                    updated_at: new Date().toISOString()
+                    updated_at: new Date()
                 });
 
             if (error) throw error;
         }
+    };
+
+    const uploadAllReportFiles = async (objectId: number): Promise<Record<string, string[]>> => {
+        const uploadedPaths: Record<string, string[]> = {};
+
+        await Promise.all(
+            fileEntries.map(async ({ fieldName, files, existingPaths }) => {
+                if (files.length === 0) {
+                    uploadedPaths[fieldName] = existingPaths;
+                    return;
+                }
+                const newPaths = await Promise.all(
+                    files.map(async (file, index) => {
+                        const fileName = normalizeFileName(file.name);
+                        const path = `objects/${objectId}/${fieldName}/${Date.now()}_${index}_${fileName}`;
+                        const result = await uploadFile('object_attributes', path, file);
+                        return result.path;
+                    })
+                );
+                uploadedPaths[fieldName] = [...existingPaths, ...newPaths];
+            })
+        );
+
+        return uploadedPaths;
+    };
+
+    const mergeUploadedPaths = (
+        formData: Record<string, any>,
+        uploadedPaths: Record<string, string[]>
+    ): Record<string, any> => {
+        return Object.fromEntries(
+            Object.entries(formData).map(([key, value]) => {
+                if (uploadedPaths[key]) {
+                    return [key, uploadedPaths[key]];
+                }
+                if (Array.isArray(value)) {
+                    return [key, (value as string[]).filter(v => !String(v).startsWith('__pending_'))];
+                }
+                return [key, value];
+            })
+        );
     };
 
     const handleSave = async () => {
@@ -333,8 +376,12 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
         setIsSaving(true);
 
         try {
-            const allFormData = getAllFormData();
             const objectId = selectedCertificate.object?.id;
+
+            const uploadedPaths = await uploadAllReportFiles(objectId!);
+
+            const allFormData = getAllFormData();
+            const mergedFormData = mergeUploadedPaths(allFormData, uploadedPaths);
 
             const {
                 general_object_brand,
@@ -346,7 +393,7 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
                 general_object_type,
                 general_object_status,
                 ...attributes
-            } = allFormData;
+            } = mergedFormData;
 
             await saveObjectData(objectId, {
                 brand: general_object_brand || undefined,
@@ -365,6 +412,8 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
                 status: CertificateStatus.PendingCertification,
                 updated_at: new Date()
             });
+
+            clearAll();
 
             toast.success("Rapport sauvegardé avec succès");
             clearValidationErrors();
@@ -390,7 +439,6 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
 
             if (errors.length > 0) {
                 const firstError = errors[0];
-
                 for (const [categoryId, prefix] of Object.entries(getSectionPrefix)) {
                     if (firstError.section.startsWith(prefix)) {
                         setSelectedCategory(categoryId);
@@ -403,8 +451,12 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
         }
 
         try {
-            const allFormData = getAllFormData();
             const objectId = selectedCertificate.object?.id;
+
+            const uploadedPaths = await uploadAllReportFiles(objectId!);
+
+            const allFormData = getAllFormData();
+            const mergedFormData = mergeUploadedPaths(allFormData, uploadedPaths);
 
             const {
                 general_object_brand,
@@ -415,7 +467,7 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
                 general_object_surname,
                 general_object_type,
                 ...attributes
-            } = allFormData;
+            } = mergedFormData;
 
             await saveObjectData(objectId, {
                 brand: general_object_brand || undefined,
@@ -433,6 +485,8 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
                 status: CertificateStatus.Completed,
                 completed_at: new Date()
             });
+
+            clearAll();
 
             toast.success("Rapport sauvegardé et terminé avec succès");
             resetFormData();
@@ -482,6 +536,7 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
     const handleCancel = () => {
         clearValidationErrors();
         resetFormData();
+        clearAll();
         onClose();
     }
 
