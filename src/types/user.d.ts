@@ -24,6 +24,7 @@ export interface UserProfile {
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
+  phone_code: string;
   phone: string;
   address: string;
   city: string;

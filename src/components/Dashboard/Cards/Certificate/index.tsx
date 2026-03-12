@@ -6,7 +6,7 @@ import routes from '@/utils/routes';
 import { Button } from '@/components/UI/Button';
 import Modal from '@/components/UI/Modal';
 import { CertificateInspectionResult, CertificateStatus, CertificateTypeVerificationStatus, PartnerCertificateStep, type Certificate, type CertificateDraft, type CertificateType } from '@/types/certificate.d';
-import { useCertificateDrafts, useCertificateInspections, useCertificates, useStorage } from '@/hooks/useSupabase';
+import { useCertificateDrafts, useCertificates, useStorage } from '@/hooks/useSupabase';
 import { UserProfileRole } from '@/types/user.d';
 import Alert from '@/components/UI/Alert';
 import { getUserProfileRoleLabel } from '@/helpers/translations';
@@ -51,7 +51,7 @@ const CertificateCard: FC<CertificateCardProps> = ({
     const { clearDraft, setDraft } = usePartnerCertificateStore();
     const { setSelectedCertificate } = useCertificateStore();
 
-    const { getSignedUrl } = useStorage();
+    const { getSignedUrl, deleteFile } = useStorage();
     const { deleteCertificateDraft, getCertificateDraftById } = useCertificateDrafts(false);
     const { deleteCertificate } = useCertificates(false);
 
@@ -116,30 +116,33 @@ const CertificateCard: FC<CertificateCardProps> = ({
 
     const handleDeleteDraft = async (draftId: string) => {
         try {
-            const response = await request('/cancel-checkout-session', {
-                method: 'POST',
-                body: {
-                    draftId
-                }
-            })
-
-            if (response.success) {
-                const isDraftDeleted = await deleteCertificateDraft(draftId);
-
-                if (isDraftDeleted) {
-                    if (draft?.id === draftId) {
-                        clearDraft();
-                    }
-
-                    onDeleteSuccess?.();
-                    toast.success("Brouillon supprimé");
-                }
+            if (draft?.stripe_session_id) {
+                await request('/cancel-checkout-session', {
+                    method: 'POST',
+                    body: { draftId }
+                });
             }
+
+            const isDraftDeleted = await deleteCertificateDraft(draftId);
+
+            if (isDraftDeleted) {
+                if (draft?.object_front_photo) {
+                    await deleteFile('object_photos', draft?.object_front_photo);
+                }
+
+                if (draft?.id === draftId) {
+                    clearDraft();
+                }
+
+                onDeleteSuccess?.();
+                toast.success("Brouillon supprimé");
+            }
+
         } catch (error) {
             console.error("Erreur suppression draft:", error);
             toast.error("Erreur lors de la suppression");
         }
-    }
+    };
 
     const handleDeleteCertificate = async (id: string) => {
         try {

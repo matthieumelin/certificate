@@ -1,26 +1,27 @@
 import Alert from "@/components/UI/Alert";
 import { normalizeFileName } from "@/helpers/file";
 import { useStorage } from "@/hooks/useSupabase";
-import { useCallback, useEffect, useRef, useState, type FC } from "react";
+import { useCallback, useRef, useState, type FC } from "react";
 
 interface FileUploadProps {
     bucketName?: string;
     uploadPath?: string;
-    value: string[];
+    value: (File | string)[];
+    previews?: string[];
     onFilesChange?: (files: File[]) => void;
-    onChange?: (path: string | null) => void;
+    onChange?: (path: string | null, index?: number) => void;
     maxFiles?: number;
     maxSizeMB?: number;
     acceptedFileTypes?: string[];
     className?: string;
     error?: string | string[];
-    existingPreview?: string | null;
 }
 
 const FileUpload: FC<FileUploadProps> = ({
     bucketName,
     uploadPath,
     value = [],
+    previews: initialPreviews = [],
     onFilesChange,
     onChange,
     maxFiles = 1,
@@ -28,43 +29,17 @@ const FileUpload: FC<FileUploadProps> = ({
     acceptedFileTypes = [],
     className = "",
     error: externalError,
-    existingPreview = null,
 }) => {
-    const [previews, setPreviews] = useState<string[]>([]);
+    const [previews, setPreviews] = useState<string[]>(initialPreviews);
     const [isDragging, setIsDragging] = useState(false);
     const [internalError, setInternalError] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const { uploadFile, getSignedUrl } = useStorage();
-
+    const { uploadFile } = useStorage();
     const isMultiple = maxFiles > 1;
-    const errorMessage = Array.isArray(externalError) ? externalError[0] : externalError;
-    const displayError = errorMessage || internalError;
 
-    const safeValue = Array.isArray(value) ? value : [];
-
-    useEffect(() => {
-        if (onFilesChange) return;
-        if (existingPreview && !isMultiple) {
-            setPreviews([existingPreview]);
-            return;
-        }
-    
-        const loadPreviews = async () => {
-            if (!safeValue.length || !bucketName) return;
-            const urls = await Promise.all(
-                safeValue.map(async (v) => {
-                    if (v.startsWith('http')) return v;
-                    try { return await getSignedUrl(bucketName, v, 3600); }
-                    catch { return null; }
-                })
-            );
-            setPreviews(urls.filter(Boolean) as string[]);
-        };
-    
-        loadPreviews();
-    }, [safeValue, bucketName, existingPreview]);
+    const displayError = Array.isArray(externalError) ? externalError[0] : externalError || internalError;
 
     const validateFile = (file: File): boolean => {
         if (file.size > maxSizeMB * 1024 * 1024) {
@@ -90,20 +65,14 @@ const FileUpload: FC<FileUploadProps> = ({
         const filesToProcess = validFiles.slice(0, remaining);
 
         if (onFilesChange) {
-            const newPreviews = await Promise.all(
-                filesToProcess.map(file => new Promise<string>(res => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => res(reader.result as string);
-                    reader.readAsDataURL(file);
-                }))
-            );
+            const newPreviews = filesToProcess.map(file => URL.createObjectURL(file));
             setPreviews(prev => [...prev, ...newPreviews]);
             onFilesChange(filesToProcess);
             return;
         }
 
         if (!bucketName || !uploadPath) {
-            setInternalError('Configuration upload manquante');
+            setInternalError("Configuration upload manquante");
             return;
         }
 
@@ -114,13 +83,7 @@ const FileUpload: FC<FileUploadProps> = ({
                     const fileName = normalizeFileName(file.name);
                     const path = `${uploadPath}/${Date.now()}_${index}_${fileName}`;
                     const result = await uploadFile(bucketName, path, file);
-
-                    const previewUrl = await new Promise<string>(res => {
-                        const reader = new FileReader();
-                        reader.onloadend = () => res(reader.result as string);
-                        reader.readAsDataURL(file);
-                    });
-
+                    const previewUrl = URL.createObjectURL(file);
                     return { path: result.path, previewUrl };
                 })
             );
@@ -128,15 +91,16 @@ const FileUpload: FC<FileUploadProps> = ({
             setPreviews(prev => [...prev, ...results.map(r => r.previewUrl)]);
             results.forEach(r => onChange?.(r.path));
         } catch (err) {
-            setInternalError(err instanceof Error ? err.message : 'Erreur upload');
+            setInternalError(err instanceof Error ? err.message : "Erreur upload");
         } finally {
             setIsUploading(false);
         }
-    }, [onFilesChange, onChange, bucketName, uploadPath, uploadFile, previews.length, maxFiles, maxSizeMB, acceptedFileTypes]);
+    }, [previews.length, maxFiles, maxSizeMB, acceptedFileTypes, onFilesChange, onChange, bucketName, uploadPath, uploadFile]);
 
     const removeFile = (index?: number) => {
         if (isMultiple && index !== undefined) {
             setPreviews(prev => prev.filter((_, i) => i !== index));
+            onChange?.(null, index);
         } else {
             setPreviews([]);
             onChange?.(null);
@@ -152,7 +116,8 @@ const FileUpload: FC<FileUploadProps> = ({
             {isMultiple && previews.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                     {previews.map((preview, index) => (
-                        <div key={index} className="relative border border-white/10 rounded-lg overflow-hidden bg-white/5 aspect-square w-24">                            <img src={preview} alt={`Photo ${index + 1}`} className="w-full h-full object-contain" />
+                        <div key={index} className="relative border border-white/10 rounded-lg overflow-hidden bg-white/5 aspect-square w-24">
+                            <img src={preview} alt={`Photo ${index + 1}`} className="w-full h-full object-contain" />
                             <button
                                 type="button"
                                 onClick={() => removeFile(index)}
@@ -203,11 +168,7 @@ const FileUpload: FC<FileUploadProps> = ({
                         <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     <p className="mt-4 text-sm text-gray">
-                        {isUploading ? (
-                            <span className="text-green">Upload en cours...</span>
-                        ) : (
-                            <><span className="font-semibold text-green">Cliquez pour télécharger</span> ou glissez-déposez</>
-                        )}
+                        {isUploading ? <span className="text-green">Upload en cours...</span> : <><span className="font-semibold text-green">Cliquez pour télécharger</span> ou glissez-déposez</>}
                     </p>
                     <p className="mt-2 text-xs text-gray">
                         {acceptedFileTypes.length ? acceptedFileTypes.join(', ') : 'Tous formats'} (max {maxSizeMB}MB)

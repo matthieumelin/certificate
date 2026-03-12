@@ -1,4 +1,4 @@
-import { useEffect, useState, type FC, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type FC, type ReactNode } from 'react'
 import PartnerCertificationReportAccessoriesModal from './Watch/Accessories';
 import PartnerCertificationReportCaseModal from './Watch/Case';
 import PartnerCertificationReportBraceletModal from './Watch/Bracelet';
@@ -81,12 +81,12 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
     const { objectAttributes } = useObjectAttributes(true, selectedCertificate?.object_id);
     const { getAllFormData, resetFormData, validationErrors, clearValidationErrors, hasErrors, loadInitialData } = useCertificateReportFormStore();
     const { validateReport } = useValidateCertificateReport(certificateTypes);
-    const { fileEntries, clearAll } = useReportFilesStore();
+    const { fileEntries, deletedPaths, clearAll } = useReportFilesStore();
     const { uploadFile } = useStorage();
 
     useEffect(() => {
         loadInitialData(objectAttributes);
-    }, [objectAttributes])
+    }, [objectAttributes]);
 
     const categories: Category[] = [
         {
@@ -289,42 +289,41 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
 
         if (error) throw error;
     };
-
     const saveObjectAttributes = async (
         objectId: number | undefined,
-        attributes: Record<string, any>
+        attributes: Record<string, any>,
+        deletedFields: string[] = []
     ) => {
-        if (!objectId || objectId === undefined) {
-            throw new Error('No object id was found.');
-        }
+        if (!objectId) throw new Error('No object id was found.');
 
         const { data: existing } = await supabase
             .from('object_attributes')
-            .select('id')
+            .select('id, attributes')
             .eq('object_id', objectId)
-            .single();
+            .maybeSingle();
 
         if (existing) {
-            const { error } = await supabase
-                .from('object_attributes')
-                .update({
-                    attributes,
-                    updated_at: new Date()
-                })
-                .eq('object_id', objectId);
+            const finalAttributes = {
+                ...(existing.attributes as Record<string, any> || {}),
+                ...attributes,
+                ...Object.fromEntries(deletedFields.map(f => [f, []])),
+            };
 
+            const { error, data } = await supabase
+                .from('object_attributes')
+                .update({ attributes: finalAttributes, updated_at: new Date() })
+                .eq('object_id', objectId)
+                .select();
+
+            console.log('update result', data, error);
             if (error) throw error;
         } else {
             const { error } = await supabase
                 .from('object_attributes')
-                .insert({
-                    object_id: objectId,
-                    attributes,
-                    updated_at: new Date()
-                });
-
+                .insert({ object_id: objectId, attributes, updated_at: new Date() });
             if (error) throw error;
         }
+
     };
 
     const uploadAllReportFiles = async (objectId: number): Promise<Record<string, string[]>> => {
@@ -378,6 +377,10 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
         try {
             const objectId = selectedCertificate.object?.id;
 
+            if (deletedPaths.length > 0) {
+                await supabase.storage.from('object_attributes').remove(deletedPaths);
+            }
+
             const uploadedPaths = await uploadAllReportFiles(objectId!);
 
             const allFormData = getAllFormData();
@@ -405,15 +408,19 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
                 status: general_object_status || ObjectStatus.Valid,
             });
 
+            const deletedImageFields = fileEntries
+                .filter(({ files, existingPaths }) => files.length === 0 && existingPaths.length === 0)
+                .map(({ fieldName }) => fieldName);
+
             const cleanedAttributes = cleanAttributes(attributes);
-            await saveObjectAttributes(objectId, cleanedAttributes);
+            await saveObjectAttributes(objectId, cleanedAttributes, deletedImageFields);
+            loadInitialData(cleanedAttributes);
+            clearAll();
 
             await updateCertificate(selectedCertificate.id, {
                 status: CertificateStatus.PendingCertification,
                 updated_at: new Date()
             });
-
-            clearAll();
 
             toast.success("Rapport sauvegardé avec succès");
             clearValidationErrors();
@@ -478,15 +485,19 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
                 surname: general_object_surname || undefined,
             });
 
+            const deletedImageFields = fileEntries
+                .filter(({ files, existingPaths }) => files.length === 0 && existingPaths.length === 0)
+                .map(({ fieldName }) => fieldName);
+
             const cleanedAttributes = cleanAttributes(attributes);
-            await saveObjectAttributes(objectId, cleanedAttributes);
+            await saveObjectAttributes(objectId, cleanedAttributes, deletedImageFields);
+            loadInitialData(cleanedAttributes);
+            clearAll();
 
             await updateCertificate(selectedCertificate.id, {
                 status: CertificateStatus.Completed,
                 completed_at: new Date()
             });
-
-            clearAll();
 
             toast.success("Rapport sauvegardé et terminé avec succès");
             resetFormData();

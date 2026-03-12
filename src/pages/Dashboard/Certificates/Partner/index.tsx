@@ -163,11 +163,13 @@ const PartnerCertificates = () => {
     };
 
     const handleCloseModal = async () => {
+        await handleRefreshData();
         setIsModalOpen(false);
-        await Promise.all([
-            mutateCertificateDrafts(),
-            mutatePartnerCertificates()
-        ]);
+    }
+
+    const handleModalSuccess = async () => {
+        await handleRefreshData();
+        setIsModalOpen(false);
     }
 
     const clearFilters = () => {
@@ -202,9 +204,8 @@ const PartnerCertificates = () => {
                 return (
                     <PartnerCertificationPaymentModal
                         certificateTypes={certificateTypes}
-                        setIsModalOpen={setIsModalOpen}
                         setIsConfirmPaymentModalOpen={setIsConfirmPaymentModalOpen}
-                        onSuccess={handleRefreshData}
+                        onSuccess={handleModalSuccess}
                     />
                 );
             default:

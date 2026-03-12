@@ -250,8 +250,7 @@ app.post("/send-inauthentic-alert", async (req, res) => {
       customerName: `${customer.first_name} ${customer.last_name}`,
       certificateType: certType?.name || "Certificat",
       certificateDetailsLink:
-        `${process.env.FRONTEND_URL}/certificate/${certificateId}` ||
-        "",
+        `${process.env.FRONTEND_URL}/certificate/${certificateId}` || "",
       objectBrand: objectBrand || "",
       objectModel: objectModel || "",
       objectReference: objectReference || "",
@@ -816,7 +815,6 @@ app.post("/create-checkout-session", async (req, res) => {
     paymentMethodId,
     createdBy,
   } = req.body;
-
   console.log("📝 Création session checkout pour draft:", draftId);
 
   if (
@@ -841,6 +839,7 @@ app.post("/create-checkout-session", async (req, res) => {
       objectReference,
       objectSerialNumber,
       certificateTypeId,
+      partnerId,
       paymentMethodId,
       createdBy,
     });

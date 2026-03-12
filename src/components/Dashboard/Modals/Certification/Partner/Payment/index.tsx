@@ -13,7 +13,6 @@ import Loading from '@/components/UI/Loading';
 
 interface PartnerCertificationPaymentModalProps {
     certificateTypes: CertificateType[];
-    setIsModalOpen: (value: boolean) => void;
     setIsConfirmPaymentModalOpen: (value: boolean) => void;
     onSuccess?: () => void;
 }
@@ -37,7 +36,6 @@ const SummaryItem: FC<SummarItemProps> = ({
 
 const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps> = ({
     certificateTypes,
-    setIsModalOpen,
     setIsConfirmPaymentModalOpen,
     onSuccess
 }) => {
@@ -98,7 +96,6 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
                     return;
                 }
             }
-
             await request('/upsert-certificate-draft', {
                 method: 'POST',
                 body: {
@@ -133,7 +130,6 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
                 }
 
                 toast.success("Certificat créé avec succès !");
-                setIsModalOpen(false);
                 clearDraft();
                 if (onSuccess) onSuccess();
             } catch (error: any) {
@@ -145,7 +141,6 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
         }
 
         if (!currentPaymentMethod!.is_online) {
-            setIsModalOpen(false);
             setIsConfirmPaymentModalOpen(true);
             return;
         }
@@ -164,6 +159,7 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
                     objectReference: draft.object_reference,
                     objectSerialNumber: draft.object_serial_number,
                     certificateTypeId: draft.certificate_type_id,
+                    partnerId: draft.created_by,
                     paymentMethodId: draft.payment_method_id,
                     createdBy: draft.created_by,
                 }
@@ -174,8 +170,6 @@ const PartnerCertificationPaymentModal: FC<PartnerCertificationPaymentModalProps
             }
 
             toast.success("Lien de paiement envoyé avec succès au client !");
-
-            setIsModalOpen(false);
             clearDraft();
 
             if (onSuccess) {

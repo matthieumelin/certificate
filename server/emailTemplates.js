@@ -57,9 +57,7 @@ export const emailTemplates = {
             customerName.split(" ")[0]
           },</p>
           <p style="font-size: 16px; color: #ffffff; line-height: 1.6;">
-            Nous avons bien reçu votre paiement de <strong>${amount.toFixed(
-              2,
-            )} €</strong> pour le certificat :<br>
+            Nous avons bien reçu votre paiement de <strong>${amount} €</strong> pour le certificat :<br>
             <strong style="font-size: 18px; color: #03AB62;">${certificateName}</strong>
           </p>
           <p style="font-size: 16px; color: #ffffff; line-height: 1.6;">

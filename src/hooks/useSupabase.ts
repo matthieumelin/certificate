@@ -1,7 +1,6 @@
-import { useCallback, useEffect, useState, type FC } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  UserProfileRole,
   type PartnerInfo,
   type UserProfile,
 } from "@/types/user.d";
@@ -1962,9 +1961,9 @@ export const useStorage = () => {
       const { data } = await supabase.storage.from(from).getPublicUrl(path);
       if (!data || !data.publicUrl) throw new Error("Public url not found");
       return data.publicUrl;
-    } catch (error) {
-      console.error("Error getting public URL:", error);
-      throw error;
+    } catch (err) {
+      console.error("Error getting public URL:", err);
+      throw err;
     }
   };
 
@@ -1982,9 +1981,9 @@ export const useStorage = () => {
       if (!data || !data.signedUrl) throw new Error("Signed url not found");
 
       return data.signedUrl;
-    } catch (error) {
-      console.error("Error getting signed URL:", error);
-      throw error;
+    } catch (err) {
+      console.error("Error getting signed URL:", err);
+      throw err;
     }
   };
 
@@ -1994,7 +1993,7 @@ export const useStorage = () => {
         .from(from)
         .upload(path, file, {
           cacheControl: "3600",
-          upsert: false,
+          upsert: true,
         });
 
       if (error) {
@@ -2008,9 +2007,9 @@ export const useStorage = () => {
       }
 
       return data;
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      throw error;
+    } catch (err) {
+      console.error("Error uploading file:", err);
+      throw err;
     }
   };
 
@@ -2024,9 +2023,9 @@ export const useStorage = () => {
         });
       if (error) throw error;
       return data;
-    } catch (error) {
-      console.error("Error updating file:", error);
-      throw error;
+    } catch (err) {
+      console.error("Error updating file:", err);
+      throw err;
     }
   };
 
@@ -2045,9 +2044,9 @@ export const useStorage = () => {
 
         window.URL.revokeObjectURL(url);
       }
-    } catch (error) {
-      console.error("Error downloading file:", error);
-      throw error;
+    } catch (err) {
+      console.error("Error downloading file:", err);
+      throw err;
     }
   };
 
@@ -2057,9 +2056,21 @@ export const useStorage = () => {
       if (error) throw error;
 
       return data;
-    } catch (error) {
-      console.error("Error deleting file:", error);
-      throw error;
+    } catch (err) {
+      console.error("Error deleting file:", err);
+      throw err;
+    }
+  };
+
+  const fileExists = async (from: string, path: string) => {
+    try {
+      const { data, error } = await supabase.storage.from(from).exists(path);
+      if (error) throw error;
+
+      return data;
+    } catch (err) {
+      console.error("Error checking if file exists:", err);
+      throw err;
     }
   };
 
@@ -2070,5 +2081,6 @@ export const useStorage = () => {
     deleteFile,
     updateFile,
     downloadFile,
+    fileExists,
   };
 };

@@ -400,9 +400,16 @@ const PartnerCertificationInspectionModal: FC<PartnerCertificationInspectionModa
                                 <FormGroup>
                                     <Label htmlFor='photos' label='Photos' required />
                                     <FileUpload
-                                        value={values.photos}
-                                        onFilesChange={(files) => {
-                                            setFieldValue('photoFiles', [...values.photoFiles, ...files]);
+                                        value={values.photoFiles}
+                                        onFilesChange={(files) => setFieldValue('photoFiles', [...values.photoFiles, ...files])}
+                                        onChange={(path, index) => {
+                                            if (index !== undefined) {
+                                                const newFiles = [...values.photoFiles];
+                                                newFiles.splice(index, 1);
+                                                setFieldValue('photoFiles', newFiles);
+                                            } else {
+                                                setFieldValue('photoFiles', []);
+                                            }
                                         }}
                                         maxFiles={5}
                                         maxSizeMB={5}

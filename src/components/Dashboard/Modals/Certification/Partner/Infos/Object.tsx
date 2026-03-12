@@ -64,7 +64,9 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
             if (draft.object_front_photo && draft.object_front_photo.length > 0) {
                 try {
                     const url = await getSignedUrl('object_photos', draft.object_front_photo[0], 3600);
-                    if (url) setPreviewUrl(url);
+                    if (url) {
+                        setPreviewUrl(url);
+                    }
                 } catch (err) {
                     console.error('Erreur chargement photo existante:', err);
                 }
@@ -136,12 +138,6 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
                 validateOnMount={false}
                 onSubmit={handleSubmit}>
                 {({ errors, values, setFieldValue, isSubmitting }) => {
-                    useEffect(() => {
-                        if (previewUrl && values.front_photo.length === 0) {
-                            setFieldValue('front_photo', ['preview']);
-                        }
-                    }, [previewUrl]);
-
                     return (
                         <Form>
                             <div className='space-y-8'>
@@ -249,7 +245,7 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
                                         <FormGroup>
                                             <Label htmlFor='front_photo' label="Photo de face (photo de référence)" required />
                                             <FileUpload
-                                                value={previewUrl ? [previewUrl] : []}
+                                                value={pendingFile ? ['pending'] : (draft.object_front_photo || [])}
                                                 onFilesChange={(files) => {
                                                     if (files.length > 0) {
                                                         handleFileChange(files[0]);
@@ -259,14 +255,14 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
                                                 onChange={(path) => {
                                                     if (path === null) {
                                                         handleFileChange(null);
-                                                        setFieldValue('front_photo', draft.object_front_photo || []);
+                                                        setFieldValue('front_photo', []);
                                                     }
                                                 }}
                                                 maxFiles={1}
                                                 maxSizeMB={5}
                                                 acceptedFileTypes={[".jpg", ".png"]}
                                                 error={Array.isArray(errors.front_photo) ? errors.front_photo[0] : errors.front_photo}
-                                                existingPreview={previewUrl}
+                                                previews={previewUrl ? [previewUrl] : []}
                                             />
                                         </FormGroup>
                                     </div>
@@ -283,7 +279,7 @@ const PartnerCertificationObjectInfosModal: FC<PartnerCertificationObjectInfosMo
                                 <Button
                                     type='submit'
                                     className='lg:w-max'
-                                    disabled={isSubmitting}>
+                                    disabled={isSubmitting || !values.front_photo.length}>
                                     Suivant <IoIosArrowForward />
                                 </Button>
                             </div>
