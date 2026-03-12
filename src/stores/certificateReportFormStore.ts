@@ -3,7 +3,7 @@ import type { FormValidationError } from "@/types/form";
 import { ObjectStatus } from "@/types/object.d";
 import { create } from "zustand";
 
-interface FormState {
+export interface FormState {
   // Accessoires
   accessories_factory: string[];
   accessories_factory_not: string[];
@@ -338,15 +338,35 @@ interface FormState {
   value_liquidity_score: number;
 }
 
+interface FileEntry {
+  fieldName: string;
+  files: File[];
+  existingPaths: string[];
+}
+
 interface CertificateReportFormStore {
+  pendingFiles: FileEntry[];
+  deletedPaths: string[];
   formData: FormState;
   validationErrors: FormValidationError[];
   updateFormData: (data: Partial<FormState>) => void;
+  setFormData: <K extends keyof FormState>(
+    field: K,
+    value: FormState[K],
+  ) => void;
   getAllFormData: () => FormState;
   resetFormData: () => void;
   loadInitialData: (data: Partial<FormState>) => void;
   setValidationErrors: (errors: FormValidationError[]) => void;
   clearValidationErrors: () => void;
+  addPendingFile: (
+    fieldName: string,
+    file: File,
+    existingPaths: string[],
+  ) => void;
+  removePendingFile: (fieldName: string, file: File) => void;
+  removeExistingPath: (fieldName: string, path: string) => void;
+  clearPendingFiles: () => void;
   hasErrors: () => boolean;
 }
 
@@ -679,6 +699,8 @@ const initialFormState: FormState = {
 
 export const useCertificateReportFormStore = create<CertificateReportFormStore>(
   (set, get) => ({
+    pendingFiles: [],
+    deletedPaths: [],
     formData: initialFormState,
     validationErrors: [],
     updateFormData: (data) => {
@@ -686,6 +708,14 @@ export const useCertificateReportFormStore = create<CertificateReportFormStore>(
         formData: {
           ...state.formData,
           ...data,
+        },
+      }));
+    },
+    setFormData: <K extends keyof FormState>(field: K, value: FormState[K]) => {
+      set((state) => ({
+        formData: {
+          ...state.formData,
+          [field]: value,
         },
       }));
     },
@@ -702,5 +732,53 @@ export const useCertificateReportFormStore = create<CertificateReportFormStore>(
     setValidationErrors: (errors) => set({ validationErrors: errors }),
     clearValidationErrors: () => set({ validationErrors: [] }),
     hasErrors: () => get().validationErrors.length > 0,
+    addPendingFile: (fieldName, file, existingPaths) => {
+      set((state) => {
+        const existing = state.pendingFiles.find(
+          (e) => e.fieldName === fieldName,
+        );
+        if (existing) {
+          return {
+            pendingFiles: state.pendingFiles.map((e) =>
+              e.fieldName === fieldName
+                ? { ...e, files: [...e.files, file] }
+                : e,
+            ),
+          };
+        }
+        return {
+          pendingFiles: [
+            ...state.pendingFiles,
+            { fieldName, files: [file], existingPaths },
+          ],
+        };
+      });
+    },
+    removePendingFile: (fieldName, file) => {
+      set((state) => ({
+        pendingFiles: state.pendingFiles.map((e) =>
+          e.fieldName === fieldName
+            ? { ...e, files: e.files.filter((f) => f !== file) }
+            : e,
+        ),
+      }));
+    },
+    removeExistingPath: (fieldName, path) => {
+      set((state) => ({
+        deletedPaths: [...state.deletedPaths, path],
+        formData: {
+          ...state.formData,
+          [fieldName]: (
+            state.formData[fieldName as keyof FormState] as string[]
+          ).filter((p) => p !== path),
+        },
+        pendingFiles: state.pendingFiles.map((e) =>
+          e.fieldName === fieldName
+            ? { ...e, existingPaths: e.existingPaths.filter((p) => p !== path) }
+            : e,
+        ),
+      }));
+    },
+    clearPendingFiles: () => set({ pendingFiles: [], deletedPaths: [] }),
   }),
 );

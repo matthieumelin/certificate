@@ -33,6 +33,8 @@ const PartnerCertificationReportDocumentsModal: FC<PartnerCertificationReportDoc
 
     const [objectDocuments, setObjectDocuments] = useState<ObjectDocument[]>([]);
 
+    const [docPreviews, setDocPreviews] = useState<Record<number, string[]>>({});
+
     const documentTypes = [
         { value: ObjectDocumentType.WarrantyCard, label: 'Carte de garantie' },
         { value: ObjectDocumentType.OriginInvoice, label: "Facture d'origine" },
@@ -271,30 +273,36 @@ const PartnerCertificationReportDocumentsModal: FC<PartnerCertificationReportDoc
 
                                                                         {doc.type && remainingSlots > 0 && (
                                                                             <FileUpload
-                                                                                bucketName="object_attributes"
-                                                                                uploadPath={`objects/${selectedCertificate?.object_id}`}
-                                                                                value={doc.paths}
-                                                                                onChange={(path) => {
-                                                                                    if (path === null) {
-                                                                                        setFieldValue(`documents.${index}.paths`, []);
-                                                                                        return;
-                                                                                    }
+                                                                                previews={docPreviews[index] || []}
+                                                                                onFilesChange={async (files) => {
+                                                                                    if (!files.length) return;
+                                                                                    const file = files[0];
 
                                                                                     const filesInOtherDocs = values.documents
                                                                                         .filter((_, i) => i !== index)
                                                                                         .reduce((acc, d) => acc + d.paths.length, 0);
-
                                                                                     const newTotal = objectDocuments.length + filesInOtherDocs + doc.paths.length + 1;
-
                                                                                     if (newTotal > documentsLimit) {
                                                                                         toast.error(`Limite de ${documentsLimit} fichiers atteinte`);
                                                                                         return;
                                                                                     }
 
-                                                                                    setFieldValue(`documents.${index}.paths`, [...doc.paths, path]);
+                                                                                    const path = `objects/${selectedCertificate?.object_id}/${Date.now()}_${file.name}`;
+                                                                                    const { data, error } = await supabase.storage
+                                                                                        .from('object_attributes')
+                                                                                        .upload(path, file);
+
+                                                                                    if (error) { toast.error("Erreur lors de l'upload"); return; }
+
+                                                                                    setDocPreviews(prev => ({
+                                                                                        ...prev,
+                                                                                        [index]: [...(prev[index] || []), URL.createObjectURL(file)]
+                                                                                    }));
+                                                                                    setFieldValue(`documents.${index}.paths`, [...doc.paths, data.path]);
                                                                                 }}
-                                                                                maxSizeMB={5}
+                                                                                onRemove={() => setFieldValue(`documents.${index}.paths`, [])}
                                                                                 maxFiles={1}
+                                                                                maxSizeMB={5}
                                                                                 acceptedFileTypes={[".pdf", ".png", ".jpg", ".docx"]}
                                                                             />
                                                                         )}

@@ -1,4 +1,4 @@
-import { type FC, useRef } from 'react'
+import { type FC, useRef, useState } from 'react'
 import { toast } from 'react-toastify';
 import { Form, Formik, type FormikProps } from 'formik';
 import Select from '@/components/UI/Form/Select';
@@ -119,6 +119,8 @@ const PartnerCertificationInspectionModal: FC<PartnerCertificationInspectionModa
     const { createCertificateInspection } = useCertificateInspections();
     const { request } = useApi();
     const { uploadFile } = useStorage();
+
+    const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
 
     const formRef = useRef<FormikProps<FormValues>>(null);
 
@@ -400,16 +402,17 @@ const PartnerCertificationInspectionModal: FC<PartnerCertificationInspectionModa
                                 <FormGroup>
                                     <Label htmlFor='photos' label='Photos' required />
                                     <FileUpload
-                                        value={values.photoFiles}
-                                        onFilesChange={(files) => setFieldValue('photoFiles', [...values.photoFiles, ...files])}
-                                        onChange={(path, index) => {
-                                            if (index !== undefined) {
-                                                const newFiles = [...values.photoFiles];
-                                                newFiles.splice(index, 1);
-                                                setFieldValue('photoFiles', newFiles);
-                                            } else {
-                                                setFieldValue('photoFiles', []);
-                                            }
+                                        previews={photoPreviews}
+                                        onFilesChange={(files) => {
+                                            setPhotoPreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
+                                            setFieldValue('photoFiles', [...values.photoFiles, ...files]);
+                                        }}
+                                        onRemove={(index) => {
+                                            if (index === undefined) return;
+                                            setPhotoPreviews(prev => prev.filter((_, i) => i !== index));
+                                            const newFiles = [...values.photoFiles];
+                                            newFiles.splice(index, 1);
+                                            setFieldValue('photoFiles', newFiles);
                                         }}
                                         maxFiles={5}
                                         maxSizeMB={5}

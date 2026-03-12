@@ -107,6 +107,7 @@ export interface CertificateType {
   physical: boolean;
   is_active: boolean;
   is_recommended: boolean;
+  required_report_form_fields: string[];
   excluded_report_form_fields: string[];
   goal: string;
   report_limits: CertificateTypeReportLimits;

@@ -547,7 +547,11 @@ const PartnerCertificationReportBraceletModal: FC<PartnerCertificationReportBrac
                                                             required />
 
                                                         <FileUpload
-                                                            {...braceletImagesProps}
+                                                            previews={braceletImagesProps.previews}
+                                                            onFilesChange={braceletImagesProps.handleFiles}
+                                                            onRemove={braceletImagesProps.removeFile}
+                                                            isUploading={braceletImagesProps.isUploading}
+                                                            fieldName='bracelet_images'
                                                             acceptedFileTypes={[".jpg", ".png"]}
                                                             maxFiles={certificateType?.report_limits?.max_photos_per_section || 5}
                                                         />

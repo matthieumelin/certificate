@@ -131,7 +131,11 @@ const PartnerCertificationReportTechnicalWaterproofingModal: FC<PartnerCertifica
                                         <FormGroup>
                                             <Label htmlFor='technical_waterproofing_test_result' label='Résultat du test' />
                                             <FileUpload
-                                                {...waterproofingTestResultProps}
+                                                previews={waterproofingTestResultProps.previews}
+                                                onFilesChange={waterproofingTestResultProps.handleFiles}
+                                                onRemove={waterproofingTestResultProps.removeFile}
+                                                isUploading={waterproofingTestResultProps.isUploading}
+                                                fieldName='technical_waterproofing_test_result'
                                                 acceptedFileTypes={[".jpg", ".png"]}
                                                 maxFiles={1}
                                             />

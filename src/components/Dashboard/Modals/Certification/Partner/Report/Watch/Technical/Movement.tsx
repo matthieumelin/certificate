@@ -129,7 +129,11 @@ const PartnerCertificationReportTechnicalMovementModal: FC<PartnerCertificationR
                                         <FormGroup>
                                             <Label htmlFor='technical_movement_test_result' label='Résultat du test (ticket de réglage)' required />
                                             <FileUpload
-                                                {...technicalMovementTestResultProps}
+                                                previews={technicalMovementTestResultProps.previews}
+                                                onFilesChange={technicalMovementTestResultProps.handleFiles}
+                                                onRemove={technicalMovementTestResultProps.removeFile}
+                                                isUploading={technicalMovementTestResultProps.isUploading}
+                                                fieldName='technical_movement_test_result'
                                                 acceptedFileTypes={[".png", ".jpg", ".pdf", ".doc", ".docx"]}
                                                 maxFiles={1}
                                             />

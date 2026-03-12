@@ -522,7 +522,11 @@ const PartnerCertificationReportCaseModal: FC<PartnerCertificationReportCaseModa
                                                 required />
 
                                             <FileUpload
-                                                {...caseImagesProps}
+                                                previews={caseImagesProps.previews}
+                                                onFilesChange={caseImagesProps.handleFiles}
+                                                onRemove={caseImagesProps.removeFile}
+                                                isUploading={caseImagesProps.isUploading}
+                                                fieldName='case_images'
                                                 acceptedFileTypes={[".jpg", ".png"]}
                                                 maxFiles={certificateType?.report_limits?.max_photos_per_section || 5}
                                             />

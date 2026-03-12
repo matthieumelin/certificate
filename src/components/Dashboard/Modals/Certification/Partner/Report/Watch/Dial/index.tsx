@@ -589,7 +589,11 @@ const PartnerCertificationReportDialModal: FC<PartnerCertificationReportDialModa
                                                     required />
 
                                                 <FileUpload
-                                                    {...dialImagesProps}
+                                                    previews={dialImagesProps.previews}
+                                                    onFilesChange={dialImagesProps.handleFiles}
+                                                    onRemove={dialImagesProps.removeFile}
+                                                    isUploading={dialImagesProps.isUploading}
+                                                    fieldName='dial_images'
                                                     acceptedFileTypes={[".jpg", ".png"]}
                                                     maxFiles={certificateType?.report_limits?.max_photos_per_section || 5}
                                                 />

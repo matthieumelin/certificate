@@ -140,7 +140,7 @@ const FormSelect: FC<FormSelectProps> = ({
 
     return (
         <div className='space-y-1 h-full'>
-            <div className={`relative h-full ${className}`} ref={dropdownRef}>
+            <div className={`relative h-max ${className}`} ref={dropdownRef}>
                 <button
                     type='button'
                     id={id}

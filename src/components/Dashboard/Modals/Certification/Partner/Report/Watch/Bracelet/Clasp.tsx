@@ -472,7 +472,11 @@ const PartnerCertificationReportBraceletClaspModal: FC<PartnerCertificationRepor
                                                         label="Photos du fermoir"
                                                         required />
                                                     <FileUpload
-                                                        {...braceletClaspImagesProps}
+                                                        previews={braceletClaspImagesProps.previews}
+                                                        onFilesChange={braceletClaspImagesProps.handleFiles}
+                                                        onRemove={braceletClaspImagesProps.removeFile}
+                                                        isUploading={braceletClaspImagesProps.isUploading}
+                                                        fieldName='bracelet_clasp_images'
                                                         acceptedFileTypes={[".jpg", ".png"]}
                                                         maxFiles={certificateType?.report_limits?.max_photos_per_section || 5}
                                                     />

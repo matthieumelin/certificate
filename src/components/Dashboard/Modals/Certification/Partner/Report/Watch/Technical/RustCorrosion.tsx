@@ -94,7 +94,11 @@ const PartnerCertificationReportTechnicalRustCorrosionModal: FC<PartnerCertifica
                                             label="Photos de la corrosion" />
 
                                         <FileUpload
-                                            {...rustCorrosionImagesProps}
+                                            previews={rustCorrosionImagesProps.previews}
+                                            onFilesChange={rustCorrosionImagesProps.handleFiles}
+                                            onRemove={rustCorrosionImagesProps.removeFile}
+                                            isUploading={rustCorrosionImagesProps.isUploading}
+                                            fieldName='technical_rust_corrosion_images'
                                             acceptedFileTypes={[".jpg", ".png"]}
                                             maxFiles={certificateType?.report_limits?.max_photos_per_section || 5}
                                         />

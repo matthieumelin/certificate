@@ -6,7 +6,7 @@ import { createValidationSchema } from "@/validations/certificate/partner/report
 import { ValidationError } from "yup";
 
 const useValidateCertificateReport = (certificateTypes: CertificateType[]) => {
-  const { getAllFormData, setValidationErrors } =
+  const { getAllFormData, setValidationErrors, pendingFiles } =
     useCertificateReportFormStore();
   const { selectedCertificate } = useCertificateStore();
 
@@ -40,12 +40,25 @@ const useValidateCertificateReport = (certificateTypes: CertificateType[]) => {
     const rawFormData = getAllFormData();
     const formData = normalizeFormData(rawFormData);
 
+    for (const entry of pendingFiles) {
+      const existing = (formData[entry.fieldName] as string[]) ?? [];
+      formData[entry.fieldName] = [
+        ...existing,
+        ...entry.files.map((f) => f.name),
+      ];
+    }
+
     const certificateType = certificateTypes.find(
-      (type) => type.id === selectedCertificate?.certificate_type_id
+      (type) => type.id === selectedCertificate?.certificate_type_id,
     );
     const excludedFields = certificateType?.excluded_report_form_fields || [];
+    const requiredFormFields =
+      certificateType?.required_report_form_fields || [];
 
-    const validationSchema = createValidationSchema(excludedFields);
+    const validationSchema = createValidationSchema(
+      excludedFields,
+      requiredFormFields,
+    );
 
     try {
       await validationSchema.validate(formData, { abortEarly: false });
@@ -64,7 +77,7 @@ const useValidateCertificateReport = (certificateTypes: CertificateType[]) => {
               message: error.message,
               section: section,
             };
-          }
+          },
         );
 
         setValidationErrors(validationErrors);

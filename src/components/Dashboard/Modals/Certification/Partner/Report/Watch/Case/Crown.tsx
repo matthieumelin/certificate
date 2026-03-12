@@ -210,7 +210,11 @@ const PartnerCertificationReportCaseCrownModal: FC<PartnerCertificationReportCas
                                     <FormGroup>
                                         <Label htmlFor="case_crown_images" label="Photos de la couronne" required />
                                         <FileUpload
-                                            {...caseCrownImagesProps}
+                                            previews={caseCrownImagesProps.previews}
+                                            onFilesChange={caseCrownImagesProps.handleFiles}
+                                            onRemove={caseCrownImagesProps.removeFile}
+                                            isUploading={caseCrownImagesProps.isUploading}
+                                            fieldName='case_crown_images'
                                             acceptedFileTypes={[".jpg", ".png"]}
                                         />
                                     </FormGroup>
@@ -327,7 +331,11 @@ const PartnerCertificationReportCaseCrownModal: FC<PartnerCertificationReportCas
                                                 <FormGroup>
                                                     <Label htmlFor="case_crown_pusher_images" label="Photos des poussoirs" required />
                                                     <FileUpload
-                                                        {...caseCrownPusherImagesProps}
+                                                        previews={caseCrownPusherImagesProps.previews}
+                                                        onFilesChange={caseCrownPusherImagesProps.handleFiles}
+                                                        onRemove={caseCrownPusherImagesProps.removeFile}
+                                                        isUploading={caseCrownPusherImagesProps.isUploading}
+                                                        fieldName='case_crown_pusher_images'
                                                         acceptedFileTypes={[".jpg", ".png"]}
                                                         maxFiles={certificateType?.report_limits?.max_photos_per_section || 5}
                                                     />

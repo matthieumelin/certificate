@@ -270,11 +270,16 @@ const PartnerCertificationReportCaseBackModal: FC<PartnerCertificationReportCase
 
                                 {!certificateTypeExcludedFormFields?.includes("case_back_images") && (
                                     <FormGroup>
-                                        <Label htmlFor="case_back_images" label="Photos du fond" />
+                                        <Label htmlFor="case_back_images" label="Photos du fond"
+                                            required={certificateType?.required_report_form_fields?.includes("case_back_images")} />
                                         <FileUpload
-                                            {...caseBackImagesProps}
+                                            previews={caseBackImagesProps.previews}
+                                            onFilesChange={caseBackImagesProps.handleFiles}
+                                            onRemove={caseBackImagesProps.removeFile}
+                                            isUploading={caseBackImagesProps.isUploading}
+                                            fieldName="case_back_images"
+                                            maxFiles={5}
                                             acceptedFileTypes={[".jpg", ".png"]}
-                                            maxFiles={certificateType?.report_limits?.max_photos_per_section || 5}
                                         />
                                     </FormGroup>
                                 )}

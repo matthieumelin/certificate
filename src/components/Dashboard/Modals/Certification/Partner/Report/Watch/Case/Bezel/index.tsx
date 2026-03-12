@@ -339,7 +339,11 @@ const PartnerCertificationReportCaseBezelModal: FC<PartnerCertificationReportCas
                                         <FormGroup>
                                             <Label htmlFor="case_bezel_images" label="Photos de la lunette" required />
                                             <FileUpload
-                                                {...caseBezelImagesProps}
+                                                previews={caseBezelImagesProps.previews}
+                                                onFilesChange={caseBezelImagesProps.handleFiles}
+                                                onRemove={caseBezelImagesProps.removeFile}
+                                                isUploading={caseBezelImagesProps.isUploading}
+                                                fieldName='case_bezel_images'
                                                 acceptedFileTypes={[".jpg", ".png"]}
                                                 maxFiles={certificateType?.report_limits?.max_photos_per_section || 5}
                                             />

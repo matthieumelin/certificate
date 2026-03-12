@@ -27,6 +27,7 @@ export const requiredFields = {
     "case_back_material",
     "case_back_factory",
     "case_back_score",
+    "case_back_images",
   ],
   case_crown: [
     "case_crown_type",
@@ -138,7 +139,10 @@ export const requiredFields = {
   documents: ["documents"],
 };
 
-export const createValidationSchema = (excludedFields: string[] = []) => {
+export const createValidationSchema = (
+  excludedFields: string[] = [],
+  requiredFields: string[] = [],
+) => {
   const schema: Record<string, any> = {};
 
   const isFieldRequired = (fieldName: string) =>
@@ -174,15 +178,22 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
   }
 
   if (isFieldRequired("accessories_score")) {
-    schema.accessories_score = Yup.number()
-      .required("Le score des accessoires est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+    schema.accessories_score = Yup.number().when("accessories_factory", {
+      is: (val: string[]) => Array.isArray(val) && val.includes("Aucun"),
+      then: (s) => s.notRequired(),
+      otherwise: (s) =>
+        s.required("Le score des accessoires est requis").min(0).max(10),
+    });
   }
   if (isFieldRequired("accessories_images")) {
-    schema.accessories_images = Yup.array()
-      .min(1, "Au moins une image des accessoires est requise")
-      .required("Les images des accessoires sont requises");
+    schema.accessories_images = Yup.array().when("accessories_factory", {
+      is: (val: string[]) => Array.isArray(val) && val.includes("Aucun"),
+      then: (s) => s.notRequired(),
+      otherwise: (s) =>
+        s
+          .min(1, "Au moins une image des accessoires est requise")
+          .required("Les images des accessoires sont requises"),
+    });
   }
 
   if (isFieldRequired("case_shape")) {
@@ -206,7 +217,7 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
     );
   }
   if (isFieldRequired("case_material")) {
-    schema.case_material = Yup.string().required(
+    schema.case_material = Yup.mixed().required(
       "Le matériau du boîtier est requis",
     );
   }
@@ -238,12 +249,12 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
   }
 
   if (isFieldRequired("case_back_type")) {
-    schema.case_back_type = Yup.string().required(
+    schema.case_back_type = Yup.mixed().required(
       "Le type de fond de boîte est requis",
     );
   }
   if (isFieldRequired("case_back_material")) {
-    schema.case_back_material = Yup.string().required(
+    schema.case_back_material = Yup.mixed().required(
       "Le matériau du fond de boîte est requis",
     );
   }
@@ -258,9 +269,14 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
       .min(0, "Le score doit être entre 0 et 10")
       .max(10, "Le score doit être entre 0 et 10");
   }
+  if (requiredFields.includes("case_back_images")) {
+    schema.case_back_images = Yup.array()
+      .min(1, "Au moins une image du fond de boîte est requise")
+      .required("Les images du fond de boîte sont requises");
+  }
 
   if (isFieldRequired("case_crown_type")) {
-    schema.case_crown_type = Yup.string().required(
+    schema.case_crown_type = Yup.mixed().required(
       "Le type de couronne est requis",
     );
   }
@@ -298,12 +314,12 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
   }
 
   if (isFieldRequired("case_bezel_type")) {
-    schema.case_bezel_type = Yup.string().required(
+    schema.case_bezel_type = Yup.mixed().required(
       "Le type de lunette est requis",
     );
   }
   if (isFieldRequired("case_bezel_material")) {
-    schema.case_bezel_material = Yup.string().required(
+    schema.case_bezel_material = Yup.mixed().required(
       "Le matériau de la lunette est requis",
     );
   }
@@ -335,7 +351,7 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
   }
 
   if (isFieldRequired("case_bezel_insert_material")) {
-    schema.case_bezel_insert_material = Yup.string().required(
+    schema.case_bezel_insert_material = Yup.mixed().required(
       "Le matériau de l'insert est requis",
     );
   }
@@ -352,7 +368,7 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
   }
 
   if (isFieldRequired("case_glass_material")) {
-    schema.case_glass_material = Yup.string().required(
+    schema.case_glass_material = Yup.mixed().required(
       "Le matériau du verre est requis",
     );
   }
@@ -373,52 +389,71 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
       "Le type de bracelet est requis",
     );
   }
-
   if (isFieldRequired("bracelet_diameter.length")) {
     schema.bracelet_diameter = Yup.object().shape({
-      length: Yup.string().required("La longueur du bracelet est requise"),
-    });
-  }
-  if (isFieldRequired("bracelet_diameter.width")) {
-    schema.bracelet_diameter = Yup.object().shape({
-      width: Yup.string().required("La largeur du bracelet est requise"),
-    });
-  }
-  if (isFieldRequired("bracelet_diameter.thickness")) {
-    schema.bracelet_diameter = Yup.object().shape({
-      thickness: Yup.string().required("L'épaisseur du bracelet est requise"),
+      length: Yup.string().when("$bracelet_type", {
+        is: "Aucun",
+        then: (s) => s.notRequired(),
+        otherwise: (s) => s.required("La longueur du bracelet est requise"),
+      }),
+      width: Yup.string().when("$bracelet_type", {
+        is: "Aucun",
+        then: (s) => s.notRequired(),
+        otherwise: (s) => s.required("La largeur du bracelet est requise"),
+      }),
+      thickness: Yup.string().when("$bracelet_type", {
+        is: "Aucun",
+        then: (s) => s.notRequired(),
+        otherwise: (s) => s.required("L'épaisseur du bracelet est requise"),
+      }),
     });
   }
   if (isFieldRequired("bracelet_material")) {
-    schema.bracelet_material = Yup.string().required(
-      "Le matériau du bracelet est requis",
-    );
+    schema.bracelet_material = Yup.mixed().when("bracelet_type", {
+      is: "Aucun",
+      then: (s) => s.notRequired(),
+      otherwise: (s) => s.required("Le matériau du bracelet est requis"),
+    });
   }
   if (isFieldRequired("bracelet_factory")) {
-    schema.bracelet_factory = Yup.string().required(
-      "L'origine du bracelet est requise",
-    );
+    schema.bracelet_factory = Yup.string().when("bracelet_type", {
+      is: "Aucun",
+      then: (s) => s.notRequired(),
+      otherwise: (s) => s.required("L'origine du bracelet est requise"),
+    });
   }
   if (isFieldRequired("bracelet_setting")) {
-    schema.bracelet_setting = Yup.string().required(
-      "Le sertissage du bracelet est requis",
-    );
+    schema.bracelet_setting = Yup.string().when("bracelet_type", {
+      is: "Aucun",
+      then: (s) => s.notRequired(),
+      otherwise: (s) => s.required("Le sertissage du bracelet est requis"),
+    });
   }
   if (isFieldRequired("bracelet_setting_type")) {
-    schema.bracelet_setting_type = Yup.string().required(
-      "Le type de sertissage du bracelet est requis",
-    );
+    schema.bracelet_setting_type = Yup.string().when("bracelet_type", {
+      is: "Aucun",
+      then: (s) => s.notRequired(),
+      otherwise: (s) =>
+        s.required("Le type de sertissage du bracelet est requis"),
+    });
   }
   if (isFieldRequired("bracelet_score")) {
-    schema.bracelet_score = Yup.number()
-      .required("Le score du bracelet est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+    schema.bracelet_score = Yup.number().when("bracelet_type", {
+      is: "Aucun",
+      then: (s) => s.notRequired(),
+      otherwise: (s) =>
+        s.required("Le score du bracelet est requis").min(0).max(10),
+    });
   }
   if (isFieldRequired("bracelet_images")) {
-    schema.bracelet_images = Yup.array()
-      .min(1, "Au moins une image du bracelet est requise")
-      .required("Les images du bracelet sont requises");
+    schema.bracelet_images = Yup.array().when("bracelet_type", {
+      is: "Aucun",
+      then: (s) => s.notRequired(),
+      otherwise: (s) =>
+        s
+          .min(1, "Au moins une image du bracelet est requise")
+          .required("Les images du bracelet sont requises"),
+    });
   }
 
   if (isFieldRequired("bracelet_clasp_type")) {
@@ -427,35 +462,54 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
     );
   }
   if (isFieldRequired("bracelet_clasp_material")) {
-    schema.bracelet_clasp_material = Yup.string().required(
-      "Le matériau du fermoir est requis",
-    );
+    schema.bracelet_clasp_material = Yup.mixed().when("bracelet_clasp_type", {
+      is: "Aucun",
+      then: (s) => s.notRequired(),
+      otherwise: (s) => s.required("Le matériau du fermoir est requis"),
+    });
   }
   if (isFieldRequired("bracelet_clasp_factory")) {
-    schema.bracelet_clasp_factory = Yup.string().required(
-      "L'origine du fermoir est requise",
-    );
+    schema.bracelet_clasp_factory = Yup.string().when("bracelet_clasp_type", {
+      is: "Aucun",
+      then: (s) => s.notRequired(),
+      otherwise: (s) => s.required("L'origine du fermoir est requise"),
+    });
   }
   if (isFieldRequired("bracelet_clasp_setting")) {
-    schema.bracelet_clasp_setting = Yup.string().required(
-      "Le sertissage du fermoir est requis",
-    );
+    schema.bracelet_clasp_setting = Yup.string().when("bracelet_clasp_type", {
+      is: "Aucun",
+      then: (s) => s.notRequired(),
+      otherwise: (s) => s.required("Le sertissage du fermoir est requis"),
+    });
   }
   if (isFieldRequired("bracelet_clasp_setting_type")) {
-    schema.bracelet_clasp_setting_type = Yup.string().required(
-      "Le type de sertissage du fermoir est requis",
+    schema.bracelet_clasp_setting_type = Yup.string().when(
+      "bracelet_clasp_type",
+      {
+        is: "Aucun",
+        then: (s) => s.notRequired(),
+        otherwise: (s) =>
+          s.required("Le type de sertissage du fermoir est requis"),
+      },
     );
   }
   if (isFieldRequired("bracelet_clasp_score")) {
-    schema.bracelet_clasp_score = Yup.number()
-      .required("Le score du fermoir est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+    schema.bracelet_clasp_score = Yup.number().when("bracelet_clasp_type", {
+      is: "Aucun",
+      then: (s) => s.notRequired(),
+      otherwise: (s) =>
+        s.required("Le score du fermoir est requis").min(0).max(10),
+    });
   }
   if (isFieldRequired("bracelet_clasp_images")) {
-    schema.bracelet_clasp_images = Yup.array()
-      .min(1, "Au moins une image du fermoir est requise")
-      .required("Les images du fermoir sont requises");
+    schema.bracelet_clasp_images = Yup.array().when("bracelet_clasp_type", {
+      is: "Aucun",
+      then: (s) => s.notRequired(),
+      otherwise: (s) =>
+        s
+          .min(1, "Au moins une image du fermoir est requise")
+          .required("Les images du fermoir sont requises"),
+    });
   }
 
   if (isFieldRequired("bracelet_link_pump_type")) {
@@ -511,12 +565,10 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
   }
 
   if (isFieldRequired("dial_index_type")) {
-    schema.dial_index_type = Yup.string().required(
-      "Le type d'index est requis",
-    );
+    schema.dial_index_type = Yup.mixed().required("Le type d'index est requis");
   }
   if (isFieldRequired("dial_index_style")) {
-    schema.dial_index_style = Yup.string().required(
+    schema.dial_index_style = Yup.mixed().required(
       "Le style d'index est requis",
     );
   }
@@ -549,12 +601,12 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
   }
 
   if (isFieldRequired("dial_hands_type")) {
-    schema.dial_hands_type = Yup.string().required(
+    schema.dial_hands_type = Yup.mixed().required(
       "Le type d'aiguilles est requis",
     );
   }
   if (isFieldRequired("dial_hands_style")) {
-    schema.dial_hands_style = Yup.string().required(
+    schema.dial_hands_style = Yup.mixed().required(
       "Le style d'aiguilles est requis",
     );
   }
@@ -592,7 +644,7 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
     );
   }
   if (isFieldRequired("movement_functions")) {
-    schema.movement_functions = Yup.string().required(
+    schema.movement_functions = Yup.mixed().required(
       "Les fonctions du mouvement sont requises",
     );
   }
@@ -676,7 +728,7 @@ export const createValidationSchema = (excludedFields: string[] = []) => {
   }
 
   if (isFieldRequired("technical_joint_presents")) {
-    schema.technical_joint_presents = Yup.string().required(
+    schema.technical_joint_presents = Yup.mixed().required(
       "La présence des joints est requise",
     );
   }

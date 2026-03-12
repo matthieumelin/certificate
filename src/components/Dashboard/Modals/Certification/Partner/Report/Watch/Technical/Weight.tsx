@@ -124,7 +124,11 @@ const PartnerCertificationReportTechnicalWeightModal: FC<PartnerCertificationRep
                                                     label="Photos des poids" />
 
                                                 <FileUpload
-                                                    {...weightImagesProps}
+                                                    previews={weightImagesProps.previews}
+                                                    onFilesChange={weightImagesProps.handleFiles}
+                                                    onRemove={weightImagesProps.removeFile}
+                                                    isUploading={weightImagesProps.isUploading}
+                                                    fieldName='technical_weight_images'
                                                     acceptedFileTypes={[".jpg", ".png"]}
                                                     maxFiles={certificateType?.report_limits?.max_photos_per_section || 5}
                                                 />

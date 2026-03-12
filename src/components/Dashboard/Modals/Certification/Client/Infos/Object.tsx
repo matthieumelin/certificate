@@ -279,24 +279,21 @@ const ClientCertificationObjectInfosModal: FC<ClientCertificationObjectInfosModa
                                         <FormGroup>
                                             <Label htmlFor='front_photo' label="Photo de face (photo de référence)" required />
                                             <FileUpload
-                                                value={[]}
+                                                previews={previewUrl ? [previewUrl] : []}
                                                 onFilesChange={(files) => {
                                                     if (files.length > 0) {
                                                         handleFileChange(files[0]);
                                                         setFieldValue('front_photo', ['pending']);
                                                     }
                                                 }}
-                                                onChange={(path) => {
-                                                    if (path === null) {
-                                                        handleFileChange(null);
-                                                        setFieldValue('front_photo', draft.object_front_photo || []);
-                                                    }
+                                                onRemove={() => {
+                                                    handleFileChange(null);
+                                                    setFieldValue('front_photo', []);
                                                 }}
                                                 maxFiles={1}
                                                 maxSizeMB={5}
                                                 acceptedFileTypes={[".jpg", ".png"]}
                                                 error={Array.isArray(errors.front_photo) ? errors.front_photo[0] : errors.front_photo}
-                                                existingPreview={previewUrl}
                                             />
                                         </FormGroup>
                                     </div>

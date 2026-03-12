@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FC, type ReactNode } from 'react'
+import { useEffect, useState, type FC, type ReactNode } from 'react'
 import PartnerCertificationReportAccessoriesModal from './Watch/Accessories';
 import PartnerCertificationReportCaseModal from './Watch/Case';
 import PartnerCertificationReportBraceletModal from './Watch/Bracelet';
@@ -45,8 +45,6 @@ import { useCertificates, useObjectAttributes, useStorage } from '@/hooks/useSup
 import { Button } from '@/components/UI/Button';
 import Alert from '@/components/UI/Alert';
 import { useCertificateStore } from '@/stores/certificateStore';
-import { useReportFilesStore } from '@/stores/reportFilesStore';
-import { normalizeFileName } from '@/helpers/file';
 
 interface SubCategory {
     id: string;
@@ -79,9 +77,8 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
     const { selectedCertificate } = useCertificateStore();
     const { updateCertificate } = useCertificates(false);
     const { objectAttributes } = useObjectAttributes(true, selectedCertificate?.object_id);
-    const { getAllFormData, resetFormData, validationErrors, clearValidationErrors, hasErrors, loadInitialData } = useCertificateReportFormStore();
+    const { pendingFiles, deletedPaths, getAllFormData, resetFormData, clearPendingFiles, clearValidationErrors, hasErrors, loadInitialData } = useCertificateReportFormStore();
     const { validateReport } = useValidateCertificateReport(certificateTypes);
-    const { fileEntries, deletedPaths, clearAll } = useReportFilesStore();
     const { uploadFile } = useStorage();
 
     useEffect(() => {
@@ -263,39 +260,60 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
         return cleaned;
     };
 
-    const saveObjectData = async (
-        objectId: number | undefined,
-        objectData: {
-            brand?: string;
-            model?: string;
-            reference?: string;
-            serial_number?: string;
-            year_manufacture?: number;
-            surname?: string;
-            status?: ObjectStatus;
-        }
-    ) => {
-        if (!objectId || objectId === undefined) {
-            throw new Error('No object id was found.');
+    const saveReportData = async (markCompleted: boolean) => {
+        const objectId = selectedCertificate?.object?.id!
+
+        if (deletedPaths.length > 0) {
+            await supabase.storage.from('object_attributes').remove(deletedPaths);
         }
 
-        const { error } = await supabase
-            .from('objects')
+        const uploadedPaths: Record<string, string[]> = {};
+        for (const entry of pendingFiles) {
+            if (!entry.files.length) continue;
+            uploadedPaths[entry.fieldName] = [];
+            for (let i = 0; i < entry.files.length; i++) {
+                const file = entry.files[i];
+                const path = `${objectId}/${entry.fieldName}/${Date.now()}_${i}_${file.name}`;
+                const result = await uploadFile('object_attributes', path, file);
+                uploadedPaths[entry.fieldName].push(result.path);
+            }
+        }
+
+        const formData = getAllFormData();
+        const mergedFormData: Record<string, any> = { ...formData };
+        for (const [field, paths] of Object.entries(uploadedPaths)) {
+            if (paths.length) mergedFormData[field] = paths;
+        }
+
+        const {
+            general_object_brand,
+            general_object_model,
+            general_object_reference,
+            general_object_serial_number,
+            general_object_year,
+            general_object_surname,
+            general_object_status,
+            ...attributes
+        } = mergedFormData;
+
+        await supabase.from('objects')
             .update({
-                ...objectData,
+                brand: general_object_brand || undefined,
+                model: general_object_model || undefined,
+                reference: general_object_reference || undefined,
+                serial_number: general_object_serial_number || undefined,
+                year_manufacture: general_object_year || undefined,
+                surname: general_object_surname || undefined,
+                status: general_object_status || ObjectStatus.Valid,
                 updated_at: new Date()
             })
             .eq('id', objectId);
 
-        if (error) throw error;
-    };
-    const saveObjectAttributes = async (
-        objectId: number | undefined,
-        attributes: Record<string, any>,
-        deletedFields: string[] = []
-    ) => {
-        if (!objectId) throw new Error('No object id was found.');
+        const deletedImageFields = pendingFiles
+            .filter(({ files, existingPaths }) => files.length === 0 && existingPaths.length === 0)
+            .map(({ fieldName }) => fieldName);
 
+        const cleanedAttributes = cleanAttributes(attributes);
         const { data: existing } = await supabase
             .from('object_attributes')
             .select('id, attributes')
@@ -305,127 +323,37 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
         if (existing) {
             const finalAttributes = {
                 ...(existing.attributes as Record<string, any> || {}),
-                ...attributes,
-                ...Object.fromEntries(deletedFields.map(f => [f, []])),
+                ...cleanedAttributes,
+                ...Object.fromEntries(deletedImageFields.map(f => [f, []])),
             };
-
-            const { error, data } = await supabase
-                .from('object_attributes')
+            await supabase.from('object_attributes')
                 .update({ attributes: finalAttributes, updated_at: new Date() })
-                .eq('object_id', objectId)
-                .select();
-
-            console.log('update result', data, error);
-            if (error) throw error;
+                .eq('object_id', objectId);
         } else {
-            const { error } = await supabase
-                .from('object_attributes')
-                .insert({ object_id: objectId, attributes, updated_at: new Date() });
-            if (error) throw error;
+            await supabase.from('object_attributes')
+                .insert({ object_id: objectId, attributes: cleanedAttributes, updated_at: new Date() });
         }
 
-    };
+        await updateCertificate(selectedCertificate?.id!, {
+            status: markCompleted ? CertificateStatus.Completed : CertificateStatus.PendingCertification,
+            completed_at: markCompleted ? new Date() : undefined,
+            updated_at: new Date(),
+        });
 
-    const uploadAllReportFiles = async (objectId: number): Promise<Record<string, string[]>> => {
-        const uploadedPaths: Record<string, string[]> = {};
-
-        await Promise.all(
-            fileEntries.map(async ({ fieldName, files, existingPaths }) => {
-                if (files.length === 0) {
-                    uploadedPaths[fieldName] = existingPaths;
-                    return;
-                }
-                const newPaths = await Promise.all(
-                    files.map(async (file, index) => {
-                        const fileName = normalizeFileName(file.name);
-                        const path = `objects/${objectId}/${fieldName}/${Date.now()}_${index}_${fileName}`;
-                        const result = await uploadFile('object_attributes', path, file);
-                        return result.path;
-                    })
-                );
-                uploadedPaths[fieldName] = [...existingPaths, ...newPaths];
-            })
-        );
-
-        return uploadedPaths;
-    };
-
-    const mergeUploadedPaths = (
-        formData: Record<string, any>,
-        uploadedPaths: Record<string, string[]>
-    ): Record<string, any> => {
-        return Object.fromEntries(
-            Object.entries(formData).map(([key, value]) => {
-                if (uploadedPaths[key]) {
-                    return [key, uploadedPaths[key]];
-                }
-                if (Array.isArray(value)) {
-                    return [key, (value as string[]).filter(v => !String(v).startsWith('__pending_'))];
-                }
-                return [key, value];
-            })
-        );
+        clearPendingFiles();
+        
+        return cleanedAttributes;
     };
 
     const handleSave = async () => {
-        if (!selectedCertificate) {
-            throw new Error("Aucun certificat n'est sélectionné");
-        }
-
+        if (!selectedCertificate) return;
         setIsSaving(true);
-
         try {
-            const objectId = selectedCertificate.object?.id;
-
-            if (deletedPaths.length > 0) {
-                await supabase.storage.from('object_attributes').remove(deletedPaths);
-            }
-
-            const uploadedPaths = await uploadAllReportFiles(objectId!);
-
-            const allFormData = getAllFormData();
-            const mergedFormData = mergeUploadedPaths(allFormData, uploadedPaths);
-
-            const {
-                general_object_brand,
-                general_object_model,
-                general_object_reference,
-                general_object_serial_number,
-                general_object_year,
-                general_object_surname,
-                general_object_type,
-                general_object_status,
-                ...attributes
-            } = mergedFormData;
-
-            await saveObjectData(objectId, {
-                brand: general_object_brand || undefined,
-                model: general_object_model || undefined,
-                reference: general_object_reference || undefined,
-                serial_number: general_object_serial_number || undefined,
-                year_manufacture: general_object_year || undefined,
-                surname: general_object_surname || undefined,
-                status: general_object_status || ObjectStatus.Valid,
-            });
-
-            const deletedImageFields = fileEntries
-                .filter(({ files, existingPaths }) => files.length === 0 && existingPaths.length === 0)
-                .map(({ fieldName }) => fieldName);
-
-            const cleanedAttributes = cleanAttributes(attributes);
-            await saveObjectAttributes(objectId, cleanedAttributes, deletedImageFields);
-            loadInitialData(cleanedAttributes);
-            clearAll();
-
-            await updateCertificate(selectedCertificate.id, {
-                status: CertificateStatus.PendingCertification,
-                updated_at: new Date()
-            });
-
+            const cleaned = await saveReportData(false);
+            loadInitialData(cleaned);
             toast.success("Rapport sauvegardé avec succès");
-            clearValidationErrors();
         } catch (error) {
-            console.error("Erreur lors de la sauvegarde:", error);
+            console.error(error);
             toast.error("Erreur lors de la sauvegarde");
         } finally {
             setIsSaving(false);
@@ -433,121 +361,33 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
     };
 
     const handleSaveAndFinish = async () => {
-        if (!selectedCertificate) {
-            throw new Error("Aucun certificat n'est sélectionné");
-        }
-
-        setIsSavingAndFinishing(true);
+        if (!selectedCertificate) return;
 
         const { isValid, errors } = await validateReport();
-
         if (!isValid) {
-            setIsSavingAndFinishing(false);
-
-            if (errors.length > 0) {
-                const firstError = errors[0];
-                for (const [categoryId, prefix] of Object.entries(getSectionPrefix)) {
-                    if (firstError.section.startsWith(prefix)) {
-                        setSelectedCategory(categoryId);
-                        break;
-                    }
-                }
-            }
-
+            // gérer focus erreurs
             return;
         }
 
+        setIsSavingAndFinishing(true);
         try {
-            const objectId = selectedCertificate.object?.id;
-
-            const uploadedPaths = await uploadAllReportFiles(objectId!);
-
-            const allFormData = getAllFormData();
-            const mergedFormData = mergeUploadedPaths(allFormData, uploadedPaths);
-
-            const {
-                general_object_brand,
-                general_object_model,
-                general_object_reference,
-                general_object_serial_number,
-                general_object_year,
-                general_object_surname,
-                general_object_type,
-                ...attributes
-            } = mergedFormData;
-
-            await saveObjectData(objectId, {
-                brand: general_object_brand || undefined,
-                model: general_object_model || undefined,
-                reference: general_object_reference || undefined,
-                serial_number: general_object_serial_number || undefined,
-                year_manufacture: general_object_year || undefined,
-                surname: general_object_surname || undefined,
-            });
-
-            const deletedImageFields = fileEntries
-                .filter(({ files, existingPaths }) => files.length === 0 && existingPaths.length === 0)
-                .map(({ fieldName }) => fieldName);
-
-            const cleanedAttributes = cleanAttributes(attributes);
-            await saveObjectAttributes(objectId, cleanedAttributes, deletedImageFields);
-            loadInitialData(cleanedAttributes);
-            clearAll();
-
-            await updateCertificate(selectedCertificate.id, {
-                status: CertificateStatus.Completed,
-                completed_at: new Date()
-            });
-
-            toast.success("Rapport sauvegardé et terminé avec succès");
+            const cleaned = await saveReportData(true);
+            loadInitialData(cleaned);
             resetFormData();
-            clearValidationErrors();
-            await onSuccess();
+            toast.success("Rapport sauvegardé et terminé avec succès");
+            onSuccess();
             onClose();
         } catch (error) {
-            console.error("Erreur lors de la sauvegarde:", error);
+            console.error(error);
             toast.error("Erreur lors de la sauvegarde");
         } finally {
             setIsSavingAndFinishing(false);
         }
     };
 
-    const getSectionPrefix = (categoryId: string): string => {
-        const mapping: Record<string, string> = {
-            'general': 'general',
-            'accessories': 'accessories',
-            'case-main': 'case',
-            'case-back': 'case_back',
-            'case-crown': 'case_crown',
-            'case-bezel': 'case_bezel',
-            'case-bezel-insert': 'case_bezel_insert',
-            'case-glass': 'case_glass',
-            'bracelet-main': 'bracelet',
-            'bracelet-clasp': 'bracelet_clasp',
-            'bracelet-end-links': 'bracelet_link',
-            'dial-main': 'dial',
-            'dial-index': 'dial_index',
-            'dial-hands': 'dial_hands',
-            'movement': 'movement',
-            'technical-weight': 'technical_weight',
-            'technical-movement': 'technical_movement',
-            'technical-waterproofing': 'technical_waterproofing',
-            'technical-rust-corrosion': 'technical_rust_corrosion',
-            'technical-joints': 'technical_joint',
-            'technical-lubrification': 'technical_lubrification',
-            'value': 'value',
-            'history': 'history',
-            'repair': 'repair',
-            'documents': 'documents',
-            'general-comment': 'general_comment',
-        };
-        return mapping[categoryId] || categoryId;
-    }
-
     const handleCancel = () => {
         clearValidationErrors();
         resetFormData();
-        clearAll();
         onClose();
     }
 
@@ -621,7 +461,7 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
 
                 <div className='space-y-4 absolute bottom-0 left-0 right-0 p-5 border-t border-white/10 bg-[#0a0a0a] rounded-b-xl'>
                     {hasErrors() && (
-                        <Alert type='error' message={`Veuillez remplir tous les champs avant de sauvegarder`} />
+                        <Alert type='error' canClose message={`Veuillez remplir tous les champs avant de sauvegarder`} />
                     )}
                     <div className='flex flex-col lg:flex-row lg:justify-between gap-3 w-full'>
                         <Button
