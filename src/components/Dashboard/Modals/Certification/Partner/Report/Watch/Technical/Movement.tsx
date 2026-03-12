@@ -131,6 +131,7 @@ const PartnerCertificationReportTechnicalMovementModal: FC<PartnerCertificationR
                                             <FileUpload
                                                 {...technicalMovementTestResultProps}
                                                 acceptedFileTypes={[".png", ".jpg", ".pdf", ".doc", ".docx"]}
+                                                maxFiles={1}
                                             />
                                         </FormGroup>
                                     )}

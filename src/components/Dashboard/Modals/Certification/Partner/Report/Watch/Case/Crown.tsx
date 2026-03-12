@@ -329,6 +329,7 @@ const PartnerCertificationReportCaseCrownModal: FC<PartnerCertificationReportCas
                                                     <FileUpload
                                                         {...caseCrownPusherImagesProps}
                                                         acceptedFileTypes={[".jpg", ".png"]}
+                                                        maxFiles={certificateType?.report_limits?.max_photos_per_section || 5}
                                                     />
                                                 </FormGroup>
                                             )}

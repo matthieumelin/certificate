@@ -93,6 +93,7 @@ export interface CertificateDraft {
 
 export interface CertificateTypeReportLimits {
   max_documents: number;
+  max_photos_per_section: number;
   max_repair_previous: number;
   max_history_previous_places: number;
 }

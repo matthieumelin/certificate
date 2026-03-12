@@ -96,7 +96,7 @@ const PartnerCertificationReportTechnicalRustCorrosionModal: FC<PartnerCertifica
                                         <FileUpload
                                             {...rustCorrosionImagesProps}
                                             acceptedFileTypes={[".jpg", ".png"]}
-                                            maxFiles={10}
+                                            maxFiles={certificateType?.report_limits?.max_photos_per_section || 5}
                                         />
                                     </FormGroup>
                                 )}

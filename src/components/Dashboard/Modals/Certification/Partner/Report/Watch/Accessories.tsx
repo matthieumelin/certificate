@@ -30,6 +30,7 @@ const PartnerCertificationReportAccessoriesModal: FC<PartnerCertificationReportA
     const formRef = useRef<FormikProps<FormValues>>(null);
     const accessoriesImagesProps = useReportFileUpload('accessories_images');
 
+    console.log(accessoriesImagesProps)
     const accessories = [
         "Aucun",
         "Boîte d'origine",
@@ -148,7 +149,7 @@ const PartnerCertificationReportAccessoriesModal: FC<PartnerCertificationReportA
                                                 <FileUpload
                                                     {...accessoriesImagesProps}
                                                     acceptedFileTypes={[".jpg", ".png"]}
-                                                    maxFiles={5} />
+                                                    maxFiles={certificateType?.report_limits?.max_photos_per_section || 5} />
                                             </FormGroup>
                                         )}
                                     </>

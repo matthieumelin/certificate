@@ -145,7 +145,7 @@ const FormSelect: FC<FormSelectProps> = ({
                     type='button'
                     id={id}
                     disabled={disabled}
-                    className={`w-full h-full flex justify-between items-center rounded-xl px-3 py-2 border transition-all ${getButtonClasses()}`}
+                    className={`w-full h-max flex justify-between items-center rounded-xl px-3 py-2 border transition-all ${getButtonClasses()}`}
                     onClick={() => {
                         const newOpen = !open;
                         if (newOpen) {

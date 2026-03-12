@@ -1,7 +1,7 @@
 import Alert from "@/components/UI/Alert";
 import { normalizeFileName } from "@/helpers/file";
 import { useStorage } from "@/hooks/useSupabase";
-import { useCallback, useRef, useState, type FC } from "react";
+import { useCallback, useEffect, useRef, useState, type FC } from "react";
 
 interface FileUploadProps {
     bucketName?: string;
@@ -40,6 +40,10 @@ const FileUpload: FC<FileUploadProps> = ({
     const isMultiple = maxFiles > 1;
 
     const displayError = Array.isArray(externalError) ? externalError[0] : externalError || internalError;
+
+    useEffect(() => {
+        setPreviews(initialPreviews);
+    }, [JSON.stringify(initialPreviews)]);
 
     const validateFile = (file: File): boolean => {
         if (file.size > maxSizeMB * 1024 * 1024) {

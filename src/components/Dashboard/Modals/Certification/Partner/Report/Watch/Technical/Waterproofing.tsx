@@ -133,6 +133,7 @@ const PartnerCertificationReportTechnicalWaterproofingModal: FC<PartnerCertifica
                                             <FileUpload
                                                 {...waterproofingTestResultProps}
                                                 acceptedFileTypes={[".jpg", ".png"]}
+                                                maxFiles={1}
                                             />
                                         </FormGroup>
                                     )}

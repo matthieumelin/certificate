@@ -474,6 +474,7 @@ const PartnerCertificationReportBraceletClaspModal: FC<PartnerCertificationRepor
                                                     <FileUpload
                                                         {...braceletClaspImagesProps}
                                                         acceptedFileTypes={[".jpg", ".png"]}
+                                                        maxFiles={certificateType?.report_limits?.max_photos_per_section || 5}
                                                     />
                                                 </FormGroup>
                                             )}

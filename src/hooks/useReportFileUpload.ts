@@ -27,9 +27,9 @@ export const useReportFileUpload = (fieldName: string) => {
     const deletedPaths = useReportFilesStore.getState().deletedPaths;
     const pathsInFormData: string[] = Array.isArray(formFieldValue)
       ? (formFieldValue as string[]).filter(
-          (v: string) =>
-            v && !v.startsWith("__pending_") && !deletedPaths.includes(v),
-        )
+        (v: string) =>
+          v && !v.startsWith("__pending_") && !deletedPaths.includes(v),
+      )
       : [];
 
     if (!isInitialized(fieldName)) {
@@ -37,6 +37,14 @@ export const useReportFileUpload = (fieldName: string) => {
         setFiles(fieldName, [], pathsInFormData);
       }
       markInitialized(fieldName);
+    } else {
+      const currentExistingPaths = useReportFilesStore.getState().getExistingPaths(fieldName);
+      const currentSorted = [...currentExistingPaths].sort().join(',');
+      const newSorted = [...pathsInFormData].sort().join(',');
+
+      if (currentSorted !== newSorted) {
+        setFiles(fieldName, [], pathsInFormData);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(formFieldValue)]);
