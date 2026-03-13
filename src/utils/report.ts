@@ -1,3 +1,15 @@
+export const formDefaults = {
+  choice_yes: "Oui", // choiceOptions[0]
+  choice_no: "Non", // choiceOptions[1]
+  case_shape: "Rond",
+  case_material: "Acier inoxydable", // materials[0]
+  case_surface_plated: "Aucun", // treatments[0]
+  case_hallmark: "Aucun", // hallmarks[0]
+  case_glass_material: "N/A",
+  bracelet_material: "Acier", // braceletMaterials[0]
+  bracelet_clasp_material: "Acier", // braceletClaspMaterials[0]
+};
+
 export const hallmarks = [
   "Aucun",
   "Hippocampe",

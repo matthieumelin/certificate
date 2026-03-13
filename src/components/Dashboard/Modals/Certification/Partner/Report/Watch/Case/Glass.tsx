@@ -3,7 +3,7 @@ import { type FC } from 'react'
 import type { CertificateType } from '@/types/certificate'
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore'
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm'
-import { choiceOptions } from '@/utils/report'
+import { choiceOptions, formDefaults } from '@/utils/report'
 import FormGroup from '@/components/UI/Form/Group'
 import Label from '@/components/UI/Form/Label'
 import FormSelect from '@/components/UI/Form/Select'
@@ -39,9 +39,9 @@ const PartnerCertificationReportCaseGlassModal: FC<PartnerCertificationReportCas
     ];
 
     const initialValues: FormValues = {
-        case_glass_material: formData.case_glass_material || "N/A",
-        case_glass_factory: formData.case_glass_factory || choiceOptions[0],
-        case_glass_change: formData.case_glass_change || choiceOptions[1],
+        case_glass_material: formData.case_glass_material || formDefaults.case_glass_material,
+        case_glass_factory: formData.case_glass_factory || formDefaults.choice_yes,
+        case_glass_change: formData.case_glass_change || formDefaults.choice_no,
         case_glass_change_date: formData.case_glass_change_date || "",
         case_glass_score: formData.case_glass_score || 0,
         case_glass_comment: formData.case_glass_comment || "",

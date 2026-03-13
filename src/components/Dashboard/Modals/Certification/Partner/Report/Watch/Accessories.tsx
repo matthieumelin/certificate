@@ -51,7 +51,7 @@ const PartnerCertificationReportAccessoriesModal: FC<PartnerCertificationReportA
         accessories_factory_not: formData.accessories_factory_not || [],
         accessories_score: formData.accessories_score || 0,
         accessories_comment: formData.accessories_comment || "",
-        accessories_images: formData.accessories_images || []
+        accessories_images: formData.accessories_images || [],
     }
 
     useEffect(() => {

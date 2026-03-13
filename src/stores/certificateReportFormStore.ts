@@ -386,14 +386,14 @@ const initialFormState: FormState = {
   bracelet_clasp_signature: "",
   bracelet_clasp_serial_number: "",
   bracelet_clasp_reference: "",
-  bracelet_clasp_factory: "",
-  bracelet_clasp_change: "",
+  bracelet_clasp_factory: "Oui",
+  bracelet_clasp_change: "Non",
   bracelet_clasp_change_date: "",
-  bracelet_clasp_custom: "",
+  bracelet_clasp_custom: "Non",
   bracelet_clasp_custom_date: "",
-  bracelet_clasp_setting: "",
+  bracelet_clasp_setting: "Non",
   bracelet_clasp_setting_type: "",
-  bracelet_clasp_setting_factory: "",
+  bracelet_clasp_setting_factory: "Non",
   bracelet_clasp_setting_date: "",
   bracelet_clasp_score: 0,
   bracelet_clasp_comment: "",
@@ -408,20 +408,20 @@ const initialFormState: FormState = {
   // Bracelet - Principal
   bracelet_type: "",
   bracelet_diameter: { length: "", width: "", thickness: "" },
-  bracelet_material: "",
-  bracelet_surface_plated: "",
-  bracelet_hallmark: "",
+  bracelet_material: "Acier",
+  bracelet_surface_plated: "Aucun",
+  bracelet_hallmark: "Aucun",
   bracelet_signature: "",
   bracelet_serial_number: "",
   bracelet_reference: "",
-  bracelet_factory: "",
-  bracelet_change: "",
+  bracelet_factory: "Oui",
+  bracelet_change: "Non",
   bracelet_change_date: "",
-  bracelet_custom: "",
+  bracelet_custom: "Non",
   bracelet_custom_date: "",
-  bracelet_setting: "",
+  bracelet_setting: "Non",
   bracelet_setting_type: "",
-  bracelet_setting_factory: "",
+  bracelet_setting_factory: "Non",
   bracelet_setting_date: "",
   bracelet_score: 0,
   bracelet_comment: "",
@@ -434,10 +434,10 @@ const initialFormState: FormState = {
   case_back_signature: "",
   case_back_serial_number: "",
   case_back_reference: "",
-  case_back_factory: "",
-  case_back_change: "",
+  case_back_factory: "Oui",
+  case_back_change: "Non",
   case_back_change_date: "",
-  case_back_custom: "",
+  case_back_custom: "Non",
   case_back_custom_date: "",
   case_back_score: 0,
   case_back_comment: "",
@@ -447,10 +447,10 @@ const initialFormState: FormState = {
   case_bezel_insert_material: "",
   case_bezel_insert_serial_number: "",
   case_bezel_insert_reference: "",
-  case_bezel_insert_factory: "",
-  case_bezel_insert_change: "",
+  case_bezel_insert_factory: "Oui",
+  case_bezel_insert_change: "Non",
   case_bezel_insert_change_date: "",
-  case_bezel_insert_custom: "",
+  case_bezel_insert_custom: "Non",
   case_bezel_insert_custom_date: "",
   case_bezel_insert_score: 0,
   case_bezel_insert_comment: "",
@@ -460,17 +460,17 @@ const initialFormState: FormState = {
   case_bezel_material: "",
   case_bezel_texture: "",
   case_bezel_surface_plated: "",
-  case_bezel_factory: "",
-  case_bezel_change: "",
+  case_bezel_factory: "Oui",
+  case_bezel_change: "Non",
   case_bezel_change_date: "",
-  case_bezel_custom: "",
+  case_bezel_custom: "Non",
   case_bezel_custom_date: "",
   case_bezel_score: 0,
   case_bezel_comment: "",
   case_bezel_images: [],
-  case_bezel_setting: "",
+  case_bezel_setting: "Non",
   case_bezel_setting_type: "",
-  case_bezel_setting_factory: "",
+  case_bezel_setting_factory: "Non",
   case_bezel_setting_date: "",
 
   // Boîtier - Couronne
@@ -479,10 +479,10 @@ const initialFormState: FormState = {
   case_crown_pusher: 0,
   case_crown_comment: "",
   case_crown_images: [],
-  case_crown_factory: "",
-  case_crown_change: "",
+  case_crown_factory: "Oui",
+  case_crown_change: "Non",
   case_crown_change_date: "",
-  case_crown_custom: "",
+  case_crown_custom: "Non",
   case_crown_custom_date: "",
 
   // Boîtier - Poussoir
@@ -497,30 +497,30 @@ const initialFormState: FormState = {
 
   // Boîtier - Verre
   case_glass_material: "",
-  case_glass_factory: "",
-  case_glass_change: "",
+  case_glass_factory: "Oui",
+  case_glass_change: "Non",
   case_glass_change_date: "",
   case_glass_score: 0,
   case_glass_comment: "",
 
   // Boîtier - Principal
-  case_shape: "",
+  case_shape: "Rond",
   case_diameter: { length: "", width: "", diameter: "" },
-  case_material: "",
-  case_surface_plated: "",
-  case_hallmark: "",
+  case_material: "Acier inoxydable",
+  case_surface_plated: "Aucun",
+  case_hallmark: "Aucun",
   case_signature: "",
   case_thickness: "",
   case_serial_number: "",
   case_reference: "",
-  case_factory: "",
-  case_change: "",
+  case_factory: "Oui",
+  case_change: "Non",
   case_change_date: "",
-  case_custom: "",
+  case_custom: "Non",
   case_custom_date: "",
-  case_setting: "",
+  case_setting: "Non",
   case_setting_type: "",
-  case_setting_factory: "",
+  case_setting_factory: "Non",
   case_setting_date: "",
   case_score: 0,
   case_comment: "",
@@ -532,20 +532,20 @@ const initialFormState: FormState = {
   dial_hands_style: "",
   dial_hands_material: "",
   dial_hands_color: "",
-  dial_hands_factory: "",
+  dial_hands_factory: "Oui",
   dial_hands_score: 0,
   dial_hands_comment: "",
   dial_hands_images: [],
-  dial_hands_luminescence: "",
+  dial_hands_luminescence: "Oui",
   dial_hands_luminescence_type: "",
-  dial_hands_luminescence_factory: "",
-  dial_hands_luminescence_change: "",
+  dial_hands_luminescence_factory: "Oui",
+  dial_hands_luminescence_change: "Non",
   dial_hands_luminescence_change_date: "",
   dial_hands_luminescence_score: 0,
   dial_hands_luminescence_comment: "",
-  dial_hands_custom: "",
+  dial_hands_custom: "Non",
   dial_hands_custom_date: "",
-  dial_hands_change: "",
+  dial_hands_change: "Non",
   dial_hands_change_date: "",
 
   // Cadran - Index
@@ -553,10 +553,10 @@ const initialFormState: FormState = {
   dial_index_style: "",
   dial_index_material: "",
   dial_index_color: "",
-  dial_index_factory: "",
-  dial_index_change: "",
+  dial_index_factory: "Oui",
+  dial_index_change: "Non",
   dial_index_change_date: "",
-  dial_index_custom: "",
+  dial_index_custom: "Non",
   dial_index_custom_date: "",
   dial_index_serial_number: "",
   dial_index_score: 0,
@@ -582,15 +582,15 @@ const initialFormState: FormState = {
   dial_serial_number: "",
   dial_reference: "",
   dial_surname: "",
-  dial_factory: "",
-  dial_change: "",
+  dial_factory: "Oui",
+  dial_change: "Non",
   dial_change_date: "",
-  dial_custom: "",
+  dial_custom: "Non",
   dial_custom_date: "",
-  dial_setting: "",
+  dial_setting: "Non",
   dial_setting_date: "",
   dial_setting_type: "",
-  dial_setting_factory: "",
+  dial_setting_factory: "Non",
   dial_comment: "",
   dial_images: [],
 
@@ -622,14 +622,14 @@ const initialFormState: FormState = {
   movement_serial_number: "",
   movement_caliber_reference: "",
   movement_caliber_base: "",
-  movement_caliber_factory: "",
-  movement_caliber_change: "",
+  movement_caliber_factory: "Oui",
+  movement_caliber_change: "Non",
   movement_gems_number: 0,
   movement_power_reserve_announced: 0,
   movement_announced_amplitude: 0,
   movement_announced_frequency_hz: 0,
   movement_announced_frequency_ah: 0,
-  movement_pieces_change: "",
+  movement_pieces_change: "Non",
   movement_pieces_change_date: "",
 
   // Réparation
@@ -722,12 +722,42 @@ export const useCertificateReportFormStore = create<CertificateReportFormStore>(
     getAllFormData: () => get().formData,
     resetFormData: () => set({ formData: initialFormState }),
     loadInitialData: (data) => {
-      set((state) => ({
-        formData: {
-          ...state.formData,
-          ...data,
-        },
-      }));
+      set((state) => {
+        const merged = { ...state.formData } as Record<string, unknown>;
+
+        for (const key in data) {
+          const incoming = (data as Record<string, unknown>)[key];
+
+          if (
+            incoming === "" ||
+            incoming === null ||
+            incoming === undefined ||
+            (Array.isArray(incoming) && incoming.length === 0)
+          ) {
+            continue;
+          }
+
+          if (
+            typeof incoming === "object" &&
+            !Array.isArray(incoming) &&
+            incoming !== null
+          ) {
+            merged[key] = {
+              ...(merged[key] as object),
+              ...Object.fromEntries(
+                Object.entries(incoming as object).filter(
+                  ([, v]) => v !== "" && v !== null && v !== undefined,
+                ),
+              ),
+            };
+            continue;
+          }
+
+          merged[key] = incoming;
+        }
+
+        return { formData: merged as unknown as FormState };
+      });
     },
     setValidationErrors: (errors) => set({ validationErrors: errors }),
     clearValidationErrors: () => set({ validationErrors: [] }),

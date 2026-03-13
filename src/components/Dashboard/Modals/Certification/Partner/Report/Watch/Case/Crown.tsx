@@ -11,6 +11,7 @@ import Score from '@/components/UI/Form/Score'
 import FileUpload from '@/components/UI/Form/FileUpload'
 import { useCertificateStore } from '@/stores/certificateStore'
 import { useReportFileUpload } from '@/hooks/useReportFileUpload'
+import { formDefaults } from '@/utils/report'
 
 interface FormValues {
     case_crown_type: string;
@@ -69,17 +70,17 @@ const PartnerCertificationReportCaseCrownModal: FC<PartnerCertificationReportCas
         case_crown_pusher: formData.case_crown_pusher || 0,
         case_crown_comment: formData.case_crown_comment || "",
         case_crown_images: formData.case_crown_images || [],
-        case_crown_factory: formData.case_crown_factory || choiceOptions[0],
-        case_crown_change: formData.case_crown_change || choiceOptions[1],
-        case_crown_custom: formData.case_crown_custom || choiceOptions[1],
+        case_crown_factory: formData.case_crown_factory || formDefaults.choice_yes,
+        case_crown_change: formData.case_crown_change || formDefaults.choice_no,
+        case_crown_custom: formData.case_crown_custom || formDefaults.choice_no,
         case_crown_change_date: formData.case_crown_change_date || "",
         case_crown_custom_date: formData.case_crown_custom_date || "",
         case_crown_pusher_score: formData.case_crown_pusher_score || 0,
         case_crown_pusher_comment: formData.case_crown_pusher_comment || "",
         case_crown_pusher_images: formData.case_crown_pusher_images || [],
-        case_crown_pusher_factory: formData.case_crown_pusher_factory || choiceOptions[0],
-        case_crown_pusher_change: formData.case_crown_pusher_change || choiceOptions[1],
-        case_crown_pusher_custom: formData.case_crown_pusher_custom || choiceOptions[1],
+        case_crown_pusher_factory: formData.case_crown_pusher_factory || formDefaults.choice_yes,
+        case_crown_pusher_change: formData.case_crown_pusher_change || formDefaults.choice_no,
+        case_crown_pusher_custom: formData.case_crown_pusher_custom || formDefaults.choice_no,
         case_crown_pusher_change_date: formData.case_crown_pusher_change_date || "",
         case_crown_pusher_custom_date: formData.case_crown_pusher_custom_date || "",
     }

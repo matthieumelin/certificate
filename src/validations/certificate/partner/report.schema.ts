@@ -245,9 +245,11 @@ export const createValidationSchema = (
     );
   }
   if (isFieldRequired("case_setting_type")) {
-    schema.case_setting_type = Yup.string().required(
-      "Le type de sertissage du boîtier est requis",
-    );
+    schema.case_setting_type = Yup.string().when("case_setting", {
+      is: "Oui",
+      then: (s) => s.required("Le type de sertissage du boîtier est requis"),
+      otherwise: (s) => s.notRequired(),
+    });
   }
   if (isFieldRequired("case_score")) {
     schema.case_score = Yup.number()
@@ -321,9 +323,14 @@ export const createValidationSchema = (
       .max(10);
   }
   if (isFieldRequired("case_crown_pusher_images")) {
-    schema.case_crown_pusher_images = Yup.array()
-      .min(1, "Au moins une image du poussoir est requise")
-      .required("Les images des poussoirs sont requises");
+    schema.case_crown_pusher_images = Yup.array().when("case_crown_pusher", {
+      is: 0,
+      then: (s) => s.notRequired(),
+      otherwise: (s) =>
+        s
+          .min(1, "Au moins une image du poussoir est requise")
+          .required("Les images des poussoirs sont requises"),
+    });
   }
 
   // Lunette
@@ -346,9 +353,11 @@ export const createValidationSchema = (
     );
   }
   if (isFieldRequired("case_bezel_setting_type")) {
-    schema.case_bezel_setting_type = Yup.string().required(
-      "Le type de sertissage de la lunette est requis",
-    );
+    schema.case_bezel_setting_type = Yup.string().when("case_bezel_setting", {
+      is: "Oui",
+      then: (s) => s.required("Le type de sertissage de la lunette est requis"),
+      otherwise: (s) => s.notRequired(),
+    });
   }
   if (isFieldRequired("case_bezel_score")) {
     schema.case_bezel_score = Yup.number()
@@ -445,12 +454,15 @@ export const createValidationSchema = (
     });
   }
   if (isFieldRequired("bracelet_setting_type")) {
-    schema.bracelet_setting_type = Yup.string().when("bracelet_type", {
-      is: "Aucun",
-      then: (s) => s.notRequired(),
-      otherwise: (s) =>
-        s.required("Le type de sertissage du bracelet est requis"),
-    });
+    schema.bracelet_setting_type = Yup.string().when(
+      ["bracelet_type", "bracelet_setting"],
+      {
+        is: (type: string, setting: string) =>
+          type !== "Aucun" && setting === "Oui",
+        then: (s) => s.required("Le type de sertissage du bracelet est requis"),
+        otherwise: (s) => s.notRequired(),
+      },
+    );
   }
   if (isFieldRequired("bracelet_score")) {
     schema.bracelet_score = Yup.number().when("bracelet_type", {
@@ -500,12 +512,12 @@ export const createValidationSchema = (
   }
   if (isFieldRequired("bracelet_clasp_setting_type")) {
     schema.bracelet_clasp_setting_type = Yup.string().when(
-      "bracelet_clasp_type",
+      ["bracelet_clasp_type", "bracelet_clasp_setting"],
       {
-        is: "Aucun",
-        then: (s) => s.notRequired(),
-        otherwise: (s) =>
-          s.required("Le type de sertissage du fermoir est requis"),
+        is: (type: string, setting: string) =>
+          type !== "Aucun" && setting === "Oui",
+        then: (s) => s.required("Le type de sertissage du fermoir est requis"),
+        otherwise: (s) => s.notRequired(),
       },
     );
   }
@@ -535,17 +547,20 @@ export const createValidationSchema = (
     );
   }
   if (isFieldRequired("bracelet_link_factory")) {
-    schema.bracelet_link_factory = Yup.string().required(
-      "L'origine des maillons de fin est requise",
+    schema.bracelet_link_factory = Yup.string().when(
+      "bracelet_link_pump_type",
+      {
+        is: "Aucun",
+        then: (s) => s.notRequired(),
+        otherwise: (s) =>
+          s.required("L'origine des maillons de fin est requise"),
+      },
     );
   }
 
   // Cadran principal
   if (isFieldRequired("dial_type")) {
     schema.dial_type = Yup.string().required("Le type de cadran est requis");
-  }
-  if (isFieldRequired("dial_material")) {
-    schema.dial_material = requiredMixed("Le matériau du cadran est requis");
   }
   if (isFieldRequired("dial_color")) {
     schema.dial_color = Yup.string().required(
@@ -569,9 +584,11 @@ export const createValidationSchema = (
     );
   }
   if (isFieldRequired("dial_setting_type")) {
-    schema.dial_setting_type = Yup.string().required(
-      "Le type de sertissage du cadran est requis",
-    );
+    schema.dial_setting_type = Yup.string().when("dial_setting", {
+      is: "Oui",
+      then: (s) => s.required("Le type de sertissage du cadran est requis"),
+      otherwise: (s) => s.notRequired(),
+    });
   }
   if (isFieldRequired("dial_score")) {
     schema.dial_score = Yup.number()
@@ -609,8 +626,13 @@ export const createValidationSchema = (
     );
   }
   if (isFieldRequired("dial_index_luminescence_type")) {
-    schema.dial_index_luminescence_type = Yup.string().required(
-      "Le type de luminescence des index est requis",
+    schema.dial_index_luminescence_type = Yup.string().when(
+      "dial_index_luminescence",
+      {
+        is: "Oui",
+        then: (s) => s.required("Le type de luminescence des index est requis"),
+        otherwise: (s) => s.notRequired(),
+      },
     );
   }
   if (isFieldRequired("dial_index_luminescence_score")) {
@@ -644,8 +666,14 @@ export const createValidationSchema = (
     );
   }
   if (isFieldRequired("dial_hands_luminescence_type")) {
-    schema.dial_hands_luminescence_type = Yup.string().required(
-      "Le type de luminescence des aiguilles est requis",
+    schema.dial_hands_luminescence_type = Yup.string().when(
+      "dial_hands_luminescence",
+      {
+        is: "Oui",
+        then: (s) =>
+          s.required("Le type de luminescence des aiguilles est requis"),
+        otherwise: (s) => s.notRequired(),
+      },
     );
   }
   if (isFieldRequired("dial_hands_luminescence_score")) {
@@ -725,8 +753,13 @@ export const createValidationSchema = (
     );
   }
   if (isFieldRequired("technical_waterproofing_suspected_zones")) {
-    schema.technical_waterproofing_suspected_zones = Yup.string().required(
-      "Les zones suspectées sont requises",
+    schema.technical_waterproofing_suspected_zones = Yup.string().when(
+      "technical_waterproofing_observed_leak",
+      {
+        is: "Non",
+        then: (s) => s.notRequired(),
+        otherwise: (s) => s.required("Les zones suspectées sont requises"),
+      },
     );
   }
   if (isFieldRequired("technical_waterproofing_case_deformation_score")) {
@@ -743,8 +776,14 @@ export const createValidationSchema = (
     );
   }
   if (isFieldRequired("technical_rust_corrosion_zones")) {
-    schema.technical_rust_corrosion_zones = Yup.string().required(
-      "Les zones de rouille/corrosion sont requises",
+    schema.technical_rust_corrosion_zones = Yup.string().when(
+      "technical_rust_corrosion_presence",
+      {
+        is: "Non",
+        then: (s) => s.notRequired(),
+        otherwise: (s) =>
+          s.required("Les zones de rouille/corrosion sont requises"),
+      },
     );
   }
 
@@ -774,8 +813,14 @@ export const createValidationSchema = (
       .max(10);
   }
   if (isFieldRequired("technical_lubrification_movement")) {
-    schema.technical_lubrification_movement = Yup.string().required(
-      "La lubrification du mouvement est requis",
+    schema.technical_lubrification_movement = Yup.string().when(
+      "technical_lubrification_join",
+      {
+        is: "Absente",
+        then: (s) => s.notRequired(),
+        otherwise: (s) =>
+          s.required("La lubrification du mouvement est requis"),
+      },
     );
   }
   if (isFieldRequired("technical_lubrification_join")) {

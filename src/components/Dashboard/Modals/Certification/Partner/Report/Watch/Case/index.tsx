@@ -3,7 +3,7 @@ import { type FC } from 'react'
 import type { CertificateType } from '@/types/certificate'
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore'
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm'
-import { choiceOptions, hallmarks, materials, gemstones, treatments } from '@/utils/report'
+import { choiceOptions, hallmarks, materials, gemstones, treatments, formDefaults } from '@/utils/report'
 import FormGroup from '@/components/UI/Form/Group'
 import Label from '@/components/UI/Form/Label'
 import FormSelect from '@/components/UI/Form/Select'
@@ -68,22 +68,22 @@ const PartnerCertificationReportCaseModal: FC<PartnerCertificationReportCaseModa
     ];
 
     const initialValues: FormValues = {
-        case_shape: formData.case_shape || forms[0],
+        case_shape: formData.case_shape || formDefaults.case_shape,
         case_diameter: {
             length: formData.case_diameter.length || "",
             width: formData.case_diameter.width || "",
-            diameter: formData.case_diameter.diameter || ""
+            diameter: formData.case_diameter.diameter || "",
         },
         case_thickness: formData.case_thickness || "",
-        case_material: formData.case_material || materials[0],
-        case_surface_plated: formData.case_surface_plated || treatments[0],
-        case_hallmark: formData.case_hallmark || hallmarks[0],
-        case_factory: formData.case_factory || choiceOptions[0],
-        case_setting: formData.case_setting || choiceOptions[1],
+        case_material: formData.case_material || formDefaults.case_material,
+        case_surface_plated: formData.case_surface_plated || formDefaults.case_surface_plated,
+        case_hallmark: formData.case_hallmark || formDefaults.case_hallmark,
+        case_factory: formData.case_factory || formDefaults.choice_yes,
+        case_setting: formData.case_setting || formDefaults.choice_no,
         case_setting_type: formData.case_setting_type || "",
-        case_setting_factory: formData.case_setting_factory || choiceOptions[1],
-        case_change: formData.case_change || choiceOptions[0],
-        case_custom: formData.case_custom || choiceOptions[1],
+        case_setting_factory: formData.case_setting_factory || formDefaults.choice_no,
+        case_change: formData.case_change || formDefaults.choice_yes,
+        case_custom: formData.case_custom || formDefaults.choice_no,
         case_change_date: formData.case_change_date || "",
         case_signature: formData.case_signature || "",
         case_serial_number: formData.case_serial_number || "",

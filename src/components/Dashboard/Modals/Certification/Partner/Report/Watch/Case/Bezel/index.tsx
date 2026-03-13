@@ -3,7 +3,7 @@ import { type FC } from 'react'
 import type { CertificateType } from '@/types/certificate'
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore'
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm'
-import { choiceOptions, gemstones, treatments } from '@/utils/report'
+import { choiceOptions, formDefaults, gemstones, treatments } from '@/utils/report'
 import FormGroup from '@/components/UI/Form/Group'
 import FormSelect from '@/components/UI/Form/Select'
 import Label from '@/components/UI/Form/Label'
@@ -86,15 +86,15 @@ const PartnerCertificationReportCaseBezelModal: FC<PartnerCertificationReportCas
         case_bezel_material: formData.case_bezel_material || "",
         case_bezel_texture: formData.case_bezel_texture || "",
         case_bezel_surface_plated: formData.case_bezel_surface_plated || "",
-        case_bezel_factory: formData.case_bezel_factory || choiceOptions[0],
-        case_bezel_change: formData.case_bezel_change || choiceOptions[1],
+        case_bezel_factory: formData.case_bezel_factory || formDefaults.choice_yes,
+        case_bezel_change: formData.case_bezel_change || formDefaults.choice_no,
         case_bezel_change_date: formData.case_bezel_change_date || "",
-        case_bezel_custom: formData.case_bezel_custom || choiceOptions[1],
+        case_bezel_custom: formData.case_bezel_custom || formDefaults.choice_no,
         case_bezel_custom_date: formData.case_bezel_custom_date || "",
         case_bezel_score: formData.case_bezel_score || 0,
         case_bezel_comment: formData.case_bezel_comment || "",
         case_bezel_images: formData.case_bezel_images || [],
-        case_bezel_setting: formData.case_bezel_setting || choiceOptions[1],
+        case_bezel_setting: formData.case_bezel_setting || formDefaults.choice_no,
         case_bezel_setting_type: formData.case_bezel_setting_type || "",
         case_bezel_setting_factory: formData.case_bezel_setting_factory || "",
         case_bezel_setting_date: formData.case_bezel_setting_date || "",

@@ -138,7 +138,7 @@ app.post("/send-certificate-email", async (req, res) => {
   try {
     const { data: certificate, error: certError } = await supabase
       .from("certificates")
-      .select("id, customer_id, certificate_type_id")
+      .select("id, customer_id, certificate_type_id, pin_code")
       .eq("id", certificateId)
       .single();
 
@@ -167,6 +167,7 @@ app.post("/send-certificate-email", async (req, res) => {
       customerName: `${customer.first_name} ${customer.last_name}`,
       certificateName: certType?.name || "Certificat",
       certificateDetailsLink: `${process.env.FRONTEND_URL}/certificate/${certificate.id}`,
+      pinCode: certificate.pin_code,
     });
 
     return res.json({ success: true });
@@ -484,6 +485,7 @@ app.post("/confirm-instore-payment", async (req, res) => {
         created_by: draftData.created_by,
         customer_id: userProfile.id,
         certificate_type_id: draftData.certificate_type_id,
+        pin_code: generateRandomPin(3, 4),
         payment_method_id: draftData.payment_method_id,
         status: "payment_confirmed",
       })
@@ -496,11 +498,18 @@ app.post("/confirm-instore-payment", async (req, res) => {
 
     await supabase.from("certificate_drafts").delete().eq("id", draftId);
 
+    const { data: certificateType } = await supabase
+      .from("certificate_types")
+      .select("name")
+      .eq("id", draftData.certificate_type_id)
+      .maybeSingle();
+
     await emailService.sendCertificate({
       to: customer.email,
       customerName: `${customer.first_name} ${customer.last_name}`,
-      certificateName: "Certificat",
+      certificateName: certificateType?.name || "Certificat",
       certificateDetailsLink: `${process.env.FRONTEND_URL}/certificate/${certificate.id}`,
+      pinCode: certificate.pin_code,
     });
 
     if (isNewGuestProfile) {

@@ -7,7 +7,7 @@ import FormGroup from '@/components/UI/Form/Group'
 import Label from '@/components/UI/Form/Label'
 import FormSelect from '@/components/UI/Form/Select'
 import FormRow from '@/components/UI/Form/Row'
-import { choiceOptions, hallmarks, materials } from '@/utils/report'
+import { choiceOptions, formDefaults, hallmarks, materials } from '@/utils/report'
 import Input from '@/components/UI/Form/Input'
 import Score from '@/components/UI/Form/Score'
 import FileUpload from '@/components/UI/Form/FileUpload'
@@ -59,10 +59,10 @@ const PartnerCertificationReportCaseBackModal: FC<PartnerCertificationReportCase
         case_back_signature: formData.case_back_signature || "",
         case_back_serial_number: formData.case_back_serial_number || "",
         case_back_reference: formData.case_back_reference || "",
-        case_back_factory: formData.case_back_factory || choiceOptions[0],
-        case_back_change: formData.case_back_change || choiceOptions[1],
+        case_back_factory: formData.case_back_factory || formDefaults.choice_yes,
+        case_back_change: formData.case_back_change || formDefaults.choice_no,
         case_back_change_date: formData.case_back_change_date || "",
-        case_back_custom: formData.case_back_custom || choiceOptions[1],
+        case_back_custom: formData.case_back_custom || formDefaults.choice_no,
         case_back_custom_date: formData.case_back_custom_date || "",
         case_back_score: formData.case_back_score || 0,
         case_back_comment: formData.case_back_comment || "",

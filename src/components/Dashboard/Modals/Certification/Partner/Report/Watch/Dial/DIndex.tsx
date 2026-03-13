@@ -8,7 +8,7 @@ import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
-import { choiceOptions, colors, gemstones } from '@/utils/report';
+import { choiceOptions, colors, formDefaults, gemstones } from '@/utils/report';
 import { Form, Formik } from 'formik'
 import { type FC } from 'react'
 
@@ -89,10 +89,10 @@ const PartnerCertificationReportDialIndexModal: FC<PartnerCertificationReportDia
         dial_index_style: formData.dial_index_style || "",
         dial_index_material: formData.dial_index_material || "",
         dial_index_color: formData.dial_index_color || "",
-        dial_index_factory: formData.dial_index_factory || choiceOptions[0],
-        dial_index_change: formData.dial_index_change || choiceOptions[1],
+        dial_index_factory: formData.dial_index_factory || formDefaults.choice_yes,
+        dial_index_change: formData.dial_index_change || formDefaults.choice_no,
         dial_index_change_date: formData.dial_index_change_date || "",
-        dial_index_custom: formData.dial_index_custom || choiceOptions[1],
+        dial_index_custom: formData.dial_index_custom || formDefaults.choice_no,
         dial_index_custom_date: formData.dial_index_custom_date || "",
         dial_index_serial_number: formData.dial_index_serial_number || "",
         dial_index_score: formData.dial_index_score || 0,

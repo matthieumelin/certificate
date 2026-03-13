@@ -31,10 +31,10 @@ const PartnerCertificationReportTechnicalLubrificationModal: FC<PartnerCertifica
     ]
 
     const initialValues: FormValues = {
-        technical_lubrification_movement: formData.technical_lubrification_movement || '',
-        technical_lubrification_join: formData.technical_lubrification_join || '',
+        technical_lubrification_movement: formData.technical_lubrification_movement || "",
+        technical_lubrification_join: formData.technical_lubrification_join || "",
         technical_lubrification_score: formData.technical_lubrification_score || 0,
-    };
+    }
 
     const certificateType = certificateTypes.find((certificateType: CertificateType) => certificateType.id === selectedCertificate?.certificate_type_id);
     const certificateTypeExcludedFormFields = certificateType?.excluded_report_form_fields ? certificateType?.excluded_report_form_fields.filter((excludedFormField: string) => excludedFormField.startsWith("technical_lubrification")) : []

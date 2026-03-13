@@ -3,7 +3,7 @@ import { useEffect, type FC, useRef } from 'react'
 import type { CertificateType } from '@/types/certificate'
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore'
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm'
-import { choiceOptions, hallmarks, gemstones, treatments } from '@/utils/report'
+import { choiceOptions, hallmarks, gemstones, treatments, formDefaults } from '@/utils/report'
 import FormGroup from '@/components/UI/Form/Group'
 import Label from '@/components/UI/Form/Label'
 import FormSelect from '@/components/UI/Form/Select'
@@ -104,17 +104,17 @@ const PartnerCertificationReportBraceletModal: FC<PartnerCertificationReportBrac
         bracelet_diameter: {
             length: formData.bracelet_diameter.length || "",
             width: formData.bracelet_diameter.width || "",
-            thickness: formData.bracelet_diameter.thickness || ""
+            thickness: formData.bracelet_diameter.thickness || "",
         },
-        bracelet_material: formData.bracelet_material || braceletMaterials[0],
-        bracelet_surface_plated: formData.bracelet_surface_plated || treatments[0],
-        bracelet_hallmark: formData.bracelet_hallmark || hallmarks[0],
-        bracelet_factory: formData.bracelet_factory || choiceOptions[0],
-        bracelet_setting: formData.bracelet_setting || choiceOptions[1],
+        bracelet_material: formData.bracelet_material || formDefaults.bracelet_material,
+        bracelet_surface_plated: formData.bracelet_surface_plated || formDefaults.case_surface_plated,
+        bracelet_hallmark: formData.bracelet_hallmark || formDefaults.case_hallmark,
+        bracelet_factory: formData.bracelet_factory || formDefaults.choice_yes,
+        bracelet_setting: formData.bracelet_setting || formDefaults.choice_no,
         bracelet_setting_type: formData.bracelet_setting_type || "",
-        bracelet_setting_factory: formData.bracelet_setting_factory || choiceOptions[1],
-        bracelet_change: formData.bracelet_change || choiceOptions[0],
-        bracelet_custom: formData.bracelet_custom || choiceOptions[1],
+        bracelet_setting_factory: formData.bracelet_setting_factory || formDefaults.choice_no,
+        bracelet_change: formData.bracelet_change || formDefaults.choice_yes,
+        bracelet_custom: formData.bracelet_custom || formDefaults.choice_no,
         bracelet_change_date: formData.bracelet_change_date || "",
         bracelet_signature: formData.bracelet_signature || "",
         bracelet_serial_number: formData.bracelet_serial_number || "",

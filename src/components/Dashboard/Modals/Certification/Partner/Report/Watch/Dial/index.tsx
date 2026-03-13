@@ -3,7 +3,7 @@ import { type FC } from 'react'
 import type { CertificateType } from '@/types/certificate';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
-import { choiceOptions, colors, gemstones } from '@/utils/report';
+import { choiceOptions, colors, formDefaults, gemstones } from '@/utils/report';
 import FormGroup from '@/components/UI/Form/Group';
 import Label from '@/components/UI/Form/Label';
 import FormSelect from '@/components/UI/Form/Select';
@@ -157,17 +157,17 @@ const PartnerCertificationReportDialModal: FC<PartnerCertificationReportDialModa
         dial_serial_number: formData.dial_serial_number || "",
         dial_reference: formData.dial_reference || "",
         dial_surname: formData.dial_surname || "",
-        dial_factory: formData.dial_factory || choiceOptions[0],
-        dial_change: formData.dial_change || choiceOptions[1],
+        dial_factory: formData.dial_factory || formDefaults.choice_yes,
+        dial_change: formData.dial_change || formDefaults.choice_no,
         dial_change_date: formData.dial_change_date || "",
-        dial_custom: formData.dial_custom || choiceOptions[1],
+        dial_custom: formData.dial_custom || formDefaults.choice_no,
         dial_custom_date: formData.dial_custom_date || "",
-        dial_setting: formData.dial_setting || choiceOptions[1],
+        dial_setting: formData.dial_setting || formDefaults.choice_no,
         dial_setting_date: formData.dial_setting_date || "",
         dial_setting_type: formData.dial_setting_type || "",
         dial_setting_factory: formData.dial_setting_factory || "",
         dial_comment: formData.dial_comment || "",
-        dial_images: formData.dial_images || []
+        dial_images: formData.dial_images || [],
     }
 
     const certificateType = certificateTypes.find((certificateType: CertificateType) => certificateType.id === selectedCertificate?.certificate_type_id);

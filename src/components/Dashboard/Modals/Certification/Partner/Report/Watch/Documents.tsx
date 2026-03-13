@@ -47,8 +47,8 @@ const PartnerCertificationReportDocumentsModal: FC<PartnerCertificationReportDoc
     ];
 
     const initialValues: FormValues = {
-        documents: formData.documents || [{ type: '', paths: [] }],
-    };
+        documents: formData.documents?.length ? formData.documents : [{ type: '', paths: [] }],
+    }
 
     const handleViewObjectDocument = async (document: ObjectDocument) => {
         const signedUrl = await getObjectDocumentSignedUrl(document);

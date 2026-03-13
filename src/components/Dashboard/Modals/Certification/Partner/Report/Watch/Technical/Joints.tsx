@@ -68,7 +68,7 @@ const PartnerCertificationReportTechnicalJointsModal: FC<PartnerCertificationRep
         technical_joint_materials: formData.technical_joint_materials || "",
         technical_joint_states: formData.technical_joint_states || "",
         technical_joint_flexibility: formData.technical_joint_flexibility || "",
-        technical_joint_score: formData.technical_joint_score || 0
+        technical_joint_score: formData.technical_joint_score || 0,
     }
 
     const certificateType = certificateTypes.find((certificateType: CertificateType) => certificateType.id === selectedCertificate?.certificate_type_id);

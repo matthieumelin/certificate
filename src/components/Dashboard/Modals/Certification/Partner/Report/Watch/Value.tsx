@@ -31,7 +31,7 @@ const PartnerCertificationReportValueModal: FC<PartnerCertificationReportValueMo
         value_market: formData.value_market || 0,
         value_real: formData.value_real || 0,
         value_estimated: formData.value_estimated || 0,
-        value_liquidity_score: formData.value_liquidity_score || 0
+        value_liquidity_score: formData.value_liquidity_score || 0,
     }
 
     const certificateType = certificateTypes.find((certificateType: CertificateType) => certificateType.id === selectedCertificate?.certificate_type_id);

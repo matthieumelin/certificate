@@ -128,11 +128,13 @@ class EmailService {
     customerName,
     certificateName,
     certificateDetailsLink,
+    pinCode,
   }) {
     const template = emailTemplates.certificateDelivery({
       customerName,
       certificateName,
       certificateDetailsLink,
+      pinCode
     });
 
     return this.sendEmail({

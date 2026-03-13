@@ -3,7 +3,7 @@ import { useEffect, type FC, useRef } from 'react'
 import type { CertificateType } from '@/types/certificate'
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore'
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm'
-import { choiceOptions, hallmarks, gemstones, treatments } from '@/utils/report'
+import { choiceOptions, hallmarks, gemstones, treatments, formDefaults } from '@/utils/report'
 import FormGroup from '@/components/UI/Form/Group'
 import Label from '@/components/UI/Form/Label'
 import FormSelect from '@/components/UI/Form/Select'
@@ -89,16 +89,16 @@ const PartnerCertificationReportBraceletClaspModal: FC<PartnerCertificationRepor
 
     const initialValues: FormValues = {
         bracelet_clasp_type: formData.bracelet_clasp_type || "",
-        bracelet_clasp_material: formData.bracelet_clasp_material || braceletClaspMaterials[0],
-        bracelet_clasp_surface_plated: formData.bracelet_clasp_surface_plated || treatments[0],
-        bracelet_clasp_hallmark: formData.bracelet_clasp_hallmark || hallmarks[0],
-        bracelet_clasp_factory: formData.bracelet_clasp_factory || choiceOptions[0],
-        bracelet_clasp_setting: formData.bracelet_clasp_setting || choiceOptions[1],
+        bracelet_clasp_material: formData.bracelet_clasp_material || formDefaults.bracelet_clasp_material,
+        bracelet_clasp_surface_plated: formData.bracelet_clasp_surface_plated || formDefaults.case_surface_plated,
+        bracelet_clasp_hallmark: formData.bracelet_clasp_hallmark || formDefaults.case_hallmark,
+        bracelet_clasp_factory: formData.bracelet_clasp_factory || formDefaults.choice_yes,
+        bracelet_clasp_setting: formData.bracelet_clasp_setting || formDefaults.choice_no,
         bracelet_clasp_setting_type: formData.bracelet_clasp_setting_type || "",
-        bracelet_clasp_setting_factory: formData.bracelet_clasp_setting_factory || choiceOptions[1],
-        bracelet_clasp_change: formData.bracelet_clasp_change || choiceOptions[0],
+        bracelet_clasp_setting_factory: formData.bracelet_clasp_setting_factory || formDefaults.choice_no,
+        bracelet_clasp_change: formData.bracelet_clasp_change || formDefaults.choice_yes,
         bracelet_clasp_change_date: formData.bracelet_clasp_change_date || "",
-        bracelet_clasp_custom: formData.bracelet_clasp_custom || choiceOptions[1],
+        bracelet_clasp_custom: formData.bracelet_clasp_custom || formDefaults.choice_no,
         bracelet_clasp_custom_date: formData.bracelet_clasp_custom_date || "",
         bracelet_clasp_signature: formData.bracelet_clasp_signature || "",
         bracelet_clasp_serial_number: formData.bracelet_clasp_serial_number || "",

@@ -84,6 +84,7 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
         loadInitialData(objectAttributes);
     }, [objectAttributes]);
 
+    console.log(validationErrors);
     const categories: Category[] = [
         { id: "general", name: "Infos générales", icon: <CiCircleInfo size={18} /> },
         { id: "accessories", name: "Accessoires", icon: <BiBox size={18} /> },
@@ -138,7 +139,9 @@ const PartnerCertificationReportModal: FC<PartnerCertificationReportModalProps> 
         accessories: validationErrors.some(e => e.section === 'accessories'),
         'case-main': validationErrors.some(e => e.section === 'case'),
         'case-back': validationErrors.some(e => e.section === 'case_back'),
-        'case-crown': validationErrors.some(e => e.section === 'case_crown'),
+        'case-crown': validationErrors.some(e =>
+            e.section === 'case_crown' || e.section === 'case_crown_pusher'
+        ),
         'case-bezel': validationErrors.some(e => e.section === 'case_bezel'),
         'case-bezel-insert': validationErrors.some(e => e.section === 'case_bezel_insert'),
         'case-glass': validationErrors.some(e => e.section === 'case_glass'),

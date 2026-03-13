@@ -179,7 +179,7 @@ const PartnerCertificationReportHistoryModal: FC<PartnerCertificationReportHisto
                                         <FormGroup>
                                             <Label
                                                 htmlFor="history_purchase_country_seller"
-                                                label="Vendeur"  />
+                                                label="Vendeur" />
                                             <Input
                                                 id='history_purchase_country_seller'
                                                 name='history_purchase_country_seller'
@@ -193,7 +193,7 @@ const PartnerCertificationReportHistoryModal: FC<PartnerCertificationReportHisto
                                         <FormGroup>
                                             <Label
                                                 htmlFor="history_purchase_country_date"
-                                                label="Date d'achat"  />
+                                                label="Date d'achat" />
                                             <Input
                                                 id='history_purchase_country_date'
                                                 name='history_purchase_country_date'

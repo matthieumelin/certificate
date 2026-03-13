@@ -19,7 +19,7 @@ interface PartnerCertificationReportGeneralCommentModalProps {
 const PartnerCertificationReportGeneralCommentModal: FC<PartnerCertificationReportGeneralCommentModalProps> = ({ certificateTypes }) => {
     const { selectedCertificate } = useCertificateStore();
     const { formData } = useCertificateReportFormStore();
-
+    
     const initialValues: FormValues = {
         general_comment: formData.general_comment || "",
     }

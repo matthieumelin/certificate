@@ -8,7 +8,7 @@ import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
-import { choiceOptions, colors } from '@/utils/report';
+import { choiceOptions, colors, formDefaults } from '@/utils/report';
 import { Form, Formik } from 'formik'
 import { type FC } from 'react'
 
@@ -101,16 +101,16 @@ const PartnerCertificationReportDialHandsModal: FC<PartnerCertificationReportDia
         dial_hands_score: formData.dial_hands_score || 0,
         dial_hands_comment: formData.dial_hands_comment || "",
         dial_hands_images: formData.dial_hands_images || [],
-        dial_hands_luminescence: formData.dial_hands_luminescence || choiceOptions[0],
+        dial_hands_luminescence: formData.dial_hands_luminescence || formDefaults.choice_yes,
         dial_hands_luminescence_type: formData.dial_hands_luminescence_type || "",
-        dial_hands_luminescence_factory: formData.dial_hands_luminescence_factory || choiceOptions[0],
-        dial_hands_luminescence_change: formData.dial_hands_luminescence_change || choiceOptions[1],
+        dial_hands_luminescence_factory: formData.dial_hands_luminescence_factory || formDefaults.choice_yes,
+        dial_hands_luminescence_change: formData.dial_hands_luminescence_change || formDefaults.choice_no,
         dial_hands_luminescence_change_date: formData.dial_hands_luminescence_change_date || "",
         dial_hands_luminescence_score: formData.dial_hands_luminescence_score || 0,
         dial_hands_luminescence_comment: formData.dial_hands_luminescence_comment || "",
-        dial_hands_custom: formData.dial_hands_custom || choiceOptions[1],
+        dial_hands_custom: formData.dial_hands_custom || formDefaults.choice_no,
         dial_hands_custom_date: formData.dial_hands_custom_date || "",
-        dial_hands_change: formData.dial_hands_change || choiceOptions[1],
+        dial_hands_change: formData.dial_hands_change || formDefaults.choice_no,
         dial_hands_change_date: formData.dial_hands_change_date || "",
     }
 

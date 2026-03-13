@@ -7,7 +7,7 @@ import { useCertificateReportForm } from '@/hooks/useCertificateReportForm';
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore';
 import { useCertificateStore } from '@/stores/certificateStore';
 import type { CertificateType } from '@/types/certificate';
-import { choiceOptions, movementTypes } from '@/utils/report';
+import { choiceOptions, formDefaults, movementTypes } from '@/utils/report';
 import { Form, Formik } from 'formik'
 import { type FC } from 'react'
 
@@ -107,8 +107,8 @@ const PartnerCertificationReportMovementModal: FC<PartnerCertificationReportMove
         movement_announced_amplitude: formData.movement_announced_amplitude || 0,
         movement_announced_frequency_hz: formData.movement_announced_frequency_hz || 0,
         movement_announced_frequency_ah: formData.movement_announced_frequency_ah || 0,
-        movement_caliber_factory: formData.movement_caliber_factory || choiceOptions[0],
-        movement_caliber_change: formData.movement_caliber_change || choiceOptions[1],
+        movement_caliber_factory: formData.movement_caliber_factory || formDefaults.choice_yes,
+        movement_caliber_change: formData.movement_caliber_change || formDefaults.choice_no,
         movement_pieces_change: formData.movement_pieces_change || "",
         movement_pieces_change_date: formData.movement_pieces_change_date || "",
     }

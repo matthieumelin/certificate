@@ -37,7 +37,7 @@ const PartnerCertificationReportBraceletEndLinksModal: FC<PartnerCertificationRe
         bracelet_link_pump_type: formData.bracelet_link_pump_type || "",
         bracelet_link_serial_number: formData.bracelet_link_serial_number || "",
         bracelet_link_factory: formData.bracelet_link_factory || "",
-        bracelet_link_reference: formData.bracelet_link_reference || ""
+        bracelet_link_reference: formData.bracelet_link_reference || "",
     }
 
     const certificateType = certificateTypes.find((certificateType: CertificateType) => certificateType.id === selectedCertificate?.certificate_type_id);

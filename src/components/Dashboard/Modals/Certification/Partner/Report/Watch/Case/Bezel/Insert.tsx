@@ -3,7 +3,7 @@ import { type FC } from 'react'
 import type { CertificateType } from '@/types/certificate'
 import { useCertificateReportFormStore } from '@/stores/certificateReportFormStore'
 import { useCertificateReportForm } from '@/hooks/useCertificateReportForm'
-import { choiceOptions } from '@/utils/report'
+import { choiceOptions, formDefaults } from '@/utils/report'
 import FormGroup from '@/components/UI/Form/Group'
 import Label from '@/components/UI/Form/Label'
 import FormSelect from '@/components/UI/Form/Select'
@@ -57,10 +57,10 @@ const PartnerCertificationReportCaseBezelInsertModal: FC<PartnerCertificationRep
         case_bezel_insert_material: formData.case_bezel_insert_material || "",
         case_bezel_insert_serial_number: formData.case_bezel_insert_serial_number || "",
         case_bezel_insert_reference: formData.case_bezel_insert_reference || "",
-        case_bezel_insert_factory: formData.case_bezel_insert_factory || choiceOptions[0],
-        case_bezel_insert_change: formData.case_bezel_insert_change || choiceOptions[1],
+        case_bezel_insert_factory: formData.case_bezel_insert_factory || formDefaults.choice_yes,
+        case_bezel_insert_change: formData.case_bezel_insert_change || formDefaults.choice_no,
         case_bezel_insert_change_date: formData.case_bezel_insert_change_date || "",
-        case_bezel_insert_custom: formData.case_bezel_insert_custom || choiceOptions[1],
+        case_bezel_insert_custom: formData.case_bezel_insert_custom || formDefaults.choice_no,
         case_bezel_insert_custom_date: formData.case_bezel_insert_custom_date || "",
         case_bezel_insert_score: formData.case_bezel_insert_score || 0,
         case_bezel_insert_comment: formData.case_bezel_insert_comment || "",

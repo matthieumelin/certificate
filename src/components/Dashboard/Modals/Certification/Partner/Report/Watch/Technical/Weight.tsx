@@ -45,7 +45,7 @@ const PartnerCertificationReportTechnicalWeightModal: FC<PartnerCertificationRep
         technical_weight_precision_score: formData.technical_weight_precision_score || 0,
         technical_weight_images: formData.technical_weight_images || [],
     }
-
+    
     const certificateType = certificateTypes.find((certificateType: CertificateType) => certificateType.id === selectedCertificate?.certificate_type_id);
     const certificateTypeExcludedFormFields = certificateType?.excluded_report_form_fields ? certificateType?.excluded_report_form_fields.filter((excludedFormField: string) => excludedFormField.startsWith("technical_weight")) : []
 

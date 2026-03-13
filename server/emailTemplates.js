@@ -6,7 +6,7 @@ export const emailTemplates = {
         <div style="max-width: 600px; margin: 0 auto;">
           <h1 style="color: #ffffff; font-weight: 600; text-align: center; margin: 0 0 20px 0;">Votre certificat est prêt</h1>
           <p style="font-size: 16px; color: #ffffff;">Bonjour ${
-            customerName.split(" ")[0]
+            customerName
           },</p>
           <p style="font-size: 16px; color: #ffffff; line-height: 1.6;">
             Nous avons bien reçu votre demande de certification :<br>
@@ -54,7 +54,7 @@ export const emailTemplates = {
         <div style="max-width: 600px; margin: 0 auto;">
           <h1 style="color: #ffffff; font-weight: 600; text-align: center; margin: 0 0 20px 0;">✅ Paiement confirmé</h1>
           <p style="font-size: 16px; color: #ffffff;">Bonjour ${
-            customerName.split(" ")[0]
+            customerName
           },</p>
           <p style="font-size: 16px; color: #ffffff; line-height: 1.6;">
             Nous avons bien reçu votre paiement de <strong>${amount} €</strong> pour le certificat :<br>
@@ -78,43 +78,76 @@ export const emailTemplates = {
     customerName,
     certificateName,
     certificateDetailsLink,
+    pinCode,
   }) => ({
     subject: `Certificate - Votre certificat - ${certificateName}`,
     html: `
-      <div style="font-family: Arial, sans-serif; background: #000000; padding: 20px;">
-        <div style="max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #ffffff; font-weight: 600; text-align: center; margin: 0 0 20px 0;">Votre certificat est prêt !</h1>
-          <p style="font-size: 16px; color: #ffffff;">Bonjour ${
-            customerName.split(" ")[0]
-          },</p>
-          <p style="font-size: 16px; color: #ffffff; line-height: 1.6;">
-            Félicitations ! Votre certificat <strong style="color: #03AB62;">${certificateName}</strong> est maintenant disponible.
-          </p>
-          
-          ${
-            certificateDetailsLink
-              ? `
-          <div style="margin-top: 32px;">
-            <a href="${certificateDetailsLink}" style="
-              background: #03AB62;
-              color: #000000;
-              border-radius: 4px;
-              padding: 10px 20px;
-              display: inline-block;
-              text-decoration: none;
-              font-weight: 500;
-            ">Récupérer mon certificat numérique</a>
-          </div>
-          `
-              : ""
-          }
+<div style="font-family: Arial, sans-serif; background: #000000; padding: 20px;">
+  <div style="max-width: 600px; margin: 0 auto;">
+    <h1 style="color: #ffffff; font-weight: 600; text-align: center; margin: 0 0 20px 0;">
+      Votre certificat est prêt !
+    </h1>
 
-          <hr style="border: 0; border-top: 1px solid #333333; margin: 40px 0;">
-          <p style="text-align: center; color: #999999; font-size: 12px;">
-            Certificate • Cet email est automatique, merci de ne pas répondre.
-          </p>
-        </div>
-      </div>
+    <p style="font-size: 16px; color: #ffffff;">
+      Bonjour ${customerName},
+    </p>
+
+    <p style="font-size: 16px; color: #ffffff; line-height: 1.6;">
+      Félicitations ! Votre certificat 
+      <strong style="color: #03AB62;">${certificateName}</strong> 
+      est maintenant disponible.
+    </p>
+
+    <p style="font-size: 16px; color: #ffffff; line-height: 1.6;">
+      Pour accéder aux <strong>détails complets du certificat</strong>, utilisez le code PIN ci-dessous :
+    </p>
+
+    <div style="
+      background: #111111;
+      border: 1px solid #03AB62;
+      border-radius: 6px;
+      padding: 15px;
+      text-align: center;
+      margin: 20px 0;
+    ">
+      <span style="
+        font-size: 24px;
+        letter-spacing: 4px;
+        color: #03AB62;
+        font-weight: bold;
+      ">
+        ${pinCode}
+      </span>
+    </div>
+
+    ${
+      certificateDetailsLink
+        ? `
+    <div style="margin-top: 32px;">
+      <a href="${certificateDetailsLink}" style="
+        background: #03AB62;
+        color: #000000;
+        border-radius: 4px;
+        padding: 10px 20px;
+        display: inline-block;
+        text-decoration: none;
+        font-weight: 500;
+      ">
+        Accéder aux détails du certificat
+      </a>
+    </div>
+    `
+        : ""
+    }
+
+    <hr style="border: 0; border-top: 1px solid #333333; margin: 40px 0;">
+
+    <p style="text-align: center; color: #999999; font-size: 12px;">
+      Certificate • Cet email est automatique, merci de ne pas répondre.
+    </p>
+  </div>
+</div>
+
     `,
   }),
 
@@ -194,7 +227,7 @@ export const emailTemplates = {
   }),
 
   accountCreation: ({ customerName, inviteLink }) => ({
-    subject: `Certificate - Bienvenue ${customerName.split(" ")[0]}`,
+    subject: `Certificate - Bienvenue ${customerName}`,
     html: `
     <div style="font-family: Arial, sans-serif; background: #000000; padding: 20px;">
       <div style="max-width: 600px; margin: 0 auto;">
@@ -203,7 +236,7 @@ export const emailTemplates = {
         </h1>
 
         <p style="font-size: 16px; color: #ffffff;">
-          Bonjour ${customerName.split(" ")[0]},
+          Bonjour ${customerName},
         </p>
 
         <p style="font-size: 16px; color: #ffffff; line-height: 1.6;">
