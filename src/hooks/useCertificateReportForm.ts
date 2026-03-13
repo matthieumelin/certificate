@@ -8,7 +8,6 @@ export const useCertificateReportForm = <T extends Record<string, any>>(
     useCertificateReportFormStore();
 
   useEffect(() => {
-    clearValidationErrors();
     const sanitized = Object.fromEntries(
       Object.entries(values).map(([key, value]) => [
         key,

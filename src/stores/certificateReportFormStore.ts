@@ -764,20 +764,35 @@ export const useCertificateReportFormStore = create<CertificateReportFormStore>(
       }));
     },
     removeExistingPath: (fieldName, path) => {
-      set((state) => ({
-        deletedPaths: [...state.deletedPaths, path],
-        formData: {
-          ...state.formData,
-          [fieldName]: (
-            state.formData[fieldName as keyof FormState] as string[]
-          ).filter((p) => p !== path),
-        },
-        pendingFiles: state.pendingFiles.map((e) =>
-          e.fieldName === fieldName
-            ? { ...e, existingPaths: e.existingPaths.filter((p) => p !== path) }
-            : e,
-        ),
-      }));
+      set((state) => {
+        const entryExists = state.pendingFiles.some(
+          (e) => e.fieldName === fieldName,
+        );
+        const updatedPendingFiles = entryExists
+          ? state.pendingFiles.map((e) =>
+              e.fieldName === fieldName
+                ? {
+                    ...e,
+                    existingPaths: e.existingPaths.filter((p) => p !== path),
+                  }
+                : e,
+            )
+          : [
+              ...state.pendingFiles,
+              { fieldName, files: [], existingPaths: [] },
+            ];
+
+        return {
+          deletedPaths: [...state.deletedPaths, path],
+          formData: {
+            ...state.formData,
+            [fieldName]: (
+              state.formData[fieldName as keyof FormState] as string[]
+            ).filter((p) => p !== path),
+          },
+          pendingFiles: updatedPendingFiles,
+        };
+      });
     },
     clearPendingFiles: () => set({ pendingFiles: [], deletedPaths: [] }),
   }),

@@ -12,6 +12,7 @@ export const useReportFileUpload = (fieldName: keyof FormState) => {
     removePendingFile,
     removeExistingPath,
     pendingFiles,
+    deletedPaths,
   } = useCertificateReportFormStore();
   const { getSignedUrl } = useStorage();
 
@@ -19,55 +20,56 @@ export const useReportFileUpload = (fieldName: keyof FormState) => {
   const entry = pendingFiles.find((e) => e.fieldName === fieldName);
   const pendingFilesList = entry?.files ?? [];
 
+  const activePaths = existingPaths.filter((p) => !deletedPaths.includes(p));
+
   const [existingPreviews, setExistingPreviews] = useState<string[]>([]);
 
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
+      if (!activePaths.length) {
+        setExistingPreviews([]);
+        return;
+      }
       const urls = await Promise.all(
-        existingPaths.map((path) =>
-          getSignedUrl("object_attributes", path, 3600),
+        activePaths.map((path) =>
+          getSignedUrl("object_attributes", path, 3600).catch(() => null),
         ),
       );
       if (!cancelled) {
         setExistingPreviews(urls.filter(Boolean) as string[]);
       }
     };
-    if (existingPaths.length > 0) {
-      load();
-    } else {
-      setExistingPreviews([]);
-    }
+    load();
     return () => {
       cancelled = true;
     };
-  }, [existingPaths.join(",")]);
+  }, [activePaths.join(",")]);
 
   const pendingPreviews = pendingFilesList.map((f) => URL.createObjectURL(f));
-
   const previews = [...existingPreviews, ...pendingPreviews];
 
   const handleFiles = useCallback(
     (files: File[]) => {
       files.forEach((file) =>
-        addPendingFile(fieldName as string, file, existingPaths),
+        addPendingFile(fieldName as string, file, activePaths),
       );
     },
-    [fieldName, existingPaths.join(",")],
+    [fieldName, activePaths.join(",")],
   );
 
   const removeFile = useCallback(
     (index?: number) => {
       if (index === undefined) return;
-      const existingCount = existingPaths.length;
+      const existingCount = activePaths.length;
       if (index < existingCount) {
-        removeExistingPath(fieldName as string, existingPaths[index]);
+        removeExistingPath(fieldName as string, activePaths[index]);
       } else {
         const pendingIndex = index - existingCount;
         removePendingFile(fieldName as string, pendingFilesList[pendingIndex]);
       }
     },
-    [fieldName, existingPaths, pendingFilesList],
+    [fieldName, activePaths, pendingFilesList],
   );
 
   return { previews, handleFiles, removeFile, isUploading: false };

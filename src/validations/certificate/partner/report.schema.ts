@@ -1,5 +1,18 @@
 import * as Yup from "yup";
 
+const requiredMixed = (message: string) =>
+  Yup.mixed()
+    .required(message)
+    .test(
+      "not-empty",
+      message,
+      (val) =>
+        val !== "" &&
+        val !== null &&
+        val !== undefined &&
+        !(Array.isArray(val) && val.length === 0),
+    );
+
 export const requiredFields = {
   general: [
     "general_object_type",
@@ -136,18 +149,18 @@ export const requiredFields = {
   ],
   technical_lubrification: ["technical_lubrification_score"],
   history: ["history_origin_country"],
-  documents: ["documents"],
 };
 
 export const createValidationSchema = (
   excludedFields: string[] = [],
-  requiredFields: string[] = [],
+  requiredFormFields: string[] = [],
 ) => {
   const schema: Record<string, any> = {};
 
   const isFieldRequired = (fieldName: string) =>
     !excludedFields.includes(fieldName);
 
+  // Général
   if (isFieldRequired("general_object_type")) {
     schema.general_object_type = Yup.string().required(
       "Le type d'objet est requis",
@@ -177,6 +190,7 @@ export const createValidationSchema = (
     );
   }
 
+  // Accessoires
   if (isFieldRequired("accessories_score")) {
     schema.accessories_score = Yup.number().when("accessories_factory", {
       is: (val: string[]) => Array.isArray(val) && val.includes("Aucun"),
@@ -196,6 +210,7 @@ export const createValidationSchema = (
     });
   }
 
+  // Boîtier principal
   if (isFieldRequired("case_shape")) {
     schema.case_shape = Yup.string().required(
       "La forme du boîtier est requise",
@@ -217,9 +232,7 @@ export const createValidationSchema = (
     );
   }
   if (isFieldRequired("case_material")) {
-    schema.case_material = Yup.mixed().required(
-      "Le matériau du boîtier est requis",
-    );
+    schema.case_material = requiredMixed("Le matériau du boîtier est requis");
   }
   if (isFieldRequired("case_factory")) {
     schema.case_factory = Yup.string().required(
@@ -239,8 +252,8 @@ export const createValidationSchema = (
   if (isFieldRequired("case_score")) {
     schema.case_score = Yup.number()
       .required("Le score du boîtier est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
   if (isFieldRequired("case_images")) {
     schema.case_images = Yup.array()
@@ -248,13 +261,14 @@ export const createValidationSchema = (
       .required("Les images du boîtier sont requises");
   }
 
+  // Fond de boîte
   if (isFieldRequired("case_back_type")) {
-    schema.case_back_type = Yup.mixed().required(
+    schema.case_back_type = requiredMixed(
       "Le type de fond de boîte est requis",
     );
   }
   if (isFieldRequired("case_back_material")) {
-    schema.case_back_material = Yup.mixed().required(
+    schema.case_back_material = requiredMixed(
       "Le matériau du fond de boîte est requis",
     );
   }
@@ -266,19 +280,18 @@ export const createValidationSchema = (
   if (isFieldRequired("case_back_score")) {
     schema.case_back_score = Yup.number()
       .required("Le score du fond de boîte est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
-  if (requiredFields.includes("case_back_images")) {
+  if (requiredFormFields.includes("case_back_images")) {
     schema.case_back_images = Yup.array()
       .min(1, "Au moins une image du fond de boîte est requise")
       .required("Les images du fond de boîte sont requises");
   }
 
+  // Couronne
   if (isFieldRequired("case_crown_type")) {
-    schema.case_crown_type = Yup.mixed().required(
-      "Le type de couronne est requis",
-    );
+    schema.case_crown_type = requiredMixed("Le type de couronne est requis");
   }
   if (isFieldRequired("case_crown_factory")) {
     schema.case_crown_factory = Yup.string().required(
@@ -288,8 +301,8 @@ export const createValidationSchema = (
   if (isFieldRequired("case_crown_score")) {
     schema.case_crown_score = Yup.number()
       .required("Le score de la couronne est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
   if (isFieldRequired("case_crown_images")) {
     schema.case_crown_images = Yup.array()
@@ -304,8 +317,8 @@ export const createValidationSchema = (
   if (isFieldRequired("case_crown_pusher_score")) {
     schema.case_crown_pusher_score = Yup.number()
       .required("Le score des poussoirs est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
   if (isFieldRequired("case_crown_pusher_images")) {
     schema.case_crown_pusher_images = Yup.array()
@@ -313,13 +326,12 @@ export const createValidationSchema = (
       .required("Les images des poussoirs sont requises");
   }
 
+  // Lunette
   if (isFieldRequired("case_bezel_type")) {
-    schema.case_bezel_type = Yup.mixed().required(
-      "Le type de lunette est requis",
-    );
+    schema.case_bezel_type = requiredMixed("Le type de lunette est requis");
   }
   if (isFieldRequired("case_bezel_material")) {
-    schema.case_bezel_material = Yup.mixed().required(
+    schema.case_bezel_material = requiredMixed(
       "Le matériau de la lunette est requis",
     );
   }
@@ -341,8 +353,8 @@ export const createValidationSchema = (
   if (isFieldRequired("case_bezel_score")) {
     schema.case_bezel_score = Yup.number()
       .required("Le score de la lunette est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
   if (isFieldRequired("case_bezel_images")) {
     schema.case_bezel_images = Yup.array()
@@ -350,8 +362,9 @@ export const createValidationSchema = (
       .required("Les images de la lunette sont requises");
   }
 
+  // Insert de lunette
   if (isFieldRequired("case_bezel_insert_material")) {
-    schema.case_bezel_insert_material = Yup.mixed().required(
+    schema.case_bezel_insert_material = requiredMixed(
       "Le matériau de l'insert est requis",
     );
   }
@@ -363,12 +376,13 @@ export const createValidationSchema = (
   if (isFieldRequired("case_bezel_insert_score")) {
     schema.case_bezel_insert_score = Yup.number()
       .required("Le score de l'insert est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
 
+  // Verre
   if (isFieldRequired("case_glass_material")) {
-    schema.case_glass_material = Yup.mixed().required(
+    schema.case_glass_material = requiredMixed(
       "Le matériau du verre est requis",
     );
   }
@@ -380,10 +394,11 @@ export const createValidationSchema = (
   if (isFieldRequired("case_glass_score")) {
     schema.case_glass_score = Yup.number()
       .required("Le score du verre est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
 
+  // Bracelet principal
   if (isFieldRequired("bracelet_type")) {
     schema.bracelet_type = Yup.string().required(
       "Le type de bracelet est requis",
@@ -412,7 +427,7 @@ export const createValidationSchema = (
     schema.bracelet_material = Yup.mixed().when("bracelet_type", {
       is: "Aucun",
       then: (s) => s.notRequired(),
-      otherwise: (s) => s.required("Le matériau du bracelet est requis"),
+      otherwise: () => requiredMixed("Le matériau du bracelet est requis"),
     });
   }
   if (isFieldRequired("bracelet_factory")) {
@@ -456,6 +471,7 @@ export const createValidationSchema = (
     });
   }
 
+  // Fermoir
   if (isFieldRequired("bracelet_clasp_type")) {
     schema.bracelet_clasp_type = Yup.string().required(
       "Le type de fermoir est requis",
@@ -465,7 +481,7 @@ export const createValidationSchema = (
     schema.bracelet_clasp_material = Yup.mixed().when("bracelet_clasp_type", {
       is: "Aucun",
       then: (s) => s.notRequired(),
-      otherwise: (s) => s.required("Le matériau du fermoir est requis"),
+      otherwise: () => requiredMixed("Le matériau du fermoir est requis"),
     });
   }
   if (isFieldRequired("bracelet_clasp_factory")) {
@@ -512,6 +528,7 @@ export const createValidationSchema = (
     });
   }
 
+  // End links
   if (isFieldRequired("bracelet_link_pump_type")) {
     schema.bracelet_link_pump_type = Yup.string().required(
       "Le type de maillons de fin est requis",
@@ -523,8 +540,12 @@ export const createValidationSchema = (
     );
   }
 
+  // Cadran principal
   if (isFieldRequired("dial_type")) {
     schema.dial_type = Yup.string().required("Le type de cadran est requis");
+  }
+  if (isFieldRequired("dial_material")) {
+    schema.dial_material = requiredMixed("Le matériau du cadran est requis");
   }
   if (isFieldRequired("dial_color")) {
     schema.dial_color = Yup.string().required(
@@ -534,8 +555,8 @@ export const createValidationSchema = (
   if (isFieldRequired("dial_patina_score")) {
     schema.dial_patina_score = Yup.number()
       .required("Le score de la patine est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
   if (isFieldRequired("dial_factory")) {
     schema.dial_factory = Yup.string().required(
@@ -555,8 +576,8 @@ export const createValidationSchema = (
   if (isFieldRequired("dial_score")) {
     schema.dial_score = Yup.number()
       .required("Le score du cadran est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
   if (isFieldRequired("dial_images")) {
     schema.dial_images = Yup.array()
@@ -564,13 +585,12 @@ export const createValidationSchema = (
       .required("Les images du cadran sont requises");
   }
 
+  // Index
   if (isFieldRequired("dial_index_type")) {
-    schema.dial_index_type = Yup.mixed().required("Le type d'index est requis");
+    schema.dial_index_type = requiredMixed("Le type d'index est requis");
   }
   if (isFieldRequired("dial_index_style")) {
-    schema.dial_index_style = Yup.mixed().required(
-      "Le style d'index est requis",
-    );
+    schema.dial_index_style = requiredMixed("Le style d'index est requis");
   }
   if (isFieldRequired("dial_index_factory")) {
     schema.dial_index_factory = Yup.string().required(
@@ -580,8 +600,8 @@ export const createValidationSchema = (
   if (isFieldRequired("dial_index_score")) {
     schema.dial_index_score = Yup.number()
       .required("Le score des index est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
   if (isFieldRequired("dial_index_luminescence")) {
     schema.dial_index_luminescence = Yup.string().required(
@@ -596,19 +616,16 @@ export const createValidationSchema = (
   if (isFieldRequired("dial_index_luminescence_score")) {
     schema.dial_index_luminescence_score = Yup.number()
       .required("Le score de luminescence des index est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
 
+  // Aiguilles
   if (isFieldRequired("dial_hands_type")) {
-    schema.dial_hands_type = Yup.mixed().required(
-      "Le type d'aiguilles est requis",
-    );
+    schema.dial_hands_type = requiredMixed("Le type d'aiguilles est requis");
   }
   if (isFieldRequired("dial_hands_style")) {
-    schema.dial_hands_style = Yup.mixed().required(
-      "Le style d'aiguilles est requis",
-    );
+    schema.dial_hands_style = requiredMixed("Le style d'aiguilles est requis");
   }
   if (isFieldRequired("dial_hands_factory")) {
     schema.dial_hands_factory = Yup.string().required(
@@ -618,8 +635,8 @@ export const createValidationSchema = (
   if (isFieldRequired("dial_hands_score")) {
     schema.dial_hands_score = Yup.number()
       .required("Le score des aiguilles est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
   if (isFieldRequired("dial_hands_luminescence")) {
     schema.dial_hands_luminescence = Yup.string().required(
@@ -634,17 +651,18 @@ export const createValidationSchema = (
   if (isFieldRequired("dial_hands_luminescence_score")) {
     schema.dial_hands_luminescence_score = Yup.number()
       .required("Le score de luminescence des aiguilles est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
 
+  // Mouvement
   if (isFieldRequired("movement_type")) {
     schema.movement_type = Yup.string().required(
       "Le type de mouvement est requis",
     );
   }
   if (isFieldRequired("movement_functions")) {
-    schema.movement_functions = Yup.mixed().required(
+    schema.movement_functions = requiredMixed(
       "Les fonctions du mouvement sont requises",
     );
   }
@@ -659,6 +677,7 @@ export const createValidationSchema = (
     );
   }
 
+  // Technique - Mouvement
   if (isFieldRequired("technical_movement_observed_daily_drift_action")) {
     schema.technical_movement_observed_daily_drift_action =
       Yup.string().required("L'action de dérive quotidienne est requise");
@@ -673,17 +692,18 @@ export const createValidationSchema = (
     );
   }
   if (isFieldRequired("technical_movement_test_result")) {
-    schema.technical_movement_test_result = Yup.mixed().required(
+    schema.technical_movement_test_result = requiredMixed(
       "Le résultat du test du mouvement est requis",
     );
   }
   if (isFieldRequired("technical_movement_precision_score")) {
     schema.technical_movement_precision_score = Yup.number()
       .required("Le score de précision est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
 
+  // Technique - Étanchéité
   if (isFieldRequired("technical_waterproofing_test")) {
     schema.technical_waterproofing_test = Yup.string().required(
       "Le test d'étanchéité est requis",
@@ -697,7 +717,7 @@ export const createValidationSchema = (
   if (isFieldRequired("technical_waterproofing_tested_pressure")) {
     schema.technical_waterproofing_tested_pressure = Yup.number()
       .required("La pression testée est requise")
-      .min(0, "La pression doit être positive");
+      .min(0);
   }
   if (isFieldRequired("technical_waterproofing_observed_leak")) {
     schema.technical_waterproofing_observed_leak = Yup.string().required(
@@ -712,10 +732,11 @@ export const createValidationSchema = (
   if (isFieldRequired("technical_waterproofing_case_deformation_score")) {
     schema.technical_waterproofing_case_deformation_score = Yup.number()
       .required("Le score de déformation du boîtier est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
 
+  // Technique - Rouille et corrosion
   if (isFieldRequired("technical_rust_corrosion_presence")) {
     schema.technical_rust_corrosion_presence = Yup.string().required(
       "La présence de rouille/corrosion est requise",
@@ -727,8 +748,9 @@ export const createValidationSchema = (
     );
   }
 
+  // Technique - Joints
   if (isFieldRequired("technical_joint_presents")) {
-    schema.technical_joint_presents = Yup.mixed().required(
+    schema.technical_joint_presents = requiredMixed(
       "La présence des joints est requise",
     );
   }
@@ -740,15 +762,16 @@ export const createValidationSchema = (
   if (isFieldRequired("technical_joint_score")) {
     schema.technical_joint_score = Yup.number()
       .required("Le score des joints est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
 
+  // Technique - Lubrification
   if (isFieldRequired("technical_lubrification_score")) {
     schema.technical_lubrification_score = Yup.number()
       .required("Le score de lubrification est requis")
-      .min(0, "Le score doit être entre 0 et 10")
-      .max(10, "Le score doit être entre 0 et 10");
+      .min(0)
+      .max(10);
   }
   if (isFieldRequired("technical_lubrification_movement")) {
     schema.technical_lubrification_movement = Yup.string().required(
@@ -759,12 +782,6 @@ export const createValidationSchema = (
     schema.technical_lubrification_join = Yup.string().required(
       "La lubrification des joints est requis",
     );
-  }
-
-  if (isFieldRequired("documents")) {
-    schema.documents = Yup.array()
-      .min(1, "Au moins un document est requis")
-      .required("Les documents sont requis");
   }
 
   return Yup.object().shape(schema);
